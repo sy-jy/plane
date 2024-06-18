@@ -469,4 +469,90 @@ Item{
             Layout.alignment: Qt.AlignHCenter
         }
     }
+
+    //单人游戏界面
+    ColumnLayout{
+            id: gamelayout
+            visible:true
+            //最上面的水平布局：金币 敌机血量 暂停建
+            Row {
+                id: up
+                spacing: 80
+                Column{
+                    id: jinbi
+                    x:0;y:0
+                    height: 80
+                    width: 55
+
+                    //金币放图片暂定为框
+                    Button {
+                        id: money
+                        height: 55
+                        width: 55
+                    }
+                    Text {
+                        id: moneytext
+                        text:"金币"
+                        x:money.width/4 ; y:money.height+height/2
+                        // anchors.verticalCenter: money.verticalCenter
+                    }
+                }
+
+
+                Rectangle {
+                    id: bossblood
+                    height: 25
+                    width: 250
+                    color: "red"
+                    Text {
+                        id: blood
+                        text: qsTr("Boss血量条")
+                        anchors.centerIn: parent
+                        font.pointSize:  15
+                    }
+                }
+
+                Button{
+                    id: pause
+                    text: qsTr(" 暂停 ")
+                    height: 50
+                    width: 50
+                    font.pointSize:8
+                    font.bold: true
+                    x: parent.right
+
+                }
+            }
+
+            //最下方我方飞机血量
+            Row{
+                //等待修改
+                id: bottom
+                Layout.alignment: Qt.AlignHCenter
+                anchors.bottom: gameparent.bottom
+                anchors.horizontalCenter: gameparent.horizontalCenter
+                anchors.bottomMargin: 5
+                Rectangle {
+                    id: _playerblood
+                    height: 20
+                    width: 245
+                    color: "red"
+                    Text {
+                        id: _player
+                        text: qsTr("血量条")
+                        anchors.centerIn: parent
+                        font.pointSize:  15
+                    }
+                }
+
+            }
+
+
+            //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
+            Popup {
+                id: dialog
+
+            }
+        }
+
 }

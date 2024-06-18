@@ -14,6 +14,7 @@ ApplicationWindow {
     // 设置背景颜色为白色
     color: "white"
 
+
     Actions{
         id:actions
     }
