@@ -1,15 +1,14 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-Item{
+Item {
     property alias mode: mode
     property alias player: player
     property alias plane: plane
-    property alias homepage: homepage
-    property alias stackview: stackview
+
     anchors.fill: parent
     ColumnLayout{
-        visible: false
+        visible:false
         id:mode
         anchors.fill: parent
         // 模式选择标题
@@ -56,6 +55,7 @@ Item{
             }
         }
 
+
         // 地图选择标题
         Text {
             Layout.alignment: Qt.AlignHCenter
@@ -97,125 +97,12 @@ Item{
                 color: "red"
             }
             onClicked: {
-                stackview.push(player)
+                mode.visible = false
+                player.visible = true
                 console.log("clicked")
             }
         }
     }
-
-    ColumnLayout{
-        id:homepage
-        anchors.fill: parent
-        visible: true
-
-        //游戏主页大厅标题
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            text: qsTr("游戏大厅")
-            font.letterSpacing: 20
-            font.pointSize: 40
-            color: "black"
-        }
-
-        //按钮垂直排序
-        Column{
-            id:gameButton
-            spacing:20
-            Layout.alignment: Qt.AlignHCenter
-            Button {
-                id:start
-                focus:true
-                text:qsTr("开始游戏")
-                font.pointSize: 25
-                font.letterSpacing: 10
-                //indicator: Image{}
-                background: Rectangle{
-                    border.color: start.focus ? "red" : "white"
-                    color: "yellow"
-                }
-                onClicked: {
-                    stackview.push(mode)                //跳转到mode页面
-                    console.log("start clicked")
-                }
-                Keys.onEscapePressed: {
-                    exit.focus = true
-                }
-                //键盘快捷键响应
-                Keys.onSpacePressed: {
-                    start.clicked()
-                }
-            }
-
-            Button {
-                id:exit
-                text:qsTr("退出游戏")
-                font.pointSize: 25
-                font.letterSpacing: 10
-                //indicator: Image{source:"./picture/退出游戏.jpg"}
-                background: Rectangle{
-                    border.color: exit.focus ? "red" : "white"
-                    color: "blue    "
-                }
-                onClicked: {
-                    console.log("exit clicked")
-                }
-                Keys.onUpPressed: {
-                    start.focus = true
-                }
-            }
-        }
-        //将按钮分组，实现按钮间的互斥选择，也就是一个组内只能选择一个按钮
-        ButtonGroup{
-            buttons: gameButton.children
-        }
-
-        //水平顺序排列
-        Row{
-            spacing: 20
-            Layout.alignment: Qt.AlignHCenter
-            id:menu
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottomMargin: 5                 //设置与底部间距
-
-            Button{
-                id:skin
-                text: qsTr("皮肤")
-                background:Rectangle{
-                    implicitHeight:60
-                    implicitWidth: 60
-                    color: "pink"
-                }
-            }
-            Button{
-                id:store
-                text: qsTr("商店")
-                background:Rectangle{
-                    implicitHeight:60
-                    implicitWidth: 60
-                    color: "pink"
-                }
-            }
-            Button{
-                id:set
-                text: qsTr("设置")
-                background:Rectangle{
-                    implicitHeight:60
-                    implicitWidth: 60
-                    color: "pink"
-                }
-            }
-        }
-    }
-    StackView{
-      id:stackview
-      anchors.fill: parent
-      onCurrentItemChanged: {
-          homepage.visible=depth===0
-          mode.visible = depth === 1
-      }
-    }
-
 
     //玩家人数选择
     ColumnLayout{
@@ -255,6 +142,7 @@ Item{
             }
         }
     }
+
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
