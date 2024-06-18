@@ -10,7 +10,7 @@ ApplicationWindow {
     maximumHeight: window_Height
     minimumHeight: window_Height
     visible: true
-    title: qsTr("模式选择")
+    title: qsTr("飞机大战")
     // 设置背景颜色为白色
     color: "white"
 

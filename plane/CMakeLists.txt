@@ -19,6 +19,7 @@ qt_add_qml_module(appplane
     QML_FILES Actions.qml
     QML_FILES Content.qml
     QML_FILES Dialogs.qml
+    RESOURCES images/bg1.jpg images/bg2.jpg images/bg3.jpg images/plane1.png images/plane2.png images/plane3.png images/plane4.png images/plane5.png images/plane6.png
 )
 
 target_compile_features(appplane PRIVATE cxx_std_20)
