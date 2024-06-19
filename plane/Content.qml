@@ -7,85 +7,234 @@ Item{
     property alias plane: plane
     property alias homepage: homepage
     property alias stackview: stackview
+    property alias currentIndexWSAD: plane.currentIndexWSAD
+    property alias currentIndexArrows: plane.currentIndexArrows
     anchors.fill: parent
+    //模式选择
     ColumnLayout{
         visible: false
         id:mode
-        anchors.fill: parent
-        // 模式选择标题
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            id: modeSet
-            text: qsTr("模式选择")
-            font.letterSpacing: 20
-            font.pointSize: 40
-            color: "black"
+        //难度模式选择
+        RowLayout{
+            Layout.topMargin: window_Height/15
+            Layout.leftMargin: window_Width/25
+            spacing: window_Width/10
+            // 模式选择标题
+            Text {
+                // Layout.alignment: Qt.AlignHCenter
+                id: modeSet
+                text: qsTr("游戏难度")
+                font.pointSize: 40
+                color: "black"
+            }
+
+            //模式选择
+            ButtonGroup {
+                buttons: modeButton.children
+            }
+            Row {
+                spacing: window_Width/10
+                Layout.alignment: Qt.AlignHCenter
+                id: modeButton
+                RadioButton {
+                    id:easy
+                    checked: true
+                    text: qsTr(" <简单>")
+                    font.letterSpacing: 15
+                    font.pointSize: 18 // 设置字体大小（以磅为单位）
+                    font.bold: true // 设置字体加粗
+                    background:Rectangle{
+                        implicitHeight: 55
+                        implicitWidth: 100
+                        radius: 10
+                        color:easy.checked? "lightskyblue" :  hoverEasy.hovered ? "lightblue" : "lightsteelblue"
+                        HoverHandler {
+                             id: hoverEasy
+                             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                             cursorShape: Qt.PointingHandCursor
+                         }
+                    }
+                }
+
+                RadioButton {
+                    id:difficult
+                    text: qsTr(" <困难>")
+                    font.letterSpacing: 15
+                    font.pointSize: 18 // 设置字体大小（以磅为单位）
+                    font.bold: true // 设置字体加粗
+                    background:Rectangle{
+                        implicitHeight: 55
+                        implicitWidth: 100
+                        radius: 10
+                        color:difficult.checked? "lightskyblue" :  hoverDifficult.hovered ? "lightblue" : "lightsteelblue"
+                        HoverHandler {
+                             id: hoverDifficult
+                             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                             cursorShape: Qt.PointingHandCursor
+                         }
+                    }
+                }
+            }
         }
 
-        //模式选择
-        ButtonGroup {
-            buttons: modeButton.children
-        }
-        Row {
-            spacing: 30
-            Layout.alignment: Qt.AlignHCenter
-            id: modeButton
-            RadioButton {
-                checked: true
-                text: qsTr(" <简单>")
-                font.letterSpacing: 15
-                font.pointSize: 18 // 设置字体大小（以磅为单位）
-                font.bold: true // 设置字体加粗
-                background:Rectangle{
-                    implicitHeight: 55
-                    implicitWidth: 100
-                    color: "red"
+        RowLayout{
+            Layout.leftMargin: window_Width/25
+            spacing: window_Width/10
+            // 地图选择标题
+            Text {
+                id: mapSet
+                text: qsTr("地图选择")
+                font.pointSize: 40
+                color: "black"
+            }
+
+            //地图选择
+            // 按钮
+            Rectangle{
+                clip: true
+                width: 200
+                height:40
+                ComboBox {
+                    id:control
+                    background:Rectangle{
+                        implicitWidth: 200
+                        implicitHeight: 40
+                        color:"black"
+                        radius: 20
+                    }
+                    // 更改显示文本的样式
+                    contentItem: Text {
+                        text:control.model.get(control.currentIndex).text // 直接绑定到 model 的 text 属性
+                        color: "white" // 更改文本颜色
+                        font.bold: true // 设置字体为粗体
+                        font.pointSize: 20 // 设置字体大小
+                        font.letterSpacing: 30
+                        horizontalAlignment: Text.AlignHCenter // 水平居中
+                        verticalAlignment: Text.AlignVCenter // 垂直居中
+                    }
+                    //添加数据
+                    model:ListModel{
+                        ListElement{text:" 戈壁"}
+                        ListElement{text:" 工厂"}
+                        ListElement{text:" 天空"}
+                        ListElement{text:" 随机"}
+                    }
+                    //设计右侧的小图标的样式
+                    indicator: Canvas {
+                        id: canvas
+                        x: control.width - width - control.rightPadding
+                        y: control.topPadding + (control.availableHeight - height) / 2
+                        width: 15
+                        height: 10
+                        contextType: "2d"
+                        Connections {
+                            target: control
+                            function onPressedChanged() { canvas.requestPaint(); }
+                        }
+                        onPaint: {
+                            context.reset();
+                            context.moveTo(0, 0);
+                            context.lineTo(width, 0);
+                            context.lineTo(width / 2, height);
+                            context.closePath();
+                            context.fillStyle = control.pressed ? "#d3d3d3" : "#778899";
+                            context.fill();
+                        }
+                    }
+                    // 定义下拉列表中每个项的视觉表示
+                    delegate: ItemDelegate {
+                        width: control.width
+                        contentItem: Text {
+                            text: model.text
+                            color: "white"
+                            elide: Text.ElideRight
+                            font.pointSize: 16
+                            leftPadding: 12
+                        }
+                        // 高亮选中项
+                        highlighted: control.highlightedIndex === index
+                    }
+                    //设计弹出框的样式(点击下拉按钮后的弹出框)
+                    popup: Popup {
+                        y: control.height - 1
+                        x: 10
+                        width: control.width-20
+                        implicitHeight: contentItem.implicitHeight
+                        padding: 1
+                        //弹出框以listview的形式呈现
+                        contentItem: ListView {
+                            clip: true
+                            implicitHeight: contentHeight
+                            model: control.popup.visible ? control.delegateModel : null
+                            currentIndex: control.highlightedIndex
+                            ScrollIndicator.vertical: ScrollIndicator { }
+                        }
+                    }
                 }
             }
 
-            RadioButton {
-                text: qsTr(" <困难>")
-                font.letterSpacing: 15
-                font.pointSize: 18 // 设置字体大小（以磅为单位）
-                font.bold: true // 设置字体加粗
-                background:Rectangle{
-                    implicitHeight: 55
-                    implicitWidth: 100
-                    color: "red"
+            //地图缩略图位置
+            Rectangle{
+                width: window_Width/4
+                height: window_Height/4
+                color: "black"
+            }
+
+        }
+
+        //玩家人数选择
+        // 玩家人数选择
+        RowLayout {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.bottomMargin: window_Height / 10
+            spacing: window_Width / 5
+            id: player
+            Button {
+                id: singleButton
+                font.pointSize: 25
+                font.bold: true
+                text: qsTr("单人模式")
+                checked:true
+                background: Rectangle {
+                    implicitHeight: 50
+                    implicitWidth: 200
+                    color:singleButton.checked? "lightskyblue" :hoverSingle.hovered ? "lightblue" : "lightsteelblue"
+                }
+                onClicked: {
+                    singleButton.checked = true
+                    doubleButton.checked = false
+                    plane.showDualSelection = false
+                }
+                HoverHandler {
+                    id: hoverSingle
+                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    cursorShape: Qt.PointingHandCursor
+                }
+            }
+            Button {
+                id: doubleButton
+                font.pointSize: 25
+                font.bold: true
+                text: qsTr("双人模式")
+                background: Rectangle {
+                    implicitHeight: 50
+                    implicitWidth: 200
+                    color:doubleButton.checked? "lightskyblue" :hoverDouble.hovered ? "lightblue" : "lightsteelblue"
+                }
+                onClicked: {
+                    singleButton.checked = false
+                    doubleButton.checked = true
+                    plane.showDualSelection = true
+                }
+                HoverHandler {
+                    id: hoverDouble
+                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    cursorShape: Qt.PointingHandCursor
                 }
             }
         }
 
-        // 地图选择标题
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            id: mapSet
-            text: qsTr("地图选择")
-            font.letterSpacing: 20
-            font.pointSize: 40
-            color: "black"
-        }
-
-        //地图选择
-        ComboBox{
-            id: selectBox
-            model: ListModel {
-                ListElement { text: "戈壁" }
-                ListElement { text: "工厂" }
-                ListElement { text: "天空" }
-                ListElement { text: "随机" }
-            }
-            Layout.alignment: Qt.AlignHCenter
-
-        }
-
-        //地图缩略图位置
-        Rectangle{
-            width: 300
-            height: 150
-            color: "black"
-            Layout.alignment: Qt.AlignHCenter
-        }
+        //进入下一步选择战机
         Button{
             id:next
             Layout.alignment: Qt.AlignHCenter
@@ -98,7 +247,9 @@ Item{
                 color: "red"
             }
             onClicked: {
-                stackview.push(player)
+                stackview.push(planeSet)
+                plane.visible = true
+                plane.focus = true// 确保GridView可以接收键盘事件
                 console.log("clicked")
             }
             /*Keys.onEnterPressed: {
@@ -119,7 +270,6 @@ Item{
         id:homepage
         anchors.fill: parent
         visible: true
-
         //游戏主页大厅标题
         Text {
             Layout.alignment: Qt.AlignHCenter
@@ -241,6 +391,7 @@ Item{
     }
 
 
+<<<<<<< HEAD
     //玩家人数选择
     ColumnLayout{
         id:player
@@ -279,6 +430,8 @@ Item{
             }
         }
     }
+=======
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
 
     //玩家飞机样式选择
     ColumnLayout{
@@ -292,7 +445,6 @@ Item{
         }
         GridView {
             id: plane
-            visible: false
             width: 420 // 设置固定的宽度
             height: 270 // 设置固定的高度
             Layout.alignment: Qt.AlignHCenter
@@ -309,14 +461,12 @@ Item{
             cellHeight: 135
             // 控制是否显示两个选择框
             property bool showDualSelection: false
-            // 两个独立的当前索引
-            property int currentIndexWSAD: -1
-            property int currentIndexArrows: -1
             property int columns: 3
             // 高亮显示组件
             Component {
                 id: highlightComponent
                 Rectangle {
+                    property string playerNum   //玩家编号
                     visible: false
                     color: "transparent"
                     border.color: "red"
@@ -325,16 +475,26 @@ Item{
                     // 添加闪烁动画
                     SequentialAnimation on opacity {
                     loops: Animation.Infinite
-                    PropertyAnimation { duration: 1000; to: 0.0 }
+                    PropertyAnimation { duration: 1000; to: 0.3 }
                     PropertyAnimation { duration: 1000; to: 1.0 }
-                   }
+                    }
+                    // 添加Text元素以显示玩家编号
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.playerNum
+                        font.bold: true
+                        font.pointSize: 24
+                        color: "white"
+                    }
                 }
             }
-
+            // 两个独立的玩家飞机图片当前索引
+            property int currentIndexWSAD: -1
+            property int currentIndexArrows: -1
             // 创建两个选择框显示实例
-            property var highlightWSAD: highlightComponent.createObject(plane,{"border.color": "red",})
-            property var highlightArrows: highlightComponent.createObject(plane,{"border.color": "blue"})
-            // 更新选择框显示的位置
+            property var highlightWSAD: highlightComponent.createObject(plane,{"border.color": "red","playerNum": "P1"})
+            property var highlightArrows: highlightComponent.createObject(plane,{"border.color": "blue","playerNum": "P2"})
+            // 更新选择框显示的位置（到第一行点击Up会直接跳到第一个选项，到最后一行点击Down会直接跳到最后一个选项）
             function updateHighlight(index, highlight) {
                 if (index >= 0 && index < model.count) {
                     var columnCount = Math.floor(plane.width / plane.cellWidth)
@@ -443,10 +603,14 @@ Item{
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
                 if(showDualSelection&&plane.currentIndexWSAD!==-1&&plane.currentIndexArrows!==-1){
-                    Qt.quit()
+                    // Qt.quit()
+                    planeSet.visible = false
+                    doublegamelayout.visible = true
                 }
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
-                    Qt.quit()
+                    // Qt.quit()
+                    planeSet.visible = false
+                    singalgamelayout.visible = true
                 }
             }
         }
@@ -457,7 +621,6 @@ Item{
                 id: wrapper
                 width: plane.cellWidth-35
                 height: plane.cellHeight-35
-
                 Image {
                     id: image
                     x:17.5
@@ -465,100 +628,147 @@ Item{
                     width: parent.width - 10
                     height: parent.height - 10
                     source: "./images/"+imagePath
-                    // Rectangle {
-                    //     id: overlay
-                    //     anchors.fill: parent
-                    //     color: "black"
-                    //     opacity: 0.2 // 设置半透明
-                    //     visible: true // 默认不显示
-                    // }
-
-                    // // 用于控制覆盖层的显示
-                    // property bool selected: false
-
-                    // // 当选中状态改变时，更新覆盖层的可见性
-                    // onSelectedChanged: overlay.visible = !selected
                     fillMode: Image.PreserveAspectFit
                 }
-
-                // Text {
-                //     anchors.bottom: parent.bottom
-                //     anchors.horizontalCenter: parent.horizontalCenter
-                //     text: "Index: " + index
-                // }
             }
         }
         Text {
             id: tips
-            text: qsTr("按空格确认选择进入游戏")
+            text: qsTr("选择移动P1:WSAD P2:↑↓←→ ，按空格确认选择进入游戏")
             Layout.alignment: Qt.AlignHCenter
         }
     }
 
     //单人游戏界面
+<<<<<<< HEAD
     ColumnLayout{
             id: gamelayout
             visible:false
             //最上面的水平布局：金币 敌机血量 暂停建
+=======
+    Column{
+            id: singalgamelayout
+            visible:false
+            anchors.fill:parent
+            //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
             Row {
                 id: up
-                spacing: 80
+                anchors.fill: parent
                 Column{
-                    id: jinbi
-                    x:0;y:0
-                    height: 80
-                    width: 55
+                    id: upleft
+                    anchors.fill: parent
+                    spacing: 4 ;padding:4
+                        // 生命机会 后面会放图片，我机死一次就去掉一个生命
+                        Row{
+                            id: life
+                            spacing:2
+                            Rectangle{
+                                id:life1
+                                height: 20
+                                width: 20
+                                color: 'red'
+                            }
+                            Rectangle{
+                                 id:life2
+                                height: 20
+                                width: 20
+                                color: 'red'
+                            }
+                            Rectangle{
+                                 id:life3
+                                height: 20
+                                width: 20
+                                color: "red"
 
-                    //金币放图片暂定为框
-                    Button {
-                        id: money
-                        height: 55
-                        width: 55
-                    }
-                    Text {
-                        id: moneytext
-                        text:"金币"
-                        x:money.width/4 ; y:money.height+height/2
-                        // anchors.verticalCenter: money.verticalCenter
-                    }
+                            }
+                        }
+
+                    //积分 根据击败敌机获得积分（数值）
+                    Rectangle{
+                            id: scores
+                            height: 20
+                            width: 70
+                            color: "#00F215"
+                            Text{
+                                text: qsTr("积分值")
+                                anchors.centerIn: parent  //居中
+                            }
+                        }
+
+
+                        // 金币栏 金币图+游戏获得的金币数值
+                        Row{
+                            //金币图
+                            Rectangle {
+                            id: money
+                            height: 20
+                            width: 20
+                            color: "#FA7E23"
+                            }
+                            Text {
+                                id: moneytext
+                                text:"金币值"
+                                font.pointSize:  11
+
+                            }
+                        }
                 }
 
+<<<<<<< HEAD
+=======
+                //敌机Boss的血量条
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
                 Rectangle {
                     id: bossblood
+                    visible:  true  //等Boss出来时血量可见
                     height: 25
-                    width: 250
+                    width: 535
                     color: "red"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    // anchors.left: jinbi.right
                     Text {
                         id: blood
                         text: qsTr("Boss血量条")
                         anchors.centerIn: parent
                         font.pointSize:  15
+                        textFormat: Text.StyledText
                     }
                 }
 
+                //暂停图标（会放标签图），点击暂停会弹出对话框
                 Button{
                     id: pause
+                    padding: 3
                     text: qsTr(" 暂停 ")
                     height: 50
                     width: 50
                     font.pointSize:8
                     font.bold: true
+<<<<<<< HEAD
                     x: parent.right
+=======
+                    anchors.right: parent.right
+                    onClicked: model.revert()
+
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
                 }
             }
 
-            //最下方我方飞机血量
+            //最下方我方飞机血量，会同步游戏  待修改
             Row{
-                //等待修改
                 id: bottom
+<<<<<<< HEAD
                 Layout.alignment: Qt.AlignHCenter
+=======
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
                 anchors.bottom: parent.bottom
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottomMargin: 5
                 Rectangle {
                     id: _playerblood
                     height: 20
-                    width: 245
+                    width: 345
                     color: "red"
                     Text {
                         id: _player
@@ -568,12 +778,18 @@ Item{
                     }
                 }
             }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
             //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
             Popup {
                 id: dialog
             }
+
         }
 
+<<<<<<< HEAD
     //游戏胜利后的弹窗
     ColumnLayout{
         anchors.fill: parent
@@ -742,4 +958,180 @@ Item{
         }
     }
 
+=======
+    //双人游戏界面
+    Column{
+            id: doublegamelayout
+            visible:false
+            anchors.fill:parent
+            //最上面的水平布局： 积分 金币值 敌机Boss血量 暂停建
+            Row {
+                id: top
+                anchors.fill: parent
+                Column{
+                    id: topleft
+                    anchors.fill: parent
+                    spacing: 4 ;padding:4
+
+                    //积分 根据击败敌机获得积分（数值）
+                    Rectangle{
+                            id: scores2
+                            height: 20
+                            width: 70
+                            color: "#00F215"
+                            Text{
+                                text: qsTr("积分值")
+                                anchors.centerIn: parent
+                            }
+                        }
+
+
+                        // 金币栏 金币图+游戏获得的金币数值
+                        Row{
+                            //金币图
+                            Rectangle {
+                            id: money2
+                            height: 20
+                            width: 20
+                            color: "#FA7E23"
+                            }
+                            Text {
+                                id: moneytext2
+                                text:"金币值"
+                                font.pointSize:  11
+                            }
+                        }
+                }
+
+                //敌机Boss的血量条
+                Rectangle {
+                    id: bossblood2
+                    visible:  true  //等Boss出来时血量可见
+                    height: 25
+                    width: 535
+                    color: "red"
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    // anchors.left: jinbi.right
+                    Text {
+                        id: blood2
+                        text: qsTr("Boss血量条")
+                        anchors.centerIn: parent
+                        font.pointSize:  15
+                        textFormat: Text.StyledText
+                    }
+                }
+
+                //暂停图标（会放标签图），点击暂停会弹出对话框
+                Button{
+                    id: pause2
+                    padding: 3
+                    text: qsTr(" 暂停 ")
+                    height: 50
+                    width: 50
+                    font.pointSize:8
+                    font.bold: true
+                    anchors.right: parent.right
+                    onClicked: model.revert()
+
+                }
+            }
+
+            //P1 P2
+            Row{
+                id: bottom2
+                anchors.bottom: parent.bottom
+                anchors.fill: parent
+                //玩家一的血量 生命机会
+                Column{
+                    id: _player1
+                    anchors.left:  parent.left
+                    anchors.bottom: parent.bottom
+                    padding: 5
+                    Row{
+                        spacing:2 ;padding: 2
+                        Rectangle{
+                             id: _player1life1
+                            height: 20
+                            width: 20
+                            color: 'red'
+                        }
+                        Rectangle{
+                            id: _player1life2
+                            height: 20
+                            width: 20
+                            color: 'red'
+                        }
+                        Rectangle{
+                            id: _player1life3
+                            height: 20
+                            width: 20
+                            color: "red"
+
+                        }
+                    }
+                    //玩家一血量条
+                    Rectangle {
+                        id: _player1blood
+                        height: 20
+                        width: 300
+                        color: "red"
+                        Text {
+                            id: _player1text
+                            text: qsTr("P1血量条")
+                            anchors.centerIn: parent
+                            font.pointSize:  15
+                        }
+                    }
+                }
+
+                //玩家二的血量 生命机会
+                Column{
+                    id: _player2
+                    anchors.right:  parent.right
+                    anchors.bottom: parent.bottom
+                    padding: 5
+                    Row{
+                        spacing:2 ; padding: 2
+                        Rectangle{
+                            id: _player2life1
+                            height: 20
+                            width: 20
+                            color: 'red'
+                        }
+                        Rectangle{
+                            id: _player2life2
+                            height: 20
+                            width: 20
+                            color: 'red'
+                        }
+                        Rectangle{
+                            id: _player2life3
+                            height: 20
+                            width: 20
+                            color: "red"
+
+                        }
+                    }
+                    //玩家二血量条
+                    Rectangle {
+                        id: _player2blood
+                        height: 20
+                        width: 300
+                        color: "red"
+                        Text {
+                            id: _player2text
+                            text: qsTr("P2血量条")
+                            anchors.centerIn: parent
+                            font.pointSize:  15
+                        }
+                    }
+                }
+            }
+            //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
+            Popup {
+                id: dialog2
+
+            }
+         }
+>>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
 }

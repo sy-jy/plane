@@ -41,8 +41,12 @@ qt_add_qml_module(
   images/logo.png
   RESOURCES
   images/victory.png
-  RESOURCES images/defeat.png)
-
+  RESOURCES
+  images/defeat.png
+  RESOURCES
+  images/enemy1.png
+  images/enemy2.png
+  images/enemy3.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE
