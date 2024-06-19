@@ -3,8 +3,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 ApplicationWindow {
-    property int window_Width: 512
-    property int window_Height: 768
+    property int window_Width: 960
+    property int window_Height: 590
     maximumWidth: window_Width
     minimumWidth: window_Width
     maximumHeight: window_Height
