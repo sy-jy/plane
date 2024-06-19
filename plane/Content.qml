@@ -7,85 +7,234 @@ Item{
     property alias plane: plane
     property alias homepage: homepage
     property alias stackview: stackview
+    property alias currentIndexWSAD: plane.currentIndexWSAD
+    property alias currentIndexArrows: plane.currentIndexArrows
     anchors.fill: parent
+    //模式选择
     ColumnLayout{
         visible: false
         id:mode
-        anchors.fill: parent
-        // 模式选择标题
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            id: modeSet
-            text: qsTr("模式选择")
-            font.letterSpacing: 20
-            font.pointSize: 40
-            color: "black"
+        //难度模式选择
+        RowLayout{
+            Layout.topMargin: window_Height/15
+            Layout.leftMargin: window_Width/25
+            spacing: window_Width/10
+            // 模式选择标题
+            Text {
+                // Layout.alignment: Qt.AlignHCenter
+                id: modeSet
+                text: qsTr("游戏难度")
+                font.pointSize: 40
+                color: "black"
+            }
+
+            //模式选择
+            ButtonGroup {
+                buttons: modeButton.children
+            }
+            Row {
+                spacing: window_Width/10
+                Layout.alignment: Qt.AlignHCenter
+                id: modeButton
+                RadioButton {
+                    id:easy
+                    checked: true
+                    text: qsTr(" <简单>")
+                    font.letterSpacing: 15
+                    font.pointSize: 18 // 设置字体大小（以磅为单位）
+                    font.bold: true // 设置字体加粗
+                    background:Rectangle{
+                        implicitHeight: 55
+                        implicitWidth: 100
+                        radius: 10
+                        color:easy.checked? "lightskyblue" :  hoverEasy.hovered ? "lightblue" : "lightsteelblue"
+                        HoverHandler {
+                             id: hoverEasy
+                             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                             cursorShape: Qt.PointingHandCursor
+                         }
+                    }
+                }
+
+                RadioButton {
+                    id:difficult
+                    text: qsTr(" <困难>")
+                    font.letterSpacing: 15
+                    font.pointSize: 18 // 设置字体大小（以磅为单位）
+                    font.bold: true // 设置字体加粗
+                    background:Rectangle{
+                        implicitHeight: 55
+                        implicitWidth: 100
+                        radius: 10
+                        color:difficult.checked? "lightskyblue" :  hoverDifficult.hovered ? "lightblue" : "lightsteelblue"
+                        HoverHandler {
+                             id: hoverDifficult
+                             acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                             cursorShape: Qt.PointingHandCursor
+                         }
+                    }
+                }
+            }
         }
 
-        //模式选择
-        ButtonGroup {
-            buttons: modeButton.children
-        }
-        Row {
-            spacing: 30
-            Layout.alignment: Qt.AlignHCenter
-            id: modeButton
-            RadioButton {
-                checked: true
-                text: qsTr(" <简单>")
-                font.letterSpacing: 15
-                font.pointSize: 18 // 设置字体大小（以磅为单位）
-                font.bold: true // 设置字体加粗
-                background:Rectangle{
-                    implicitHeight: 55
-                    implicitWidth: 100
-                    color: "red"
+        RowLayout{
+            Layout.leftMargin: window_Width/25
+            spacing: window_Width/10
+            // 地图选择标题
+            Text {
+                id: mapSet
+                text: qsTr("地图选择")
+                font.pointSize: 40
+                color: "black"
+            }
+
+            //地图选择
+            // 按钮
+            Rectangle{
+                clip: true
+                width: 200
+                height:40
+                ComboBox {
+                    id:control
+                    background:Rectangle{
+                        implicitWidth: 200
+                        implicitHeight: 40
+                        color:"black"
+                        radius: 20
+                    }
+                    // 更改显示文本的样式
+                    contentItem: Text {
+                        text:control.model.get(control.currentIndex).text // 直接绑定到 model 的 text 属性
+                        color: "white" // 更改文本颜色
+                        font.bold: true // 设置字体为粗体
+                        font.pointSize: 20 // 设置字体大小
+                        font.letterSpacing: 30
+                        horizontalAlignment: Text.AlignHCenter // 水平居中
+                        verticalAlignment: Text.AlignVCenter // 垂直居中
+                    }
+                    //添加数据
+                    model:ListModel{
+                        ListElement{text:" 戈壁"}
+                        ListElement{text:" 工厂"}
+                        ListElement{text:" 天空"}
+                        ListElement{text:" 随机"}
+                    }
+                    //设计右侧的小图标的样式
+                    indicator: Canvas {
+                        id: canvas
+                        x: control.width - width - control.rightPadding
+                        y: control.topPadding + (control.availableHeight - height) / 2
+                        width: 15
+                        height: 10
+                        contextType: "2d"
+                        Connections {
+                            target: control
+                            function onPressedChanged() { canvas.requestPaint(); }
+                        }
+                        onPaint: {
+                            context.reset();
+                            context.moveTo(0, 0);
+                            context.lineTo(width, 0);
+                            context.lineTo(width / 2, height);
+                            context.closePath();
+                            context.fillStyle = control.pressed ? "#d3d3d3" : "#778899";
+                            context.fill();
+                        }
+                    }
+                    // 定义下拉列表中每个项的视觉表示
+                    delegate: ItemDelegate {
+                        width: control.width
+                        contentItem: Text {
+                            text: model.text
+                            color: "white"
+                            elide: Text.ElideRight
+                            font.pointSize: 16
+                            leftPadding: 12
+                        }
+                        // 高亮选中项
+                        highlighted: control.highlightedIndex === index
+                    }
+                    //设计弹出框的样式(点击下拉按钮后的弹出框)
+                    popup: Popup {
+                        y: control.height - 1
+                        x: 10
+                        width: control.width-20
+                        implicitHeight: contentItem.implicitHeight
+                        padding: 1
+                        //弹出框以listview的形式呈现
+                        contentItem: ListView {
+                            clip: true
+                            implicitHeight: contentHeight
+                            model: control.popup.visible ? control.delegateModel : null
+                            currentIndex: control.highlightedIndex
+                            ScrollIndicator.vertical: ScrollIndicator { }
+                        }
+                    }
                 }
             }
 
-            RadioButton {
-                text: qsTr(" <困难>")
-                font.letterSpacing: 15
-                font.pointSize: 18 // 设置字体大小（以磅为单位）
-                font.bold: true // 设置字体加粗
-                background:Rectangle{
-                    implicitHeight: 55
-                    implicitWidth: 100
-                    color: "red"
+            //地图缩略图位置
+            Rectangle{
+                width: window_Width/4
+                height: window_Height/4
+                color: "black"
+            }
+
+        }
+
+        //玩家人数选择
+        // 玩家人数选择
+        RowLayout {
+            Layout.alignment: Qt.AlignHCenter
+            Layout.bottomMargin: window_Height / 10
+            spacing: window_Width / 5
+            id: player
+            Button {
+                id: singleButton
+                font.pointSize: 25
+                font.bold: true
+                text: qsTr("单人模式")
+                checked:true
+                background: Rectangle {
+                    implicitHeight: 50
+                    implicitWidth: 200
+                    color:singleButton.checked? "lightskyblue" :hoverSingle.hovered ? "lightblue" : "lightsteelblue"
+                }
+                onClicked: {
+                    singleButton.checked = true
+                    doubleButton.checked = false
+                    plane.showDualSelection = false
+                }
+                HoverHandler {
+                    id: hoverSingle
+                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    cursorShape: Qt.PointingHandCursor
+                }
+            }
+            Button {
+                id: doubleButton
+                font.pointSize: 25
+                font.bold: true
+                text: qsTr("双人模式")
+                background: Rectangle {
+                    implicitHeight: 50
+                    implicitWidth: 200
+                    color:doubleButton.checked? "lightskyblue" :hoverDouble.hovered ? "lightblue" : "lightsteelblue"
+                }
+                onClicked: {
+                    singleButton.checked = false
+                    doubleButton.checked = true
+                    plane.showDualSelection = true
+                }
+                HoverHandler {
+                    id: hoverDouble
+                    acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                    cursorShape: Qt.PointingHandCursor
                 }
             }
         }
 
-        // 地图选择标题
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            id: mapSet
-            text: qsTr("地图选择")
-            font.letterSpacing: 20
-            font.pointSize: 40
-            color: "black"
-        }
-
-        //地图选择
-        ComboBox{
-            id: selectBox
-            model: ListModel {
-                ListElement { text: "戈壁" }
-                ListElement { text: "工厂" }
-                ListElement { text: "天空" }
-                ListElement { text: "随机" }
-            }
-            Layout.alignment: Qt.AlignHCenter
-
-        }
-
-        //地图缩略图位置
-        Rectangle{
-            width: 300
-            height: 150
-            color: "black"
-            Layout.alignment: Qt.AlignHCenter
-        }
+        //进入下一步选择战机
         Button{
             Layout.alignment: Qt.AlignHCenter
             text:qsTr("下 一 步")
@@ -97,7 +246,9 @@ Item{
                 color: "red"
             }
             onClicked: {
-                stackview.push(player)
+                stackview.push(planeSet)
+                plane.visible = true
+                plane.focus = true// 确保GridView可以接收键盘事件
                 console.log("clicked")
             }
         }
@@ -107,7 +258,6 @@ Item{
         id:homepage
         anchors.fill: parent
         visible: true
-
         //游戏主页大厅标题
         Text {
             Layout.alignment: Qt.AlignHCenter
@@ -217,44 +367,7 @@ Item{
     }
 
 
-    //玩家人数选择
-    ColumnLayout{
-        id:player
-        visible: false
-        anchors.fill: parent
-        anchors.topMargin: 200
-        anchors.bottomMargin: 200
-        Repeater {
-            model: [{"name":"单人模式"},
-                    {"name":"双人模式"}]
-            delegate: Button {
-                font.pointSize: 25
-                font.bold: true // 设置字体加粗
-                text: modelData.name // 显示模型中的数据
-                Layout.alignment: Qt.AlignHCenter
-                background:Rectangle{
-                    implicitHeight: 50
-                    implicitWidth: 200
-                    color: "red"
-                }
-                onClicked: {
-                    if (text === "单人模式") {
-                        plane.showDualSelection = false
-                        player.visible = false
-                        plane.visible = true
-                        planeSet.visible = true
-                        plane.focus = true// 确保GridView可以接收键盘事件
-                    } else if (text === "双人模式") {
-                        plane.showDualSelection = true
-                        player.visible = false
-                        plane.visible = true
-                        planeSet.visible = true
-                        plane.focus = true// 确保GridView可以接收键盘事件
-                    }
-                }
-            }
-        }
-    }
+
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
@@ -267,7 +380,6 @@ Item{
         }
         GridView {
             id: plane
-            visible: false
             width: 420 // 设置固定的宽度
             height: 270 // 设置固定的高度
             Layout.alignment: Qt.AlignHCenter
@@ -284,14 +396,12 @@ Item{
             cellHeight: 135
             // 控制是否显示两个选择框
             property bool showDualSelection: false
-            // 两个独立的当前索引
-            property int currentIndexWSAD: -1
-            property int currentIndexArrows: -1
             property int columns: 3
             // 高亮显示组件
             Component {
                 id: highlightComponent
                 Rectangle {
+                    property string playerNum   //玩家编号
                     visible: false
                     color: "transparent"
                     border.color: "red"
@@ -300,16 +410,26 @@ Item{
                     // 添加闪烁动画
                     SequentialAnimation on opacity {
                     loops: Animation.Infinite
-                    PropertyAnimation { duration: 1000; to: 0.0 }
+                    PropertyAnimation { duration: 1000; to: 0.3 }
                     PropertyAnimation { duration: 1000; to: 1.0 }
-                   }
+                    }
+                    // 添加Text元素以显示玩家编号
+                    Text {
+                        anchors.centerIn: parent
+                        text: parent.playerNum
+                        font.bold: true
+                        font.pointSize: 24
+                        color: "white"
+                    }
                 }
             }
-
+            // 两个独立的玩家飞机图片当前索引
+            property int currentIndexWSAD: -1
+            property int currentIndexArrows: -1
             // 创建两个选择框显示实例
-            property var highlightWSAD: highlightComponent.createObject(plane,{"border.color": "red",})
-            property var highlightArrows: highlightComponent.createObject(plane,{"border.color": "blue"})
-            // 更新选择框显示的位置
+            property var highlightWSAD: highlightComponent.createObject(plane,{"border.color": "red","playerNum": "P1"})
+            property var highlightArrows: highlightComponent.createObject(plane,{"border.color": "blue","playerNum": "P2"})
+            // 更新选择框显示的位置（到第一行点击Up会直接跳到第一个选项，到最后一行点击Down会直接跳到最后一个选项）
             function updateHighlight(index, highlight) {
                 if (index >= 0 && index < model.count) {
                     var columnCount = Math.floor(plane.width / plane.cellWidth)
@@ -436,7 +556,6 @@ Item{
                 id: wrapper
                 width: plane.cellWidth-35
                 height: plane.cellHeight-35
-
                 Image {
                     id: image
                     x:17.5
@@ -444,32 +563,13 @@ Item{
                     width: parent.width - 10
                     height: parent.height - 10
                     source: "./images/"+imagePath
-                    // Rectangle {
-                    //     id: overlay
-                    //     anchors.fill: parent
-                    //     color: "black"
-                    //     opacity: 0.2 // 设置半透明
-                    //     visible: true // 默认不显示
-                    // }
-
-                    // // 用于控制覆盖层的显示
-                    // property bool selected: false
-
-                    // // 当选中状态改变时，更新覆盖层的可见性
-                    // onSelectedChanged: overlay.visible = !selected
                     fillMode: Image.PreserveAspectFit
                 }
-
-                // Text {
-                //     anchors.bottom: parent.bottom
-                //     anchors.horizontalCenter: parent.horizontalCenter
-                //     text: "Index: " + index
-                // }
             }
         }
         Text {
             id: tips
-            text: qsTr("按空格确认选择进入游戏")
+            text: qsTr("选择移动P1:WSAD P2:↑↓←→ ，按空格确认选择进入游戏")
             Layout.alignment: Qt.AlignHCenter
         }
     }
@@ -779,5 +879,4 @@ Item{
 
             }
          }
-
 }
