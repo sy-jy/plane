@@ -4,7 +4,7 @@ import QtQuick.Layouts
 
 ApplicationWindow {
     property int window_Width: 960
-    property int window_Height: 590
+    property int window_Height: 540
     maximumWidth: window_Width
     minimumWidth: window_Width
     maximumHeight: window_Height

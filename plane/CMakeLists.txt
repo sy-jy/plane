@@ -50,7 +50,11 @@ qt_add_qml_module(
   RESOURCES
   images/start.png
   QML_FILES
-  Myplane.qml)
+  Myplane.qml
+  QML_FILES
+  Map.qml
+  RESOURCES
+  images/map1.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

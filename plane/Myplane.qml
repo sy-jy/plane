@@ -4,7 +4,7 @@ Item {
 
     property int myplane_Width: 128
     property int myplane_Height: 128
-    property int moveSpeed: 5               // 我方飞机移动速度
+    property int moveSpeed: 5   // 我方飞机移动速度
     //单人初始位置
     property int planeX: (window_Width-myplane_Width)/2
     property int planeY: window_Height-myplane_Height
@@ -51,13 +51,15 @@ Item {
     Image {
         id: myplane_1
         source: myplane_1_path
-        // focus: true
+        x:content.isDouble? plane_1_X : planeX  //初始化位置解决开始时飞机闪动
+        y:content.isDouble? plane_1_Y : planeY
         visible: false
     }
     Image {
         id: myplane_2
         source: myplane_2_path
-        // focus: true
+        x:plane_2_X //初始化位置解决开始时飞机闪动
+        y:plane_2_Y
         visible: false
     }
 
