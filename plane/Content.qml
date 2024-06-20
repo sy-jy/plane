@@ -7,6 +7,7 @@ Item{
     property alias plane: plane
     property alias homepage: homepage
     property alias stackview: stackview
+    property alias mapmodel: control
     property string myplane_1_path        // 玩家1的战机图片源
     property string myplane_2_path        // 玩家2的战机图片源
     property bool isDouble                //是否为双人模式
@@ -22,6 +23,7 @@ Item{
     property bool movingRight_P2: false
     property bool movingUp_P2: false
     property bool movingDown_P2: false
+    property string map_path: "./images/map1.png"    //地图图片源
     anchors.fill: parent
     //模式选择
     ColumnLayout{
@@ -125,13 +127,33 @@ Item{
                         horizontalAlignment: Text.AlignHCenter // 水平居中
                         verticalAlignment: Text.AlignVCenter // 垂直居中
                     }
-                    //添加数据
-                    model:ListModel{
-                        ListElement{text:" 戈壁"}
-                        ListElement{text:" 工厂"}
-                        ListElement{text:" 天空"}
-                        ListElement{text:" 随机"}
+                    // 定义您的模型，不包括 "随机" 元素
+                    model: ListModel{
+                        ListElement{
+                            text:" 戈壁"
+                            mapPath: "map1.png" }
+                        ListElement{
+                            text:" 工厂"
+                            mapPath: "plane2.png" }
+                        ListElement{
+                            text:" 天空"
+                            mapPath: "plane3.png" }
                     }
+
+                    // 在模型定义之后，添加带有随机 mapPath 的 "随机" 元素
+                    Component.onCompleted: {
+                        var randomIndex = Math.floor(Math.random() * control.model.count)
+                        var randomMapPath = model.get(randomIndex).mapPath
+                        model.append({ text: " 随机",mapPath: randomMapPath })
+                    }
+                    // 监听当前索引的变化
+                    onCurrentIndexChanged: {
+                        var currentMapPath = control.model.get(control.currentIndex).mapPath
+                        console.log("当前 mapPath:", currentMapPath)
+                        map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath//当前选中的地图路径赋给map_path
+                        console.log("Selected map source: ",map_path)
+                    }
+
                     //设计右侧的小图标的样式
                     indicator: Canvas {
                         id: canvas
@@ -402,9 +424,15 @@ Item{
           store.visible = depth === 1
       }
     }
+
+    Map{
+        id:map
+    }
     Myplane{
         id:myplane
     }
+
+
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
@@ -581,6 +609,7 @@ Item{
                     console.log("Selected P2 source: ",myplane_2_path)
                     planeSet.visible = false
                     myplane.doubleplayer()
+                    map.visible = true
                     doublegamelayout.forceActiveFocus()
                     timer.running = true    //开启计时器
                     doublegamelayout.visible = true
@@ -591,6 +620,7 @@ Item{
                     console.log("Selected P2 source: ",myplane_2_path)
                     planeSet.visible = false
                     myplane.singleplayer()
+                    map.visible = true
                     singalgamelayout.forceActiveFocus()
                     timer.running = true    //开启计时器
                     singalgamelayout.visible = true
@@ -622,6 +652,7 @@ Item{
         }
     }
 
+
     //刷新画面
     Timer
     {
@@ -631,6 +662,7 @@ Item{
         running: false
         onTriggered:
         {
+            map.updateMap()
             //飞机移动重绘
             if(!isDouble){
                 //单人
