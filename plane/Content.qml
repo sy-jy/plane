@@ -7,8 +7,21 @@ Item{
     property alias plane: plane
     property alias homepage: homepage
     property alias stackview: stackview
-    property alias currentIndexWSAD: plane.currentIndexWSAD
-    property alias currentIndexArrows: plane.currentIndexArrows
+    property string myplane_1_path        // 玩家1的战机图片源
+    property string myplane_2_path        // 玩家2的战机图片源
+    property bool isDouble                //是否为双人模式
+    property alias timerSingle: timer
+    property int desiredFramesPerSecond: 60 // 期望的每秒帧数
+    //P1移动状态
+    property bool movingLeft_P1: false
+    property bool movingRight_P1: false
+    property bool movingUp_P1: false
+    property bool movingDown_P1: false
+    //P2移动状态
+    property bool movingLeft_P2: false
+    property bool movingRight_P2: false
+    property bool movingUp_P2: false
+    property bool movingDown_P2: false
     anchors.fill: parent
     //模式选择
     ColumnLayout{
@@ -184,7 +197,6 @@ Item{
         }
 
         //玩家人数选择
-        // 玩家人数选择
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
             Layout.bottomMargin: window_Height / 10
@@ -205,6 +217,7 @@ Item{
                     singleButton.checked = true
                     doubleButton.checked = false
                     plane.showDualSelection = false
+                    isDouble = false
                 }
                 HoverHandler {
                     id: hoverSingle
@@ -226,6 +239,7 @@ Item{
                     singleButton.checked = false
                     doubleButton.checked = true
                     plane.showDualSelection = true
+                    isDouble = true
                 }
                 HoverHandler {
                     id: hoverDouble
@@ -251,11 +265,9 @@ Item{
                 stackview.push(planeSet)
                 plane.visible = true
                 plane.focus = true// 确保GridView可以接收键盘事件
+                mode.focus = false
                 console.log("clicked")
             }
-            /*Keys.onEnterPressed: {
-                next.clicked()
-            }*/
         }
     }
     StackView{
@@ -318,6 +330,7 @@ Item{
                 //键盘快捷键响应
                 Keys.onSpacePressed: {
                     start.clicked()
+                    start.focus = false//解决空格连续跳转问题
                 }
             }
 
@@ -409,6 +422,9 @@ Item{
       }
     }
 
+    Myplane{
+        id:myplane
+    }
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
@@ -579,13 +595,24 @@ Item{
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
                 if(showDualSelection&&plane.currentIndexWSAD!==-1&&plane.currentIndexArrows!==-1){
-                    // Qt.quit()
+                    myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
+                    myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
+                    console.log("Selected P1 source: ",myplane_1_path)
+                    console.log("Selected P2 source: ",myplane_2_path)
                     planeSet.visible = false
+                    myplane.doubleplayer()
+                    doublegamelayout.forceActiveFocus()
+                    timer.running = true    //开启计时器
                     doublegamelayout.visible = true
                 }
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
-                    // Qt.quit()
+                    myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
+                    console.log("Selected P1 source: ",myplane_1_path)
+                    console.log("Selected P2 source: ",myplane_2_path)
                     planeSet.visible = false
+                    myplane.singleplayer()
+                    singalgamelayout.forceActiveFocus()
+                    timer.running = true    //开启计时器
                     singalgamelayout.visible = true
                 }
             }
@@ -620,51 +647,55 @@ Item{
             id: singalgamelayout
             visible:false
             anchors.fill:parent
-            //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
-
-            Row {
-                id: up
+    //刷新画面
+    Timer
+    {
+        id: timer
+        interval: 1000 / desiredFramesPerSecond
+        repeat: true
+        running: false
+        onTriggered:
+        {
+            //飞机移动重绘
+            if(!isDouble){
+                //单人
+                myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
+            }else{
+                //双人
+                myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
+                                                movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
+            }
+        }
+    }
+        //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
+        Row {
+            id: up
+            anchors.fill: parent
+            Column{
+                id: upleft
                 anchors.fill: parent
-                Column{
-                    id: upleft
-                    anchors.fill: parent
-                    spacing: 4 ;padding:4
-                        // 生命机会 后面会放图片，我机死一次就去掉一个生命
-                        Row{
-                            id: life
-                            spacing:2
-                            Rectangle{
-                                id:life1
-                                height: 20
-                                width: 20
-                                color: 'red'
-                            }
-                            Rectangle{
-                                 id:life2
-                                height: 20
-                                width: 20
-                                color: 'red'
-                            }
-                            Rectangle{
-                                 id:life3
-                                height: 20
-                                width: 20
-                                color: "red"
-
-                            }
-                        }
-
-                    //积分 根据击败敌机获得积分（数值）
+                spacing: 4 ;padding:4
+                // 生命机会 后面会放图片，我机死一次就去掉一个生命
+                Row{
+                    id: life
+                    spacing:2
                     Rectangle{
-                            id: scores
-                            height: 20
-                            width: 70
-                            color: "#00F215"
-                            Text{
-                                text: qsTr("积分值")
-                                anchors.centerIn: parent  //居中
-                            }
-                        }
+                        id:life1
+                        height: 20
+                        width: 20
+                        color: 'red'
+                    }
+                    Rectangle{
+                         id:life2
+                        height: 20
+                        width: 20
+                        color: 'red'
+                    }
+                    Rectangle{
+                         id:life3
+                        height: 20
+                        width: 20
+                        color: "red"
 
 
                         // 金币栏 金币图+游戏获得的金币数值
@@ -722,155 +753,51 @@ Item{
 
                 }
             }
-
-            //最下方我方飞机血量，会同步游戏  待修改
-            Row{
-                id: bottom
-
-                Layout.alignment: Qt.AlignHCenter
-
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottomMargin: 5
-                Rectangle {
-                    id: _playerblood
-                    height: 20
-                    width: 345
-                    color: "red"
-                    Text {
-                        id: _player
-                        text: qsTr("血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
-                    }
-                }
-            }
-            //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
-            Popup {
-                id: dialog
             }
         }
 
+        //最下方我方飞机血量，会同步游戏  待修改
+        Row{
+            id: bottom
+            Layout.alignment: Qt.AlignHCenter
 
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 5
+            Rectangle {
+                id: _playerblood
+                height: 20
+                width: 345
+                color: "red"
+                Text {
+                    id: _player
+                    text: qsTr("血量条")
+                    anchors.centerIn: parent
+                    font.pointSize:  15
+                }
+            }
+        }
+
+        //操控飞机
+        Keys.onPressed:{
+            if (event.key === Qt.Key_A)movingLeft_P1 = true;
+            else if (event.key === Qt.Key_D) movingRight_P1 = true;
+            else if (event.key === Qt.Key_W) movingUp_P1 = true;
+            else if (event.key === Qt.Key_S) movingDown_P1 = true;
+        }
+
+        Keys.onReleased:{
+            if (event.key === Qt.Key_A) movingLeft_P1 = false;
+            else if (event.key === Qt.Key_D) movingRight_P1 = false;
+            else if (event.key === Qt.Key_W) movingUp_P1 = false;
+            else if (event.key === Qt.Key_S) movingDown_P1 = false;
+        }
+
+    }
 
     Dialogs{
         id:dialogs
     }
-
-    //游戏胜利后的弹窗
-    // ColumnLayout{
-    //     anchors.fill: parent
-    //     //测试：先设置点击按钮打开弹窗
-    //     Button{
-    //         anchors.centerIn: parent
-    //         text: "result"
-    //         onClicked: {
-    //             result.visible = true;      //显示弹窗
-    //             blurRect.visible = true;     //显示背景遮罩
-    //         }
-    //     }
-    //     Button{
-    //         //anchors.centerIn: parent
-    //         text: "result_2"
-    //         onClicked: {
-    //             result_2.visible = true;      //显示弹窗
-    //             blurRect.visible = true;     //显示背景遮罩
-    //         }
-    //     }
-
-    //     Rectangle{
-    //         id: blurRect
-    //         anchors.fill: parent
-    //         visible: false          //仅在弹窗显示时显示背景90%透明
-    //         color: "dimgray"        //淡灰色背景
-    //         opacity: 0.9            //设置透明度
-
-    //         //弹窗
-    //         Popup{
-    //             id:result
-    //             width:410
-    //             height: 210
-    //             visible: false
-    //             background: Rectangle{          //设置弹窗背景透明
-    //                 opacity: 0
-    //             }
-
-    //             x:(parent.width - width) / 2            //设置弹窗位置：页面居中
-    //             y:(parent.height - height) / 2
-
-    //             contentItem: Item{
-    //                 width: parent.width
-    //                 height: parent.height
-    //                  Image{
-    //                     source: "images/victory.png"
-    //                     width: 384
-    //                     height: 182
-    //                     anchors.centerIn: parent
-    //                  }
-    //             }
-
-    //             Row{
-    //                 anchors.bottom:parent.bottom
-    //                 anchors.horizontalCenter: parent.horizontalCenter
-    //                 spacing: 80
-    //                 Button {
-    //                     text: "返回"
-    //                     onClicked: {
-    //                         //stackview.push(homepage)
-    //                         result.visible = false;
-    //                         blurRect.visible = false;
-    //                     }
-    //                 }
-    //                 Button {
-    //                     text: "下一关"
-    //                     onClicked: {
-    //                         blurRect.visible = false;
-    //                         result.visible = false;
-    //                     }
-    //                 }
-    //             }
-    //             closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-    //         }
-
-    //         //游戏失败后弹窗
-    //         Popup{
-    //             id:result_2
-    //             width:410
-    //             height: 210
-    //             visible: false
-    //             background: Rectangle{          //设置弹窗背景透明
-    //                 opacity: 0
-    //             }
-
-    //             x:(parent.width - width) / 2            //设置弹窗位置：页面居中
-    //             y:(parent.height - height) / 2
-
-    //             contentItem: Item{
-    //                 width: parent.width
-    //                 height: parent.height
-    //                     Image{
-    //                     source: "images/defeat.png"
-    //                     width: 409
-    //                     height: 182
-    //                     anchors.centerIn: parent
-    //                     }
-    //             }
-
-    //             Button {
-    //                 anchors.bottom:parent.bottom
-    //                 anchors.horizontalCenter: parent.horizontalCenter
-    //                 text: "返回"
-    //                 onClicked: {
-    //                     //stackview.push(homepage)
-    //                     result_2.visible = false;
-    //                     blurRect.visible = false;
-    //                 }
-    //             }
-    //         closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-    //         }
-    //     }
-    // }
-
 
     //游戏商店装备购买界面
     ColumnLayout{
@@ -1094,6 +1021,32 @@ Item{
             Popup {
                 id: dialog2
             }
+            //操控飞机
+            Keys.onPressed:{
+                //P1
+                if (event.key === Qt.Key_A)movingLeft_P1 = true;
+                else if (event.key === Qt.Key_D) movingRight_P1 = true;
+                else if (event.key === Qt.Key_W) movingUp_P1 = true;
+                else if (event.key === Qt.Key_S) movingDown_P1 = true;
+                //P2
+                if (event.key === Qt.Key_Left)movingLeft_P2 = true;
+                else if (event.key === Qt.Key_Right) movingRight_P2 = true;
+                else if (event.key === Qt.Key_Up) movingUp_P2 = true;
+                else if (event.key === Qt.Key_Down) movingDown_P2 = true;
+            }
+            Keys.onReleased:{
+                //P1
+                if (event.key === Qt.Key_A) movingLeft_P1 = false;
+                else if (event.key === Qt.Key_D) movingRight_P1 = false;
+                else if (event.key === Qt.Key_W) movingUp_P1 = false;
+                else if (event.key === Qt.Key_S) movingDown_P1 = false;
+                //P2
+                if (event.key === Qt.Key_Left) movingLeft_P2 = false;
+                else if (event.key === Qt.Key_Right) movingRight_P2 = false;
+                else if (event.key === Qt.Key_Up) movingUp_P2 = false;
+                else if (event.key === Qt.Key_Down) movingDown_P2 = false;
+            }
          }
+
 }
 

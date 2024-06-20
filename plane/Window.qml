@@ -19,7 +19,7 @@ ApplicationWindow {
         id:actions
     }
 
-    Content {
+    Content{
         id: content
         anchors.fill: parent
     }
