@@ -6,6 +6,7 @@ Item {
        property alias continueAction: _continue
        property alias exitAction: _exit
        property alias musicAction: _music
+       property alias start: _start
 
 
         Action{
@@ -27,5 +28,9 @@ Item {
             id:_music
             text: qsTr("音效")
             icon.name: ""
+        }
+        Action{
+            id:_start
+            text: "开始游戏"
         }
 }
