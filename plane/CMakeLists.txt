@@ -47,9 +47,14 @@ qt_add_qml_module(
   images/enemy1.png
   images/enemy2.png
   images/enemy3.png
-  QML_FILES Myplane.qml
-  QML_FILES Map.qml
-  RESOURCES images/map1.png)
+  RESOURCES
+  images/start.png
+  QML_FILES
+  Myplane.qml
+  QML_FILES
+  Map.qml
+  RESOURCES
+  images/map1.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

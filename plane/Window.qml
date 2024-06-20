@@ -24,7 +24,7 @@ ApplicationWindow {
         anchors.fill: parent
     }
 
-    Content {
+    Content{
         id: content
         anchors.fill: parent
 

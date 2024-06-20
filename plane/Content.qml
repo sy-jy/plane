@@ -34,6 +34,7 @@ Item{
 
     //模式选择
     ColumnLayout{
+
         visible: false
         id:mode
         //难度模式选择
@@ -307,6 +308,7 @@ Item{
       }
     }
 
+    //游戏主页
     ColumnLayout{
         id:homepage
         anchors.fill: parent
@@ -323,7 +325,7 @@ Item{
         //按钮垂直排序
         Column{
             id:gameButton
-            spacing:20
+            spacing:25
             Layout.alignment: Qt.AlignHCenter
             Button {
                 id:start
@@ -331,11 +333,22 @@ Item{
                 text:qsTr("开始游戏")
                 font.pointSize: 25
                 font.letterSpacing: 10
-                //indicator: Image{}
+                // Image{
+                //    source: "images/start.png"
+                //    width: 161
+                //    height: 43
+                //    Layout.alignment: Qt.AlignHCenter
+                // }
                 background: Rectangle{
+                    // width: 150
+                    // height: 44
                     border.color: start.focus ? "red" : "white"
                     color: "yellow"
                 }
+                Component.onCompleted: {
+                    start.forceActiveFocus();           //页面加载完成后强制按钮获得焦点
+                }
+
                 onClicked: {
                     stackview.push(mode)                //跳转到mode页面
                     console.log("start clicked")
@@ -354,7 +367,7 @@ Item{
                 id:exit
                 text:qsTr("退出游戏")
                 font.pointSize: 25
-                font.letterSpacing: 10
+                font.letterSpacing: 10                  //设置文字与文字之间间隔
                 //indicator: Image{source:"./picture/退出游戏.jpg"}
                 background: Rectangle{
                     border.color: exit.focus ? "red" : "white"
@@ -425,10 +438,16 @@ Item{
     }
     StackView{
       id:stackview_3
+      initialItem: homepage
       anchors.fill: parent
       onCurrentItemChanged: {
-          homepage.visible=depth===0
-          store.visible = depth === 1
+
+          store.visible = currentItem === store;
+          homepage.visible = currentItem === homepage;
+
+          if(currentItem === homepage){
+              start.forceActiveFocus();                 //切换回homepage时强制按钮获得焦点，否则焦点丢失
+          }
       }
     }
 
@@ -658,11 +677,8 @@ Item{
             Layout.alignment: Qt.AlignHCenter
         }
     }
-
-
     //刷新画面
-    Timer
-    {
+    Timer{
         id: timer
         interval: 1000 / desiredFramesPerSecond
         repeat: true
@@ -715,7 +731,6 @@ Item{
                         height: 20
                         width: 20
                         color: "red"
-
                     }
                 }
 
@@ -748,8 +763,7 @@ Item{
                     }
                 }
             }
-
-            //敌机Boss的血量条
+                //敌机Boss的血量条
             Rectangle {
                 id: bossblood
                 visible:  true  //等Boss出来时血量可见
@@ -766,8 +780,6 @@ Item{
                     textFormat: Text.StyledText
                 }
             }
-
-
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
                 id: pause1
@@ -781,9 +793,24 @@ Item{
                     dialogs.pause.open()
                     console.log("暂停建已激活，跳出弹窗")
                 }
+                //暂停图标（会放标签图），点击暂停会弹出对话框
+                Button{
+                    id: pause
+                    padding: 3
+                    text: qsTr(" 暂停 ")
+                    height: 50
+                    width: 50
+                    font.pointSize:8
+                    font.bold: true
+
+                    x: parent.right
+
+                    anchors.right: parent.right
+                    onClicked: model.revert()
+
+                }
             }
         }
-
         //最下方我方飞机血量，会同步游戏  待修改
         Row{
             id: bottom
@@ -804,13 +831,6 @@ Item{
                 }
             }
         }
-
-
-
-        //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
-        Popup {
-            id: dialog
-        }
         //操控飞机
         Keys.onPressed:{
             if (event.key === Qt.Key_A)movingLeft_P1 = true;
@@ -825,132 +845,9 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = false;
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
         }
-
-
     }
-    //游戏胜利后的弹窗
-    ColumnLayout{
-        anchors.fill: parent
-        visible: false
-        //测试：先设置点击按钮打开弹窗
-        Button{
-            anchors.centerIn: parent
-            text: "result"
-            onClicked: {
-                result.visible = true;      //显示弹窗
-                blurRect.visible = true;     //显示背景遮罩
-            }
-        }
-        Button{
-            //anchors.centerIn: parent
-            text: "result_2"
-            onClicked: {
-                result_2.visible = true;      //显示弹窗
-                blurRect.visible = true;     //显示背景遮罩
-            }
-        }
 
-        Rectangle{
-            id: blurRect
-            anchors.fill: parent
-            visible: false          //仅在弹窗显示时显示背景90%透明
-            color: "dimgray"        //淡灰色背景
-            opacity: 0.9            //设置透明度
 
-            //弹窗
-            Popup{
-                id:result
-                width:300
-                height: 200
-                visible: false
-                background: Rectangle{          //设置弹窗背景透明
-                    opacity: 0
-                }
-
-                x:(parent.width - width) / 2            //设置弹窗位置：页面居中
-                y:(parent.height - height) / 2
-
-                contentItem: Item{
-                    width: parent.width
-                    height: parent.height
-                     Image{
-                        source: "images/victory.png"
-                        width: 287
-                        height: 178
-                        anchors.centerIn: parent
-                     }
-                }
-
-                // Text {
-                //     text: "游戏胜利！"
-                //     anchors.top: parent.top
-                //     anchors.topMargin: 20
-                //     horizontalAlignment: Text.AlignHCenter
-                //     width: parent.width
-                //     font.pixelSize: 16
-                // }
-
-                Row{
-                    anchors.bottom:parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    spacing: 80
-                    Button {
-                        text: "返回"
-                        onClicked: {
-                            //stackview.push(homepage)
-                            result.visible = false;
-                            blurRect.visible = false;
-                        }
-                    }
-                    Button {
-                        text: "下一关"
-                        onClicked: {
-                            blurRect.visible = false;
-                            result.visible = false;
-                        }
-                    }
-                }
-                closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-            }
-
-            //游戏失败后弹窗
-            Popup{
-                id:result_2
-                width:300
-                height: 200
-                visible: false
-                background: Rectangle{          //设置弹窗背景透明
-                    opacity: 0
-                }
-
-                x:(parent.width - width) / 2            //设置弹窗位置：页面居中
-                y:(parent.height - height) / 2
-
-                contentItem: Item{
-                    width: parent.width
-                    height: parent.height
-                        Image{
-                        source: "images/defeat.png"
-                        width: 287
-                        height: 178
-                        anchors.centerIn: parent
-                        }
-                }
-
-                Button {
-                    anchors.bottom:parent.bottom
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    text: "返回"
-                    onClicked: {
-                        //stackview.push(homepage)
-                        result_2.visible = false;
-                        blurRect.visible = false;
-                    }
-                }
-            closePolicy: Popup.CloseOnEscape | Popup.CloseOnPressOutside
-            }
-        }
-    }
 
 
     //游戏商店装备购买界面
@@ -963,6 +860,13 @@ Item{
             font.pointSize: 20
             Layout.alignment: Qt.AlignHCenter
         }
+        Button{
+            text:'返回主页'
+            onClicked: {
+                stackview_3.pop()                   //返回上一页
+            }
+        }
+
         GridView{
             id:equipment
             visible: true
@@ -976,7 +880,6 @@ Item{
                 width: 90
                 height: 70
                 color: "pink"
-
             }
             // property bool showDualSelection: false
             // Component{
@@ -1168,7 +1071,6 @@ Item{
             //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
             Popup {
                 id: dialog2
-
             }
             //操控飞机
             Keys.onPressed:{

@@ -7,6 +7,7 @@ Item {
        property alias exitAction: _exit
        property alias musicAction: _music
        property alias closemusicAction: _closemusic
+       property alias start: _start
 
         Action{
             id:_restart
@@ -33,5 +34,9 @@ Item {
             id:_closemusic
             text: qsTr("音效")
             icon.name: "audio-volume-muted-symbolic"
+        }
+        Action{
+            id:_start
+            text: "开始游戏"
         }
 }
