@@ -391,48 +391,6 @@ Item{
     }
 
 
-<<<<<<< HEAD
-    //玩家人数选择
-    ColumnLayout{
-        id:player
-        visible: false
-        anchors.fill: parent
-        anchors.topMargin: 200
-        anchors.bottomMargin: 200
-        Repeater {
-            model: [{"name":"单人模式"},
-                    {"name":"双人模式"}]
-            delegate: Button {
-                font.pointSize: 25
-                font.bold: true // 设置字体加粗
-                text: modelData.name // 显示模型中的数据
-                Layout.alignment: Qt.AlignHCenter
-                background:Rectangle{
-                    implicitHeight: 50
-                    implicitWidth: 200
-                    color: "red"
-                }
-                onClicked: {
-                    if (text === "单人模式") {
-                        plane.showDualSelection = false
-                        player.visible = false
-                        plane.visible = true
-                        planeSet.visible = true
-                        plane.focus = true// 确保GridView可以接收键盘事件
-                    } else if (text === "双人模式") {
-                        plane.showDualSelection = true
-                        player.visible = false
-                        plane.visible = true
-                        planeSet.visible = true
-                        plane.focus = true// 确保GridView可以接收键盘事件
-                    }
-                }
-            }
-        }
-    }
-=======
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
-
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
@@ -638,158 +596,137 @@ Item{
             Layout.alignment: Qt.AlignHCenter
         }
     }
-
-    //单人游戏界面
-<<<<<<< HEAD
-    ColumnLayout{
-            id: gamelayout
-            visible:false
-            //最上面的水平布局：金币 敌机血量 暂停建
-=======
+    //最上面的水平布局：金币 敌机血量 暂停建
     Column{
-            id: singalgamelayout
-            visible:false
-            anchors.fill:parent
-            //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
-            Row {
-                id: up
+        id: singalgamelayout
+        visible:false
+        anchors.fill:parent
+        //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
+        Row {
+            id: up
+            anchors.fill: parent
+            Column{
+                id: upleft
                 anchors.fill: parent
-                Column{
-                    id: upleft
-                    anchors.fill: parent
-                    spacing: 4 ;padding:4
-                        // 生命机会 后面会放图片，我机死一次就去掉一个生命
-                        Row{
-                            id: life
-                            spacing:2
-                            Rectangle{
-                                id:life1
-                                height: 20
-                                width: 20
-                                color: 'red'
-                            }
-                            Rectangle{
-                                 id:life2
-                                height: 20
-                                width: 20
-                                color: 'red'
-                            }
-                            Rectangle{
-                                 id:life3
-                                height: 20
-                                width: 20
-                                color: "red"
-
-                            }
-                        }
-
-                    //积分 根据击败敌机获得积分（数值）
+                spacing: 4 ;padding:4
+                // 生命机会 后面会放图片，我机死一次就去掉一个生命
+                Row{
+                    id: life
+                    spacing:2
                     Rectangle{
-                            id: scores
-                            height: 20
-                            width: 70
-                            color: "#00F215"
-                            Text{
-                                text: qsTr("积分值")
-                                anchors.centerIn: parent  //居中
-                            }
-                        }
+                        id:life1
+                        height: 20
+                        width: 20
+                        color: 'red'
+                    }
+                    Rectangle{
+                         id:life2
+                        height: 20
+                        width: 20
+                        color: 'red'
+                    }
+                    Rectangle{
+                         id:life3
+                        height: 20
+                        width: 20
+                        color: "red"
 
-
-                        // 金币栏 金币图+游戏获得的金币数值
-                        Row{
-                            //金币图
-                            Rectangle {
-                            id: money
-                            height: 20
-                            width: 20
-                            color: "#FA7E23"
-                            }
-                            Text {
-                                id: moneytext
-                                text:"金币值"
-                                font.pointSize:  11
-
-                            }
-                        }
-                }
-
-<<<<<<< HEAD
-=======
-                //敌机Boss的血量条
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
-                Rectangle {
-                    id: bossblood
-                    visible:  true  //等Boss出来时血量可见
-                    height: 25
-                    width: 535
-                    color: "red"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    // anchors.left: jinbi.right
-                    Text {
-                        id: blood
-                        text: qsTr("Boss血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
-                        textFormat: Text.StyledText
                     }
                 }
 
-                //暂停图标（会放标签图），点击暂停会弹出对话框
-                Button{
-                    id: pause
-                    padding: 3
-                    text: qsTr(" 暂停 ")
-                    height: 50
-                    width: 50
-                    font.pointSize:8
-                    font.bold: true
-<<<<<<< HEAD
-                    x: parent.right
-=======
-                    anchors.right: parent.right
-                    onClicked: model.revert()
+                //积分 根据击败敌机获得积分（数值）
+                Rectangle{
+                        id: scores
+                        height: 20
+                        width: 70
+                        color: "#00F215"
+                        Text{
+                            text: qsTr("积分值")
+                            anchors.centerIn: parent  //居中
+                        }
+                    }
 
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
-                }
-            }
-
-            //最下方我方飞机血量，会同步游戏  待修改
-            Row{
-                id: bottom
-<<<<<<< HEAD
-                Layout.alignment: Qt.AlignHCenter
-=======
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottomMargin: 5
-                Rectangle {
-                    id: _playerblood
+                // 金币栏 金币图+游戏获得的金币数值
+                Row{
+                    //金币图
+                    Rectangle {
+                    id: money
                     height: 20
-                    width: 345
-                    color: "red"
+                    width: 20
+                    color: "#FA7E23"
+                    }
                     Text {
-                        id: _player
-                        text: qsTr("血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
+                        id: moneytext
+                        text:"金币值"
+                        font.pointSize:  11
+
                     }
                 }
             }
-<<<<<<< HEAD
-=======
 
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
-            //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
-            Popup {
-                id: dialog
+            //敌机Boss的血量条
+            Rectangle {
+                id: bossblood
+                visible:  true  //等Boss出来时血量可见
+                height: 25
+                width: 535
+                color: "red"
+                anchors.horizontalCenter: parent.horizontalCenter
+                // anchors.left: jinbi.right
+                Text {
+                    id: blood
+                    text: qsTr("Boss血量条")
+                    anchors.centerIn: parent
+                    font.pointSize:  15
+                    textFormat: Text.StyledText
+                }
             }
 
+            //暂停图标（会放标签图），点击暂停会弹出对话框
+            Button{
+                id: pause
+                padding: 3
+                text: qsTr(" 暂停 ")
+                height: 50
+                width: 50
+                font.pointSize:8
+                font.bold: true
+
+                x: parent.right
+                anchors.right: parent.right
+                onClicked: model.revert()
+
+            }
         }
 
-<<<<<<< HEAD
+        //最下方我方飞机血量，会同步游戏  待修改
+        Row{
+            id: bottom
+            Layout.alignment: Qt.AlignHCenter
+
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 5
+            Rectangle {
+                id: _playerblood
+                height: 20
+                width: 345
+                color: "red"
+                Text {
+                    id: _player
+                    text: qsTr("血量条")
+                    anchors.centerIn: parent
+                    font.pointSize:  15
+                }
+            }
+        }
+
+        //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
+        Popup {
+            id: dialog
+        }
+
+    }
     //游戏胜利后的弹窗
     ColumnLayout{
         anchors.fill: parent
@@ -958,7 +895,6 @@ Item{
         }
     }
 
-=======
     //双人游戏界面
     Column{
             id: doublegamelayout
@@ -1133,5 +1069,4 @@ Item{
 
             }
          }
->>>>>>> 982a86265b9b8a8f2c2fe8f2b5aa895ce770b524
 }
