@@ -7,9 +7,29 @@ Item{
     property alias plane: plane
     property alias homepage: homepage
     property alias stackview: stackview
+
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
     property bool condition: true
+
+    property alias mapmodel: control
+    property string myplane_1_path        // 玩家1的战机图片源
+    property string myplane_2_path        // 玩家2的战机图片源
+    property bool isDouble                //是否为双人模式
+    property alias timerSingle: timer
+    property int desiredFramesPerSecond: 60 // 期望的每秒帧数
+    //P1移动状态
+    property bool movingLeft_P1: false
+    property bool movingRight_P1: false
+    property bool movingUp_P1: false
+    property bool movingDown_P1: false
+    //P2移动状态
+    property bool movingLeft_P2: false
+    property bool movingRight_P2: false
+    property bool movingUp_P2: false
+    property bool movingDown_P2: false
+    property string map_path: "./images/map1.png"    //地图图片源
+
     anchors.fill: parent
 
     //模式选择
@@ -114,13 +134,33 @@ Item{
                         horizontalAlignment: Text.AlignHCenter // 水平居中
                         verticalAlignment: Text.AlignVCenter // 垂直居中
                     }
-                    //添加数据
-                    model:ListModel{
-                        ListElement{text:" 戈壁"}
-                        ListElement{text:" 工厂"}
-                        ListElement{text:" 天空"}
-                        ListElement{text:" 随机"}
+                    // 定义您的模型，不包括 "随机" 元素
+                    model: ListModel{
+                        ListElement{
+                            text:" 戈壁"
+                            mapPath: "map1.png" }
+                        ListElement{
+                            text:" 工厂"
+                            mapPath: "plane2.png" }
+                        ListElement{
+                            text:" 天空"
+                            mapPath: "plane3.png" }
                     }
+
+                    // 在模型定义之后，添加带有随机 mapPath 的 "随机" 元素
+                    Component.onCompleted: {
+                        var randomIndex = Math.floor(Math.random() * control.model.count)
+                        var randomMapPath = model.get(randomIndex).mapPath
+                        model.append({ text: " 随机",mapPath: randomMapPath })
+                    }
+                    // 监听当前索引的变化
+                    onCurrentIndexChanged: {
+                        var currentMapPath = control.model.get(control.currentIndex).mapPath
+                        console.log("当前 mapPath:", currentMapPath)
+                        map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath//当前选中的地图路径赋给map_path
+                        console.log("Selected map source: ",map_path)
+                    }
+
                     //设计右侧的小图标的样式
                     indicator: Canvas {
                         id: canvas
@@ -185,7 +225,6 @@ Item{
         }
 
         //玩家人数选择
-        // 玩家人数选择
         RowLayout {
             Layout.alignment: Qt.AlignHCenter
             Layout.bottomMargin: window_Height / 10
@@ -206,6 +245,7 @@ Item{
                     singleButton.checked = true
                     doubleButton.checked = false
                     plane.showDualSelection = false
+                    isDouble = false
                 }
                 HoverHandler {
                     id: hoverSingle
@@ -227,6 +267,7 @@ Item{
                     singleButton.checked = false
                     doubleButton.checked = true
                     plane.showDualSelection = true
+                    isDouble = true
                 }
                 HoverHandler {
                     id: hoverDouble
@@ -252,11 +293,9 @@ Item{
                 stackview.push(planeSet)
                 plane.visible = true
                 plane.focus = true// 确保GridView可以接收键盘事件
+                mode.focus = false
                 console.log("clicked")
             }
-            /*Keys.onEnterPressed: {
-                next.clicked()
-            }*/
         }
     }
     StackView{
@@ -307,6 +346,7 @@ Item{
                 //键盘快捷键响应
                 Keys.onSpacePressed: {
                     start.clicked()
+                    start.focus = false//解决空格连续跳转问题
                 }
             }
 
@@ -390,6 +430,13 @@ Item{
           homepage.visible=depth===0
           store.visible = depth === 1
       }
+    }
+
+    Map{
+        id:map
+    }
+    Myplane{
+        id:myplane
     }
 
 
@@ -563,13 +610,26 @@ Item{
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
                 if(showDualSelection&&plane.currentIndexWSAD!==-1&&plane.currentIndexArrows!==-1){
-                    // Qt.quit()
+                    myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
+                    myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
+                    console.log("Selected P1 source: ",myplane_1_path)
+                    console.log("Selected P2 source: ",myplane_2_path)
                     planeSet.visible = false
+                    myplane.doubleplayer()
+                    map.visible = true
+                    doublegamelayout.forceActiveFocus()
+                    timer.running = true    //开启计时器
                     doublegamelayout.visible = true
                 }
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
-                    // Qt.quit()
+                    myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
+                    console.log("Selected P1 source: ",myplane_1_path)
+                    console.log("Selected P2 source: ",myplane_2_path)
                     planeSet.visible = false
+                    myplane.singleplayer()
+                    map.visible = true
+                    singalgamelayout.forceActiveFocus()
+                    timer.running = true    //开启计时器
                     singalgamelayout.visible = true
                 }
             }
@@ -599,13 +659,35 @@ Item{
         }
     }
 
+
+    //刷新画面
+    Timer
+    {
+        id: timer
+        interval: 1000 / desiredFramesPerSecond
+        repeat: true
+        running: false
+        onTriggered:
+        {
+            map.updateMap()
+            //飞机移动重绘
+            if(!isDouble){
+                //单人
+                myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
+            }else{
+                //双人
+                myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
+                                                movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
+            }
+        }
+    }
     //单人游戏界面
-    Rectangle{
+    Item{
         id: singalgamelayout
         visible:false
         anchors.fill:parent
         //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
-        Rectangle {
+        Item {
             id: up
             anchors.fill: parent
             Column{
@@ -722,10 +804,34 @@ Item{
                 }
             }
         }
+
+
+
+        //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
+        Popup {
+            id: dialog
+        }
+        //操控飞机
+        Keys.onPressed:{
+            if (event.key === Qt.Key_A)movingLeft_P1 = true;
+            else if (event.key === Qt.Key_D) movingRight_P1 = true;
+            else if (event.key === Qt.Key_W) movingUp_P1 = true;
+            else if (event.key === Qt.Key_S) movingDown_P1 = true;
+        }
+
+        Keys.onReleased:{
+            if (event.key === Qt.Key_A) movingLeft_P1 = false;
+            else if (event.key === Qt.Key_D) movingRight_P1 = false;
+            else if (event.key === Qt.Key_W) movingUp_P1 = false;
+            else if (event.key === Qt.Key_S) movingDown_P1 = false;
+        }
+
+
     }
     //游戏胜利后的弹窗
     ColumnLayout{
         anchors.fill: parent
+        visible: false
         //测试：先设置点击按钮打开弹窗
         Button{
             anchors.centerIn: parent
@@ -1063,6 +1169,31 @@ Item{
             Popup {
                 id: dialog2
 
+            }
+            //操控飞机
+            Keys.onPressed:{
+                //P1
+                if (event.key === Qt.Key_A)movingLeft_P1 = true;
+                else if (event.key === Qt.Key_D) movingRight_P1 = true;
+                else if (event.key === Qt.Key_W) movingUp_P1 = true;
+                else if (event.key === Qt.Key_S) movingDown_P1 = true;
+                //P2
+                if (event.key === Qt.Key_Left)movingLeft_P2 = true;
+                else if (event.key === Qt.Key_Right) movingRight_P2 = true;
+                else if (event.key === Qt.Key_Up) movingUp_P2 = true;
+                else if (event.key === Qt.Key_Down) movingDown_P2 = true;
+            }
+            Keys.onReleased:{
+                //P1
+                if (event.key === Qt.Key_A) movingLeft_P1 = false;
+                else if (event.key === Qt.Key_D) movingRight_P1 = false;
+                else if (event.key === Qt.Key_W) movingUp_P1 = false;
+                else if (event.key === Qt.Key_S) movingDown_P1 = false;
+                //P2
+                if (event.key === Qt.Key_Left) movingLeft_P2 = false;
+                else if (event.key === Qt.Key_Right) movingRight_P2 = false;
+                else if (event.key === Qt.Key_Up) movingUp_P2 = false;
+                else if (event.key === Qt.Key_Down) movingDown_P2 = false;
             }
          }
 
