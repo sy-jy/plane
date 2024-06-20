@@ -16,12 +16,18 @@ ApplicationWindow {
 
 
     Actions{
-        id:actions
+        id:actions        
+    }
+
+    Dialogs{
+        id:dialogs
+        anchors.fill: parent
     }
 
     Content {
         id: content
         anchors.fill: parent
+
     }
 }
 

@@ -9,7 +9,9 @@ Item{
     property alias stackview: stackview
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
+    property bool condition: true
     anchors.fill: parent
+
     //模式选择
     ColumnLayout{
         visible: false
@@ -596,13 +598,14 @@ Item{
             Layout.alignment: Qt.AlignHCenter
         }
     }
-    //最上面的水平布局：金币 敌机血量 暂停建
-    Column{
+
+    //单人游戏界面
+    Rectangle{
         id: singalgamelayout
         visible:false
         anchors.fill:parent
         //最上面的水平布局：生命机会 积分 金币值 敌机血量 暂停建
-        Row {
+        Rectangle {
             id: up
             anchors.fill: parent
             Column{
@@ -672,7 +675,7 @@ Item{
                 width: 535
                 color: "red"
                 anchors.horizontalCenter: parent.horizontalCenter
-                // anchors.left: jinbi.right
+                // anchors.left: upleft.right
                 Text {
                     id: blood
                     text: qsTr("Boss血量条")
@@ -682,20 +685,20 @@ Item{
                 }
             }
 
+
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
-                id: pause
-                padding: 3
-                text: qsTr(" 暂停 ")
+                id: pause1
+                text: " 暂停 "
                 height: 50
                 width: 50
                 font.pointSize:8
                 font.bold: true
-
-                x: parent.right
                 anchors.right: parent.right
-                onClicked: model.revert()
-
+                onClicked: {
+                    dialogs.pause.open()
+                    console.log("暂停建已激活，跳出弹窗")
+                }
             }
         }
 
@@ -703,7 +706,6 @@ Item{
         Row{
             id: bottom
             Layout.alignment: Qt.AlignHCenter
-
             anchors.bottom: parent.bottom
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottomMargin: 5
@@ -720,12 +722,6 @@ Item{
                 }
             }
         }
-
-        //暂停键点击会触发弹窗,有重新开始、继续、退出游戏、音效键
-        Popup {
-            id: dialog
-        }
-
     }
     //游戏胜利后的弹窗
     ColumnLayout{
@@ -896,12 +892,12 @@ Item{
     }
 
     //双人游戏界面
-    Column{
+    Item {
             id: doublegamelayout
             visible:false
             anchors.fill:parent
             //最上面的水平布局： 积分 金币值 敌机Boss血量 暂停建
-            Row {
+            Item {
                 id: top
                 anchors.fill: parent
                 Column{
@@ -960,20 +956,20 @@ Item{
                 //暂停图标（会放标签图），点击暂停会弹出对话框
                 Button{
                     id: pause2
-                    padding: 3
                     text: qsTr(" 暂停 ")
-                    height: 50
-                    width: 50
+                    height: 50; width: 50
                     font.pointSize:8
                     font.bold: true
                     anchors.right: parent.right
-                    onClicked: model.revert()
-
-                }
+                    onClicked:{
+                            dialogs.pause.open()
+                            console.log("暂停建已激活，跳出弹窗")
+                        }
+                    }
             }
 
             //P1 P2
-            Row{
+            Item{
                 id: bottom2
                 anchors.bottom: parent.bottom
                 anchors.fill: parent
@@ -1069,4 +1065,9 @@ Item{
 
             }
          }
+
+    Dialogs{
+        id:dialogs
+    }
 }
+
