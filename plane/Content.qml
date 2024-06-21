@@ -985,6 +985,45 @@ Item{
                         font.pointSize:  15
                         textFormat: Text.StyledText
                     }
+                    // 血量条背景
+                    Rectangle {
+                        id: bossbloodBackground
+                        anchors.centerIn: parent
+                        // width: 300
+                        // height: 30
+                        color: "gray"
+                    }
+
+                    // 血量条当前值
+                    Rectangle {
+                        id: bossbloodmove
+                        anchors.left: bossbloodBackground.left
+                        anchors.verticalCenter: bossbloodBackground.verticalCenter
+                        width: bossbloodBackground.width * bloodValue
+                        height: bossbloodBackground.height
+                        color: "red"
+                    }
+
+                    // 血量逻辑
+                    property real bloodValue: 1.0 // 初始血量为满血
+
+                    // 减少血量的函数
+                    function decreaseBlood() {
+                        bloodValue -= 0.01; // 每次减少1%
+                        if (bloodValue < 0) {
+                            bloodValue = 0;
+                        }
+                        bossbloodmove.width = bossbloodBackground.width * bloodValue;
+                    }
+
+                    // Timer用于定期减少血量
+                    Timer {
+                        id: bloodTimer
+                        interval: 1000 // 1秒减少一次血量
+                        running: true
+                        repeat: true
+                        onTriggered: enemys.decreaseBlood()
+                    }
                 }
 
                 //暂停图标（会放标签图），点击暂停会弹出对话框
@@ -1192,6 +1231,10 @@ Item{
 
     Dialogs{
         id:dialogs
+    }
+
+    Enemy{
+        id:enemys
     }
 }
 

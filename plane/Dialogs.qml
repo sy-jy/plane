@@ -33,6 +33,7 @@ Item {
         id: _pause
         width: 280;height: 350
         anchors.centerIn: parent
+        modal: true
 
         Column{
             // anchors.fill: parent
