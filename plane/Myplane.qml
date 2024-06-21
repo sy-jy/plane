@@ -14,6 +14,8 @@ Item {
     property int plane_2_X: (window_Width-myplane_Width)/9*8
     property int plane_2_Y: window_Height-myplane_Height
 
+    property int blood: 100 //每条命的血量
+    property int lives: 4   //拥有总生命数
     function singleplayer(){
         myplane_1.visible = true
     }
