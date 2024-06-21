@@ -19,10 +19,10 @@ ApplicationWindow {
         id:actions        
     }
 
-    Dialogs{
-        id:dialogs
-        anchors.fill: parent
-    }
+    // Dialogs{
+    //     id:dialogs
+    //     anchors.fill: parent
+    // }
 
     Content{
         id: content

@@ -15,8 +15,12 @@ Item{
     property alias mapmodel: control
     property string myplane_1_path        // 玩家1的战机图片源
     property string myplane_2_path        // 玩家2的战机图片源
+
+    property string mybullet_1_path       //子弹图片源1
+
     property bool isDouble                //是否为双人模式
     property alias timerSingle: timer
+    //property alias timermybullet: bulletTimer
     property int desiredFramesPerSecond: 60 // 期望的每秒帧数
     //P1移动状态
     property bool movingLeft_P1: false
@@ -457,6 +461,9 @@ Item{
     Myplane{
         id:myplane
     }
+    Bullet{
+        id:bullet
+    }
 
 
     //玩家飞机样式选择
@@ -686,10 +693,13 @@ Item{
         onTriggered:
         {
             map.updateMap()
+            //bullet.updateMybulletPosition()
+            //bullet.shoot()
             //飞机移动重绘
             if(!isDouble){
                 //单人
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
+                bullet.updateMybulletPosition()
             }else{
                 //双人
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
@@ -697,6 +707,18 @@ Item{
             }
         }
     }
+
+    // Timer{
+    //     id:bulletTimer
+    //     interval: 250
+    //     repeat: true
+    //     running: true
+    //     onTriggered: {
+    //         bullet.updateMybulletPosition()
+
+    //     }
+    // }
+
     //单人游戏界面
     Item{
         id: singalgamelayout

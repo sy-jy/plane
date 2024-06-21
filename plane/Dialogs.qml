@@ -7,12 +7,13 @@ Item {
     property alias defeat: defeat_Dialog
     anchors.fill: parent
     property alias pause: _pause
+
+    //测试：
     Timer{
         id:timer
         interval:1000
         running:true
-        repeat: true
-
+        repeat: ture
         property int bossblood_6: 3
 
         onTriggered: {
@@ -73,22 +74,25 @@ Item {
             }
         }
     }
+
+    //游戏结束时弹窗
     Rectangle{
         id: blurRect
         anchors.fill: parent
-        visible: false
-        color:"dimgray"
-        opacity: 0.9
+        visible: false                  //遮罩层初始不可见，仅在弹窗时显示
+        color:"dimgray"                 //设置为灰色背景
+        opacity: 0.9                    //设置透明度
 
+        //游戏胜利弹窗
         Dialog{
             id:victory_Dialog
             width: 410
             height:210
-            background:Rectangle{
+            background:Rectangle{               //设置弹窗背景透明
                 opacity: 0
             }
 
-            anchors.centerIn: parent
+            anchors.centerIn: parent            //弹窗居中
 
             contentItem: Column{
                 width: parent.width
@@ -120,6 +124,8 @@ Item {
                 }
             }
         }
+
+        //游戏失败弹窗
         Dialog{
             id:defeat_Dialog
             width: 410

@@ -47,6 +47,10 @@ Item {
         myplane_2.y = plane_2_Y;
     }
 
+    // function shoot(){
+    //     my_bullet_1.y -=
+    // }
+
     //飞机操控
     Image {
         id: myplane_1
@@ -66,5 +70,4 @@ Item {
         y:plane_2_Y
         visible: false
     }
-
 }
