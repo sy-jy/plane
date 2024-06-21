@@ -57,7 +57,8 @@ qt_add_qml_module(
   images/map1.png
   QML_FILES
   Bgm.qml
-  RESOURCES wav/boom.wav wav/exploBig.wav wav/exploPop.wav wav/exploStd.wav wav/life_add.wav wav/life_lose.wav wav/music_game.wav wav/music_menu.wav wav/power.wav)
+  RESOURCES wav/boom.wav wav/exploBig.wav wav/exploPop.wav wav/exploStd.wav wav/life_add.wav wav/life_lose.wav wav/music_game.wav wav/music_menu.wav wav/power.wav
+  RESOURCES images/heroSuper.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

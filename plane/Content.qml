@@ -645,6 +645,8 @@ Item{
                     console.log("Selected P2 source: ",myplane_2_path)
                     startgame()
                     myplane.doubleplayer()  //显示双人飞机
+                    myplane.shield_1.activateShield()//开局护盾
+                    myplane.shield_2.activateShield()//开局护盾
                     doublegamelayout.forceActiveFocus()
                     doublegamelayout.visible = true
                 }
@@ -652,6 +654,7 @@ Item{
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
                     startgame()
                     myplane.singleplayer()  //显示单人飞机
+                    myplane.shield_1.activateShield()//开局护盾
                     singalgamelayout.forceActiveFocus()
                     singalgamelayout.visible = true
                 }
@@ -844,6 +847,7 @@ Item{
                             remainlife_1--;
                             lifeModel.get(remainlife_1).visible= false
                             bloodProgress.value = myplane.blood
+                            myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
                         }
                     }
                 }
@@ -1066,6 +1070,7 @@ Item{
                                         remainlife_1--;
                                         lifeModel_1.get(remainlife_1).visible= false
                                         bloodProgress_1.value = myplane.blood
+                                        myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
                                     }
                                 }
                             }
@@ -1141,6 +1146,7 @@ Item{
                                         remainlife_2--;
                                         lifeModel_2.get(remainlife_2).visible= false
                                         bloodProgress_2.value = myplane.blood
+                                        myplane.shield_2.activateShield()//失去一条命，护盾无敌时间
                                     }
                                 }
                             }
