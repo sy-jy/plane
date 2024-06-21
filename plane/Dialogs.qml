@@ -7,8 +7,10 @@ Item {
     property alias defeat: defeat_Dialog
     anchors.fill: parent
     property alias pause: _pause
-
     //测试：
+    property alias music: _music
+    property bool musicEnabled: true  // 用于跟踪音效状态的属性
+
     Timer{
         id:timer
         interval:1000
@@ -31,6 +33,7 @@ Item {
         id: _pause
         width: 280;height: 350
         anchors.centerIn: parent
+        modal: true
 
         Column{
             // anchors.fill: parent
@@ -64,13 +67,10 @@ Item {
                 }
              }
             Button{
-               id:_music
-               width: 200; height: 65
-               action: actions.musicAction
-               anchors.horizontalCenter: parent.horizontalCenter
-               onClicked: {
-                   console.log("音效开启/关闭")
-               }
+                id:_music
+                width: 200; height: 65
+                action: actions.musicAction
+                anchors.horizontalCenter: parent.horizontalCenter
             }
         }
     }

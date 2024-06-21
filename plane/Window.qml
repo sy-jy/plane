@@ -5,6 +5,7 @@ import QtQuick.Layouts
 ApplicationWindow {
     property int window_Width: 960
     property int window_Height: 540
+    property alias bgm: bgm
     maximumWidth: window_Width
     minimumWidth: window_Width
     maximumHeight: window_Height
@@ -14,15 +15,32 @@ ApplicationWindow {
     // 设置背景颜色为白色
     color: "white"
 
-
-    Actions{
-        id:actions        
+    Bgm{
+        id:bgm
     }
 
     // Dialogs{
     //     id:dialogs
     //     anchors.fill: parent
     // }
+    Actions{
+        id:actions
+        musicAction.onTriggered: {
+            content.dialogs.musicEnabled =! content.dialogs.musicEnabled    // 切换音效状态
+            actions.musicAction.icon.name=content.dialogs.musicEnabled?
+                        "audio-volume-change":"audio-volume-muted-symbolic"
+            actions.musicAction.text=content.dialogs.musicEnabled?
+                        qsTr("关闭音效"):qsTr("开启音效")
+            if (content.dialogs.musicEnabled) {
+                bgm.gameMusic.play()
+                console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
+                console.log(bgm.gameMusic.source)
+            } else {
+                bgm.gameMusic.stop()
+                console.log("音效关闭,gameMusic.playing:",bgm.gameMusic.playing)
+            }
+        }
+    }
 
     Content{
         id: content

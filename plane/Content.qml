@@ -7,6 +7,7 @@ Item{
     property alias plane: plane
     property alias homepage: homepage
     property alias stackview: stackview
+    property alias dialogs: dialogs
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
@@ -33,7 +34,9 @@ Item{
     property bool movingUp_P2: false
     property bool movingDown_P2: false
     property string map_path: "./images/map1.png"    //地图图片源
-
+    property int remainlife_1:myplane.lives-1
+    property int remainlife_2:myplane.lives-1
+    // property alias blood: bloodSlider
     anchors.fill: parent
 
     //模式选择
@@ -632,6 +635,13 @@ Item{
                     }
                 }
             }
+            function startgame(){
+                bgm.gameMusic.play()
+                console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
+                map.visible = true      //地图显示
+                timer.running = true    //开启计时器
+            }
+
             Keys.onSpacePressed: {
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
@@ -640,22 +650,19 @@ Item{
                     myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
                     console.log("Selected P1 source: ",myplane_1_path)
                     console.log("Selected P2 source: ",myplane_2_path)
-                    planeSet.visible = false
-                    myplane.doubleplayer()
-                    map.visible = true
+                    startgame()
+                    myplane.doubleplayer()  //显示双人飞机
+                    myplane.shield_1.activateShield()//开局护盾
+                    myplane.shield_2.activateShield()//开局护盾
                     doublegamelayout.forceActiveFocus()
-                    timer.running = true    //开启计时器
                     doublegamelayout.visible = true
                 }
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
-                    console.log("Selected P1 source: ",myplane_1_path)
-                    console.log("Selected P2 source: ",myplane_2_path)
-                    planeSet.visible = false
-                    myplane.singleplayer()
-                    map.visible = true
+                    startgame()
+                    myplane.singleplayer()  //显示单人飞机
+                    myplane.shield_1.activateShield()//开局护盾
                     singalgamelayout.forceActiveFocus()
-                    timer.running = true    //开启计时器
                     singalgamelayout.visible = true
                 }
             }
@@ -700,10 +707,13 @@ Item{
                 //单人
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
                 bullet.updateMybulletPosition()
+                bloodProgress.value-=1//测试血量条
             }else{
                 //双人
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
+                bloodProgress_1.value-=1//测试血量条
+                bloodProgress_2.value-=0.5//测试血量条
             }
         }
     }
@@ -736,23 +746,27 @@ Item{
                 Row{
                     id: life
                     spacing:2
-                    Rectangle{
-                        id:life1
-                        height: 20
-                        width: 20
-                        color: 'red'
+                    ListModel {
+                        id: lifeModel
+                        ListElement { visible: true}
+                        ListElement { visible: true}
+                        ListElement {visible: true}
                     }
-                    Rectangle{
-                         id:life2
-                        height: 20
-                        width: 20
-                        color: 'red'
+                    Repeater {
+                        model: lifeModel
+                        Rectangle {
+                            id: lifeItem
+                            height: 20
+                            width: 20
+                            color: "red"
+                            visible: model.visible
+                        }
                     }
-                    Rectangle{
-                         id:life3
+                    // 占位矩形，确保在所有生命值图标都不可见时，Row仍然保持高度
+                    Rectangle {
                         height: 20
-                        width: 20
-                        color: "red"
+                        width: 66
+                        color: "transparent"
                     }
                 }
 
@@ -815,22 +829,6 @@ Item{
                     dialogs.pause.open()
                     console.log("暂停建已激活，跳出弹窗")
                 }
-                //暂停图标（会放标签图），点击暂停会弹出对话框
-                Button{
-                    id: pause
-                    padding: 3
-                    text: qsTr(" 暂停 ")
-                    height: 50
-                    width: 50
-                    font.pointSize:8
-                    font.bold: true
-
-                    x: parent.right
-
-                    anchors.right: parent.right
-                    onClicked: model.revert()
-
-                }
             }
         }
         //最下方我方飞机血量，会同步游戏  待修改
@@ -844,7 +842,37 @@ Item{
                 id: _playerblood
                 height: 20
                 width: 345
-                color: "red"
+                color: "transparent"
+                ProgressBar {
+                    id: bloodProgress
+                    anchors.fill: parent
+                    value: myplane.blood
+                    from: 0
+                    to: myplane.blood
+                    anchors.centerIn: parent
+                    contentItem: Rectangle {
+                        width: bloodProgress.value / bloodProgress.to * bloodProgress.width
+                        height: bloodProgress.height
+                        radius: 20
+                        color: "red"
+                    }
+                    background: Rectangle {
+                        implicitWidth: bloodProgress.width
+                        implicitHeight: bloodProgress.height
+                        radius: 20
+                        color: "gray" // 进度条背景的颜色
+                    }
+                    onValueChanged: {
+                        // 添加血量变化的逻辑
+                        console.log("当前血量：", bloodProgress.value)
+                        if(bloodProgress.value===0&&remainlife_1!==0){
+                            remainlife_1--;
+                            lifeModel.get(remainlife_1).visible= false
+                            bloodProgress.value = myplane.blood
+                            myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                        }
+                    }
+                }
                 Text {
                     id: _player
                     text: qsTr("血量条")
@@ -868,9 +896,6 @@ Item{
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
         }
     }
-
-
-
 
     //游戏商店装备购买界面
     ColumnLayout{
@@ -982,6 +1007,45 @@ Item{
                         font.pointSize:  15
                         textFormat: Text.StyledText
                     }
+                    // 血量条背景
+                    Rectangle {
+                        id: bossbloodBackground
+                        anchors.centerIn: parent
+                        // width: 300
+                        // height: 30
+                        color: "gray"
+                    }
+
+                    // 血量条当前值
+                    Rectangle {
+                        id: bossbloodmove
+                        anchors.left: bossbloodBackground.left
+                        anchors.verticalCenter: bossbloodBackground.verticalCenter
+                        width: bossbloodBackground.width * bloodValue
+                        height: bossbloodBackground.height
+                        color: "red"
+                    }
+
+                    // 血量逻辑
+                    property real bloodValue: 1.0 // 初始血量为满血
+
+                    // 减少血量的函数
+                    function decreaseBlood() {
+                        bloodValue -= 0.01; // 每次减少1%
+                        if (bloodValue < 0) {
+                            bloodValue = 0;
+                        }
+                        bossbloodmove.width = bossbloodBackground.width * bloodValue;
+                    }
+
+                    // Timer用于定期减少血量
+                    Timer {
+                        id: bloodTimer
+                        interval: 1000 // 1秒减少一次血量
+                        running: true
+                        repeat: true
+                        onTriggered: enemys.decreaseBlood()
+                    }
                 }
 
                 //暂停图标（会放标签图），点击暂停会弹出对话框
@@ -1012,24 +1076,27 @@ Item{
                     padding: 5
                     Row{
                         spacing:2 ;padding: 2
-                        Rectangle{
-                             id: _player1life1
-                            height: 20
-                            width: 20
-                            color: 'red'
+                        ListModel {
+                            id: lifeModel_1
+                            ListElement { visible: true}
+                            ListElement { visible: true}
+                            ListElement {visible: true}
                         }
-                        Rectangle{
-                            id: _player1life2
-                            height: 20
-                            width: 20
-                            color: 'red'
+                        Repeater {
+                            model: lifeModel_1
+                            Rectangle {
+                                id: lifeItem_1
+                                height: 20
+                                width: 20
+                                color: "red"
+                                visible: model.visible
+                            }
                         }
-                        Rectangle{
-                            id: _player1life3
+                        // 占位矩形，确保在所有生命值图标都不可见时，Row仍然保持高度
+                        Rectangle {
                             height: 20
-                            width: 20
-                            color: "red"
-
+                            width: 66
+                            color: "transparent"
                         }
                     }
                     //玩家一血量条
@@ -1037,7 +1104,37 @@ Item{
                         id: _player1blood
                         height: 20
                         width: 300
-                        color: "red"
+                        color: "transparent"
+                        ProgressBar {
+                                id: bloodProgress_1
+                                anchors.fill: parent
+                                value: myplane.blood
+                                from: 0
+                                to: myplane.blood
+                                anchors.centerIn: parent
+                                contentItem: Rectangle {
+                                    width: bloodProgress_1.value / bloodProgress_1.to * bloodProgress_1.width
+                                    height: bloodProgress_1.height
+                                    radius: 20
+                                    color: "red"
+                                }
+                                background: Rectangle {
+                                    implicitWidth: bloodProgress_1.width
+                                    implicitHeight: bloodProgress_1.height
+                                    radius: 20
+                                    color: "gray" // 进度条背景的颜色
+                                }
+                                onValueChanged: {
+                                    // 添加血量变化的逻辑
+                                    console.log("当前血量：", bloodProgress_1.value)
+                                    if(bloodProgress_1.value===0&&remainlife_1!==0){
+                                        remainlife_1--;
+                                        lifeModel_1.get(remainlife_1).visible= false
+                                        bloodProgress_1.value = myplane.blood
+                                        myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                                    }
+                                }
+                            }
                         Text {
                             id: _player1text
                             text: qsTr("P1血量条")
@@ -1055,24 +1152,27 @@ Item{
                     padding: 5
                     Row{
                         spacing:2 ; padding: 2
-                        Rectangle{
-                            id: _player2life1
-                            height: 20
-                            width: 20
-                            color: 'red'
+                        ListModel {
+                            id: lifeModel_2
+                            ListElement { visible: true}
+                            ListElement { visible: true}
+                            ListElement {visible: true}
                         }
-                        Rectangle{
-                            id: _player2life2
-                            height: 20
-                            width: 20
-                            color: 'red'
+                        Repeater {
+                            model: lifeModel_2
+                            Rectangle {
+                                id: lifeItem_2
+                                height: 20
+                                width: 20
+                                color: "red"
+                                visible: model.visible
+                            }
                         }
-                        Rectangle{
-                            id: _player2life3
+                        // 占位矩形，确保在所有生命值图标都不可见时，Row仍然保持高度
+                        Rectangle {
                             height: 20
-                            width: 20
-                            color: "red"
-
+                            width: 66
+                            color: "transparent"
                         }
                     }
                     //玩家二血量条
@@ -1080,7 +1180,37 @@ Item{
                         id: _player2blood
                         height: 20
                         width: 300
-                        color: "red"
+                        color: "transparent"
+                        ProgressBar {
+                                id: bloodProgress_2
+                                anchors.fill: parent
+                                value: myplane.blood
+                                from: 0
+                                to: myplane.blood
+                                anchors.centerIn: parent
+                                contentItem: Rectangle {
+                                    width: bloodProgress_2.value / bloodProgress_2.to * bloodProgress_2.width
+                                    height: bloodProgress_2.height
+                                    radius: 20
+                                    color: "red"
+                                }
+                                background: Rectangle {
+                                    implicitWidth: bloodProgress_2.width
+                                    implicitHeight: bloodProgress_2.height
+                                    radius: 20
+                                    color: "gray" // 进度条背景的颜色
+                                }
+                                onValueChanged: {
+                                    // 添加血量变化的逻辑
+                                    console.log("当前血量：", bloodProgress_2.value)
+                                    if(bloodProgress_2.value===0&&remainlife_2!==0){
+                                        remainlife_2--;
+                                        lifeModel_2.get(remainlife_2).visible= false
+                                        bloodProgress_2.value = myplane.blood
+                                        myplane.shield_2.activateShield()//失去一条命，护盾无敌时间
+                                    }
+                                }
+                            }
                         Text {
                             id: _player2text
                             text: qsTr("P2血量条")
@@ -1123,6 +1253,10 @@ Item{
 
     Dialogs{
         id:dialogs
+    }
+
+    Enemy{
+        id:enemys
     }
 }
 

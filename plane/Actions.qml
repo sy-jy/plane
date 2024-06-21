@@ -6,7 +6,7 @@ Item {
        property alias continueAction: _continue
        property alias exitAction: _exit
        property alias musicAction: _music
-       property alias closemusicAction: _closemusic
+       // property alias closemusicAction: _closemusic
        property alias start: _start
 
         Action{
@@ -26,14 +26,8 @@ Item {
         }
         Action{
             id:_music
-            text: qsTr("音效")
+            text: qsTr("关闭音效")
             icon.name: "audio-volume-change"
-        }
-
-        Action{
-            id:_closemusic
-            text: qsTr("音效")
-            icon.name: "audio-volume-muted-symbolic"
         }
         Action{
             id:_start

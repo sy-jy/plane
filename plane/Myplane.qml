@@ -13,7 +13,18 @@ Item {
     property int plane_1_Y: window_Height-myplane_Height
     property int plane_2_X: (window_Width-myplane_Width)/9*8
     property int plane_2_Y: window_Height-myplane_Height
+    property int blood: 100 //每条命的血量
+    property int lives: 4   //拥有总生命数
 
+    //护盾
+    property alias shield_1: shield_1
+    property alias shield_2: shield_2
+    property bool isShield_1: false // 默认护盾不激活
+    property bool isShield_2: false // 默认护盾不激活
+    property string shieldPath: "./images/heroSuper.png" // 护盾图像路径
+    property int shieldDuration: 5000 // 护盾持续时间（毫秒）
+    property int shieldFadeDuration: 3000 // 护盾闪烁时间（毫秒）
+    property bool isFading: false // 护盾是否正在闪烁
     function singleplayer(){
         myplane_1.visible = true
     }
@@ -60,6 +71,58 @@ Item {
         x:content.isDouble? plane_1_X : planeX  //初始化位置解决开始时飞机闪动
         y:content.isDouble? plane_1_Y : planeY
         visible: false
+        // 护盾图像
+        Image {
+            id: shield_1
+            source: shieldPath
+            width: parent.width + myplane_Width / 8 * 3
+            height: parent.height + myplane_Height / 8 * 3
+            visible: isShield_1
+            anchors.centerIn: parent
+            // 护盾计时器
+            Timer {
+                id: shield_1_Timer
+                interval: shieldDuration
+                onTriggered: {
+                    shield_1_FadeAnimation.start()
+                }
+            }
+            // 护盾闪烁动画
+            SequentialAnimation on opacity {
+                id: shield_1_FadeAnimation
+                loops: 3 // 循环次数
+                running: false // 默认不运行
+                onFinished: {
+                        shield_1.visible = false
+                        isShield_1 = false
+                    }
+                PropertyAnimation {
+                    from: 0.8
+                    to: 0.1
+                    duration: shieldFadeDuration / shield_1_FadeAnimation.loops / 3 * 2 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+                PropertyAnimation {
+                    from: 0.1
+                    to: 0.8
+                    duration: shieldFadeDuration / shield_1_FadeAnimation.loops / 3 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+            }
+            // 激活护盾的函数
+            function activateShield() {
+                isShield_1 = true
+                shield_1.visible = true
+                shield_1.opacity = 1.0
+                shield_1_Timer.start() // 持续时间计时
+                shield_1_Timer.triggered.connect(startShieldFadeAnimation) // 持续时间结束连接到开始闪烁动画的函数
+            }
+            // 开始闪烁动画的函数
+            function startShieldFadeAnimation() {
+                shield_1_Timer.triggered.disconnect(startShieldFadeAnimation) // 断开连接，防止重复触发
+                shield_1_FadeAnimation.start() // 开始闪烁动画
+            }
+        }
     }
     Image {
         id: myplane_2
@@ -69,5 +132,57 @@ Item {
         x:plane_2_X //初始化位置解决开始时飞机闪动
         y:plane_2_Y
         visible: false
+        // 护盾图像
+        Image {
+            id: shield_2
+            source: shieldPath
+            width: parent.width + myplane_Width / 8 * 3
+            height: parent.height + myplane_Height / 8 * 3
+            visible: isShield_2
+            anchors.centerIn: parent
+            // 护盾计时器
+            Timer {
+                id: shield_2_Timer
+                interval: shieldDuration
+                onTriggered: {
+                    shield_1_FadeAnimation.start()
+                }
+            }
+            // 护盾闪烁动画
+            SequentialAnimation on opacity {
+                id: shield_2_FadeAnimation
+                loops: 3 // 循环次数
+                running: false // 默认不运行
+                onFinished: {
+                        shield_2.visible = false
+                        isShield_2 = false
+                    }
+                PropertyAnimation {
+                    from: 0.8
+                    to: 0.1
+                    duration: shieldFadeDuration / shield_2_FadeAnimation.loops / 3 * 2 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+                PropertyAnimation {
+                    from: 0.1
+                    to: 0.8
+                    duration: shieldFadeDuration / shield_2_FadeAnimation.loops / 3 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+            }
+            // 激活护盾的函数
+            function activateShield() {
+                isShield_2 = true
+                shield_2.visible = true
+                shield_2.opacity = 1.0
+                shield_2_Timer.start() // 持续时间计时
+                shield_2_Timer.triggered.connect(startShieldFadeAnimation) // 持续时间结束连接到开始闪烁动画的函数
+            }
+            // 开始闪烁动画的函数
+            function startShieldFadeAnimation() {
+                shield_2_Timer.triggered.disconnect(startShieldFadeAnimation) // 断开连接，防止重复触发
+                shield_2_FadeAnimation.start() // 开始闪烁动画
+            }
+        }
     }
 }
