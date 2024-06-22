@@ -15,7 +15,7 @@ Item {
         id:timer
         interval:1000
         running:true
-        repeat: ture
+        repeat: true
         property int bossblood_6: 3
 
         onTriggered: {

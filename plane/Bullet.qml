@@ -13,6 +13,7 @@ Item {
     property int maxBullets:window_Height/bullet_Height
     property var bullets:[]                 //存储子弹的数组
     property int my_bullet_1
+    property bool isShooted: false
 
     anchors.fill: parent
 
@@ -29,22 +30,25 @@ Item {
     //         updateMybulletPosition();
     //     }
     // }
-
     //固定子弹初始位置与飞机位置同步
     function updateMybulletPosition(){
-        if(movingLeft_P1 && bulletX > 0) bulletX -=moveSpeed;
-        if(movingRight_P1 && bulletX < parent.width - window_Height/5) bulletX += moveSpeed;
-        if(movingUp_P1 && bulletY > 0) bulletY -=moveSpeed;
-        if(movingDown_P1 && bulletY < parent.height - window_Height/5) bulletY += moveSpeed;
-        my_bullet_1.x = bulletX;
-        my_bullet_1.y = bulletY;
+        // if(movingLeft_P1 && bulletX > 0) bulletX -=moveSpeed;
+        // if(movingRight_P1 && bulletX < parent.width - window_Height/5) bulletX += moveSpeed;
+        // if(movingUp_P1 && bulletY > 0) bulletY -=moveSpeed;
+        // if(movingDown_P1 && bulletY < parent.height - window_Height/5) bulletY += moveSpeed;
+        my_bullet_1.x = content.myplane.myplane_1.x;
+        my_bullet_1.y = content.myplane.myplane_1.y;
+        my_bullet_1.visible = false
     }
 
     //子弹射出，从屏幕下方移动到屏幕最上方
     function shoot(){
+        my_bullet_1.visible = true
         my_bullet_1.y -=my_bulletSpeed;
-        if(my_bullet_1.y + my_bullet_1.height < 0)
-            my_bullet_1.y = bulletY
+        if(my_bullet_1.y + my_bullet_1.height < 0){
+            isShooted = false
+            // my_bullet_1.y = bulletY
+        }
     }
 
 

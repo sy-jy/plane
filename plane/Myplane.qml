@@ -1,7 +1,8 @@
 import QtQuick
 
 Item {
-
+    property alias myplane_1: myplane_1
+    property alias myplane_2: myplane_2
     property int myplane_Width: window_Height/5
     property int myplane_Height: window_Height/5
     property int moveSpeed: 5   // 我方飞机移动速度
@@ -15,7 +16,8 @@ Item {
     property int plane_2_Y: window_Height-myplane_Height
     property int blood: 100 //每条命的血量
     property int lives: 4   //拥有总生命数
-
+    property bool isSurvive_1: true//玩家1是否存活
+    property bool isSurvive_2: true//玩家2是否存活
     //护盾
     property alias shield_1: shield_1
     property alias shield_2: shield_2
@@ -57,10 +59,6 @@ Item {
         myplane_2.x = plane_2_X;
         myplane_2.y = plane_2_Y;
     }
-
-    // function shoot(){
-    //     my_bullet_1.y -=
-    // }
 
     //飞机操控
     Image {

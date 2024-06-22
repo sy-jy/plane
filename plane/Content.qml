@@ -8,6 +8,7 @@ Item{
     property alias homepage: homepage
     property alias stackview: stackview
     property alias dialogs: dialogs
+    property alias myplane: myplane
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
@@ -706,7 +707,14 @@ Item{
             if(!isDouble){
                 //单人
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
-                bullet.updateMybulletPosition()
+                if(bullet.isShooted){
+                    //发射
+                    bullet.shoot()
+                }else{
+                    //未发射时跟随飞机移动
+                    bullet.updateMybulletPosition()
+                }
+
                 bloodProgress.value-=1//测试血量条
             }else{
                 //双人
@@ -866,6 +874,10 @@ Item{
                         // 添加血量变化的逻辑
                         console.log("当前血量：", bloodProgress.value)
                         if(bloodProgress.value===0&&remainlife_1!==0){
+                            if(dialogs.musicEnabled){//开启了音效
+                                bgm.life_loseMusic.play()//失去生命的音效
+                            }
+
                             remainlife_1--;
                             lifeModel.get(remainlife_1).visible= false
                             bloodProgress.value = myplane.blood
@@ -887,6 +899,7 @@ Item{
             else if (event.key === Qt.Key_D) movingRight_P1 = true;
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
+            else if (event.key === Qt.Key_J) bullet.isShooted = true;
         }
 
         Keys.onReleased:{
@@ -1128,6 +1141,9 @@ Item{
                                     // 添加血量变化的逻辑
                                     console.log("当前血量：", bloodProgress_1.value)
                                     if(bloodProgress_1.value===0&&remainlife_1!==0){
+                                        if(dialogs.musicEnabled){//开启了音效
+                                            bgm.life_loseMusic.play()//失去生命的音效
+                                        }
                                         remainlife_1--;
                                         lifeModel_1.get(remainlife_1).visible= false
                                         bloodProgress_1.value = myplane.blood
@@ -1204,6 +1220,9 @@ Item{
                                     // 添加血量变化的逻辑
                                     console.log("当前血量：", bloodProgress_2.value)
                                     if(bloodProgress_2.value===0&&remainlife_2!==0){
+                                        if(dialogs.musicEnabled){//开启了音效
+                                            bgm.life_loseMusic.play()//失去生命的音效
+                                        }
                                         remainlife_2--;
                                         lifeModel_2.get(remainlife_2).visible= false
                                         bloodProgress_2.value = myplane.blood
