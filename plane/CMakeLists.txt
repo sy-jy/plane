@@ -79,7 +79,9 @@ qt_add_qml_module(
   images/enemy4.png
   images/warm.png
   QML_FILES
-  Enemy.qml)
+  Enemy.qml
+  QML_FILES Items.qml
+  RESOURCES images/powerUpShield.png images/powerUpAmmo.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

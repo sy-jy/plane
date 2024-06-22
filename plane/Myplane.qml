@@ -119,7 +119,10 @@ Item {
             function startShieldFadeAnimation() {
                 shield_1_Timer.triggered.disconnect(startShieldFadeAnimation) // 断开连接，防止重复触发
                 shield_1_FadeAnimation.start() // 开始闪烁动画
-            }
+            }    
+        }
+        function activateAmmo() {
+            bgm.upAmmo.play()
         }
     }
     Image {
@@ -181,6 +184,9 @@ Item {
                 shield_2_Timer.triggered.disconnect(startShieldFadeAnimation) // 断开连接，防止重复触发
                 shield_2_FadeAnimation.start() // 开始闪烁动画
             }
+        }
+        function activateAmmo() {
+            bgm.upAmmo.play()
         }
     }
 }

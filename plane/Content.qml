@@ -468,6 +468,9 @@ Item{
     Bullet{
         id:bullet
     }
+    Items{
+        id:items
+    }
 
 
     //玩家飞机样式选择
@@ -709,6 +712,7 @@ Item{
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
                 if(bullet.isShooted){
                     //发射
+                    items.item.setPosition()//测试获得道具
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
@@ -716,10 +720,23 @@ Item{
                 }
 
                 bloodProgress.value-=1//测试血量条
+                items.item.move()//道具移动
+                items.item.got()//道具获得
             }else{
                 //双人
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
+                //测试道具获取
+                // if(bullet.isShooted){
+                //     //发射
+                //     items.item.setPosition()//测试获得道具
+                //     bullet.shoot()
+                // }else{
+                //     //未发射时跟随飞机移动
+                //     bullet.updateMybulletPosition()
+                // }
+                items.item.move()//道具移动
+                items.item.got()//道具获得
                 bloodProgress_1.value-=1//测试血量条
                 bloodProgress_2.value-=0.5//测试血量条
             }
@@ -899,7 +916,7 @@ Item{
             else if (event.key === Qt.Key_D) movingRight_P1 = true;
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
-            else if (event.key === Qt.Key_J) bullet.isShooted = true;
+            else if (event.key === Qt.Key_J) bullet.isShooted = true;//攻击
         }
 
         Keys.onReleased:{
@@ -1250,6 +1267,7 @@ Item{
                 else if (event.key === Qt.Key_D) movingRight_P1 = true;
                 else if (event.key === Qt.Key_W) movingUp_P1 = true;
                 else if (event.key === Qt.Key_S) movingDown_P1 = true;
+                else if (event.key === Qt.Key_J) bullet.isShooted = true;//攻击
                 //P2
                 if (event.key === Qt.Key_Left)movingLeft_P2 = true;
                 else if (event.key === Qt.Key_Right) movingRight_P2 = true;
