@@ -7,6 +7,10 @@ Item {
     property string life_loseMusicPath: "./wav/life_lose.wav"
     property alias upAmmo: upAmmo
     property string upAmmoPath: "./wav/power.wav"
+
+    property alias game_defeatMusic:_game_defeatMusic
+    property string game_defeatMusicPath: "./wav/defeat.mp3"
+
     MediaPlayer {
         id:gameMusic
         source: gameMusicPath
@@ -25,6 +29,11 @@ Item {
         id:upAmmo
         source: upAmmoPath        // 设置循环播放
         // 设置音频输出
+        audioOutput: AudioOutput {}
+    }
+    MediaPlayer{
+        id:_game_defeatMusic
+        source: game_defeatMusicPath
         audioOutput: AudioOutput {}
     }
 }

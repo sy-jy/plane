@@ -11,23 +11,7 @@ Item {
     property alias music: _music
     property bool musicEnabled: true  // 用于跟踪音效状态的属性
 
-    Timer{
-        id:timer
-        interval:1000
-        running:true
-        repeat: true
-        property int bossblood_6: 3
-
-        onTriggered: {
-            bossblood_6--;
-            if(bossblood_6 === 0){
-                //defeat_Dialog.open();
-                victory_Dialog.open();
-                blurRect.visible = true;
-                timer.stop();
-            }
-        }
-    }
+    property alias blurRect:_blurRect
 
     //暂停建点击触发的弹窗（重新开始 继续游戏 退出游戏 音效建）
     Dialog{
@@ -78,7 +62,7 @@ Item {
 
     //游戏结束时弹窗
     Rectangle{
-        id: blurRect
+        id: _blurRect
         anchors.fill: parent
         visible: false                  //遮罩层初始不可见，仅在弹窗时显示
         color:"dimgray"                 //设置为灰色背景
@@ -113,13 +97,13 @@ Item {
                 text: "返回"
                 onClicked: {
                     victory_Dialog.visible = false;
-                    blurRect.visible = false;
+                    _blurRect.visible = false;
                 }
             }
             Button{
                 text: "下一关"
                 onClicked: {
-                    blurRect.visible = false;
+                    _blurRect.visible = false;
                     victory_Dialog.visible = false
                     }
                 }
@@ -155,14 +139,14 @@ Item {
                     text: "返回"
                     onClicked: {
                         defeat_Dialog.visible = false;
-                        blurRect.visible = false;
+                        _blurRect.visible = false;
                     }
                 }
                 Button{
                     text: "重新开始"
                     onClicked: {
                         defeat_Dialog.visible = false;
-                        blurRect.visible = false;
+                        _blurRect.visible = false;
                     }
                 }
             }

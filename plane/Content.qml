@@ -5,8 +5,8 @@ Item{
     property alias mode: mode
     property alias player: player
     property alias plane: plane
-    property alias homepage: homepage
-    property alias stackview: stackview
+    property alias homepage: _homepage
+    property alias stackview: _stackview
     property alias dialogs: dialogs
     property alias myplane: myplane
 
@@ -299,7 +299,7 @@ Item{
                 color: "red"
             }
             onClicked: {
-                stackview.push(planeSet)
+                _stackview.push(planeSet)
                 plane.visible = true
                 plane.focus = true// 确保GridView可以接收键盘事件
                 mode.focus = false
@@ -318,7 +318,7 @@ Item{
 
     //游戏主页
     ColumnLayout{
-        id:homepage
+        id:_homepage
         anchors.fill: parent
         visible: true
         //游戏主页大厅标题
@@ -358,7 +358,7 @@ Item{
                 }
 
                 onClicked: {
-                    stackview.push(mode)                //跳转到mode页面
+                    _stackview.push(mode)                //跳转到mode页面
                     console.log("start clicked")
                 }
                 Keys.onEscapePressed: {
@@ -437,7 +437,7 @@ Item{
         }
     }
     StackView{
-      id:stackview
+      id:_stackview
       anchors.fill: parent
       onCurrentItemChanged: {
           homepage.visible=depth===0
@@ -704,8 +704,6 @@ Item{
         onTriggered:
         {
             map.updateMap()
-            //bullet.updateMybulletPosition()
-            //bullet.shoot()
             //飞机移动重绘
             if(!isDouble){
                 //单人
@@ -743,16 +741,31 @@ Item{
         }
     }
 
-    // Timer{
-    //     id:bulletTimer
-    //     interval: 250
-    //     repeat: true
-    //     running: true
-    //     onTriggered: {
-    //         bullet.updateMybulletPosition()
+    Timer{
+        id:gameover_timer
+        interval:250
+        running:true
+        repeat: true
 
-    //     }
-    // }
+        onTriggered: {
+            if(!isDouble){
+                if(bloodProgress.value === 0){
+                    dialogs.defeat.open();
+                    dialogs.blurRect.visible = true;
+                    bgm.game_defeatMusic.play()
+                    gameover_timer.stop();
+                }
+            }else{
+                if(bloodProgress_1.value === 0 &&bloodProgress_2.value === 0){
+                    dialogs.defeat.open();
+                    dialogs.blurRect.visible = true;
+                    timer.stop();
+                    bgm.game_defeatMusic.play()
+                    gameover_timer.stop();
+                }
+            }
+        }
+    }
 
     //单人游戏界面
     Item{
@@ -820,7 +833,6 @@ Item{
                         id: moneytext
                         text:"金币值"
                         font.pointSize:  11
-
                     }
                 }
             }
@@ -916,7 +928,12 @@ Item{
             else if (event.key === Qt.Key_D) movingRight_P1 = true;
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
-            else if (event.key === Qt.Key_J) bullet.isShooted = true;//攻击
+            else if (event.key === Qt.Key_J){
+
+                bullet.isShooted = true;//攻击
+                bullet.shootTimer.start()
+                //bullet.setBulletPosition()
+            }
         }
 
         Keys.onReleased:{
@@ -924,6 +941,10 @@ Item{
             else if (event.key === Qt.Key_D) movingRight_P1 = false;
             else if (event.key === Qt.Key_W) movingUp_P1 = false;
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
+            else if (event.key === Qt.Key_J){
+                bullet.isShooted = false;
+                bullet.shootTimer.stop()
+            }
         }
     }
 

@@ -81,7 +81,8 @@ qt_add_qml_module(
   QML_FILES
   Enemy.qml
   QML_FILES Items.qml
-  RESOURCES images/powerUpShield.png images/powerUpAmmo.png)
+  RESOURCES images/powerUpShield.png images/powerUpAmmo.png
+  RESOURCES wav/defeat.mp3)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

@@ -1,7 +1,7 @@
 import QtQuick
 
 Item {
-    property int my_bulletSpeed: 10         //我方子弹的移动速度
+    property int my_bulletSpeed: 50         //我方子弹的移动速度
     property int moveSpeed:5
 
     property int bullet_Width:window_Height/5           //子弹的图片大小
@@ -17,25 +17,19 @@ Item {
 
     anchors.fill: parent
 
-    // signal startShooting()
-    // signal stopShooting()
+     property alias shootTimer: _shootTimer
+    Timer{
+        id:_shootTimer
+        interval: 1
+        repeat: true
+        running: false
+        onTriggered: {
+            bullet.shoot()
+        }
+    }
 
-    // property alias timerbullet: bulletTimer
-    // Timer{
-    //     id:bulletTimer
-    //     interval: shootInterval
-    //     repeat: true
-    //     running: false
-    //     onTriggered: {
-    //         updateMybulletPosition();
-    //     }
-    // }
     //固定子弹初始位置与飞机位置同步
     function updateMybulletPosition(){
-        // if(movingLeft_P1 && bulletX > 0) bulletX -=moveSpeed;
-        // if(movingRight_P1 && bulletX < parent.width - window_Height/5) bulletX += moveSpeed;
-        // if(movingUp_P1 && bulletY > 0) bulletY -=moveSpeed;
-        // if(movingDown_P1 && bulletY < parent.height - window_Height/5) bulletY += moveSpeed;
         my_bullet_1.x = content.myplane.myplane_1.x;
         my_bullet_1.y = content.myplane.myplane_1.y;
         my_bullet_1.visible = false
@@ -50,6 +44,12 @@ Item {
             // my_bullet_1.y = bulletY
         }
     }
+
+    // function setBulletPosition(){
+    //     my_bullet_1.x = content.myplane.myplane_1.x + content.myplane.myplane_1.width/2-bullet_Width/2
+    //     my_bullet_1.y = content.myplane.myplane_1.y - bullet_Height
+    //     visible = true
+    // }
 
 
     Image {
