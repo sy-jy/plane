@@ -5,7 +5,7 @@ Item {
     property alias myplane_2: myplane_2
     property int myplane_Width: window_Height/5
     property int myplane_Height: window_Height/5
-    property int moveSpeed: 5   // 我方飞机移动速度
+    property int moveSpeed: 5   // 我方飞机初始移动速度
     //单人初始位置
     property int planeX: (window_Width-myplane_Width)/2
     property int planeY: window_Height-myplane_Height
@@ -27,6 +27,15 @@ Item {
     property int shieldDuration: 5000 // 护盾持续时间（毫秒）
     property int shieldFadeDuration: 3000 // 护盾闪烁时间（毫秒）
     property bool isFading: false // 护盾是否正在闪烁
+    //速度
+    property int upSpeed: 7
+    property bool isAccelerate_1: false
+    property bool isAccelerate_2: false
+    property int accelerateDuration: 3000
+
+    //hp
+    property bool canIncreaseHp_1: true // 标志位，用于控制是否可以增加HP
+    property bool canIncreaseHp_2: true // 标志位，用于控制是否可以增加HP
     function singleplayer(){
         myplane_1.visible = true
     }
@@ -35,27 +44,27 @@ Item {
         myplane_2.visible = true
     }
     function updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1){
-        if (movingLeft_P1 && planeX > 0) planeX -= moveSpeed;
-        if (movingRight_P1 && planeX < parent.width - myplane_1.width) planeX += moveSpeed;
-        if (movingUp_P1 && planeY > 0) planeY -= moveSpeed;
-        if (movingDown_P1 && planeY < parent.height - myplane_1.height) planeY += moveSpeed;
+        if (movingLeft_P1 && planeX > 0) planeX -= isAccelerate_1?upSpeed:moveSpeed;
+        if (movingRight_P1 && planeX < parent.width - myplane_1.width) planeX += isAccelerate_1?upSpeed:moveSpeed;
+        if (movingUp_P1 && planeY > 0) planeY -= isAccelerate_1?upSpeed:moveSpeed;
+        if (movingDown_P1 && planeY < parent.height - myplane_1.height) planeY += isAccelerate_1?upSpeed:moveSpeed;
         myplane_1.x = planeX;
         myplane_1.y = planeY;
     }
     function updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                    movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2){
         //P1
-        if (movingLeft_P1 && plane_1_X > 0) plane_1_X -= moveSpeed;
-        if (movingRight_P1 && plane_1_X < parent.width - myplane_1.width) plane_1_X += moveSpeed;
-        if (movingUp_P1 && plane_1_Y > 0) plane_1_Y -= moveSpeed;
-        if (movingDown_P1 && plane_1_Y < parent.height - myplane_1.height) plane_1_Y += moveSpeed;
+        if (movingLeft_P1 && plane_1_X > 0) plane_1_X -= isAccelerate_1?upSpeed:moveSpeed;
+        if (movingRight_P1 && plane_1_X < parent.width - myplane_1.width) plane_1_X += isAccelerate_1?upSpeed:moveSpeed;
+        if (movingUp_P1 && plane_1_Y > 0) plane_1_Y -= isAccelerate_1?upSpeed:moveSpeed;
+        if (movingDown_P1 && plane_1_Y < parent.height - myplane_1.height) plane_1_Y += isAccelerate_1?upSpeed:moveSpeed;
         myplane_1.x = plane_1_X;
         myplane_1.y = plane_1_Y;
         //P2
-        if (movingLeft_P2 && plane_2_X > 0) plane_2_X -= moveSpeed;
-        if (movingRight_P2 && plane_2_X < parent.width - myplane_2.width) plane_2_X += moveSpeed;
-        if (movingUp_P2 && plane_2_Y > 0) plane_2_Y -= moveSpeed;
-        if (movingDown_P2 && plane_2_Y < parent.height - myplane_2.height) plane_2_Y += moveSpeed;
+        if (movingLeft_P2 && plane_2_X > 0) plane_2_X -= isAccelerate_2?upSpeed:moveSpeed;
+        if (movingRight_P2 && plane_2_X < parent.width - myplane_2.width) plane_2_X += isAccelerate_2?upSpeed:moveSpeed;
+        if (movingUp_P2 && plane_2_Y > 0) plane_2_Y -= isAccelerate_2?upSpeed:moveSpeed;
+        if (movingDown_P2 && plane_2_Y < parent.height - myplane_2.height) plane_2_Y += isAccelerate_2?upSpeed:moveSpeed;
         myplane_2.x = plane_2_X;
         myplane_2.y = plane_2_Y;
     }
@@ -122,7 +131,47 @@ Item {
             }    
         }
         function activateAmmo() {
-            bgm.upAmmo.play()
+            if(dialogs.musicEnabled){
+                bgm.upAmmo.play()
+            }
+        }
+        //hp增加
+        Timer {//防止一次道具多次加hp
+            id: hpIncreaseTimer_1
+            interval: 1000 // 等待1秒
+            onTriggered: {
+                // 定时器触发时，设置标志位允许下次调用activateHp()
+                canIncreaseHp_1 = true
+            }
+        }
+        // 增加HP
+        function activateHp(){
+            if (canIncreaseHp_1) {
+                canIncreaseHp_1 = false // 设置标志位为false，防止重复调用
+                if(content.isDouble){
+                    console.log("Before increase:", content.bloodProgress_1.value);
+                    content.bloodProgress_1.value += blood/2;
+                    console.log("After increase:", content.bloodProgress_1.value);
+                } else {
+                    console.log("Before increase:", content.bloodProgress.value);
+                    content.bloodProgress.value += blood/2;
+                    console.log("After increase:", content.bloodProgress.value);
+                }
+                hpIncreaseTimer_1.start() // 启动定时器，1秒后允许再次增加HP
+            }
+        }
+        //速度增加
+        // 对于玩家1的飞机
+        Timer {
+            id: accelerateTimer_1
+            interval: accelerateDuration
+            onTriggered: {
+                isAccelerate_1 = false
+            }
+        }
+        function activateSpeed(){
+            isAccelerate_1 = true
+            accelerateTimer_1.start()
         }
     }
     Image {
@@ -187,6 +236,37 @@ Item {
         }
         function activateAmmo() {
             bgm.upAmmo.play()
+        }
+        //hp增加
+        //hp增加
+        Timer {//防止一次道具多次加hp
+            id: hpIncreaseTimer_2
+            interval: 1000 // 等待1秒
+            onTriggered: {
+                // 定时器触发时，设置标志位允许下次调用activateHp()
+                canIncreaseHp_2 = true
+            }
+        }
+        // 增加HP
+        function activateHp(){
+            if (canIncreaseHp_2) {
+                canIncreaseHp_2= false // 设置标志位为false，防止重复调用
+                content.bloodProgress_2.value += blood/2;
+                hpIncreaseTimer_2.start() // 启动定时器，1秒后允许再次增加HP
+            }
+        }
+        //速度增加
+        // 对于玩家2的飞机
+        Timer {
+            id: accelerateTimer_2
+            interval: accelerateDuration
+            onTriggered: {
+                isAccelerate_2 = false
+            }
+        }
+        function activateSpeed(){
+            isAccelerate_2 = true
+            accelerateTimer_2.start()
         }
     }
 }

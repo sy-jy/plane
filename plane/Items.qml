@@ -7,11 +7,12 @@ Item {
     property int moveSpeed: 3
     property int moveXBreak: 0
     property double deltaX: 0
+    property int itemSize: window_Width/16
     Image {
         id: item
         source: itemPath
-        width: 50
-        height: 50
+        width: itemSize
+        height: itemSize
         fillMode: Image.PreserveAspectFit
         ListModel {
                 id: itemModel
@@ -21,10 +22,13 @@ Item {
                 ListElement {
                     name: "ammo"
                     itemPath:"./images/powerUpAmmo"}
+                ListElement {
+                    name: "speed"
+                    itemPath:"./images/powerUpSpeed"}
+                ListElement {
+                    name: "hp"
+                    itemPath:"./images/increaseHp"}
             }
-        // Component.onCompleted: {
-        //     setPosition()
-        // }
         function setPosition() {
             item.visible = true
             randomIndex = Math.floor(Math.random() * itemModel.count)
@@ -44,7 +48,6 @@ Item {
                 moveXBreak = content.desiredFramesPerSecond/2
             }
             moveXBreak--
-            console.log(deltaX)
             x += deltaX
             y += moveSpeed
             // 确保道具不会移动到窗口之外
@@ -67,6 +70,10 @@ Item {
                     content.myplane.shield_1.activateShield()
                 }else if(itemModel.get(randomIndex).name ==="ammo"){
                     content.myplane.myplane_1.activateAmmo()
+                }else if(itemModel.get(randomIndex).name ==="hp"){
+                    content.myplane.myplane_1.activateHp()
+                }else if(itemModel.get(randomIndex).name ==="speed"){
+                    content.myplane.myplane_1.activateSpeed()
                 }
             }
             if(content.myplane.myplane_2.x<item.x&&
@@ -78,6 +85,10 @@ Item {
                     content.myplane.shield_2.activateShield()
                 }else if(itemModel.get(randomIndex).name ==="ammo"){
                     content.myplane.myplane_2.activateAmmo()
+                }else if(itemModel.get(randomIndex).name ==="hp"){
+                    content.myplane.myplane_2.activateHp()
+                }else if(itemModel.get(randomIndex).name ==="speed"){
+                    content.myplane.myplane_2.activateSpeed()
                 }
             }
         }

@@ -13,21 +13,20 @@ Flickable {
     function updateMap() {
         // 地图滚动
         // 更新两个图片的位置
-        map_1_Image.y -= mapScrollSpeed;
-        map_2_Image.y -= mapScrollSpeed;
+        map_1_Image.y += mapScrollSpeed;
+        map_2_Image.y += mapScrollSpeed;
         // 检查map_1_Image是否完全移出视口
-        if (map_1_Image.y + map_1_Image.height < 0)
-        {
-            // 重置map_1_Image到map_2_Image的下方
-            map_1_Image.y = map_2_Image.y + map_2_Image.height - map_1_Image.height;
+        if (map_1_Image.y > mapHeight) {
+            // 重置map_1_Image到map_2_Image的上方
+            map_1_Image.y = map_2_Image.y - map_1_Image.height;
         }
-        // 检查map_2_Image的顶部是否即将移出视口
-        if (map_2_Image.y < 0)
-        {
-            // 将map_2_Image的y坐标重置到map_1_Image的下方
-            map_2_Image.y = map_1_Image.y + map_1_Image.height;
+        // 检查map_2_Image的底部是否即将移出视口
+        if (map_2_Image.y > mapHeight) {
+            // 将map_2_Image的y坐标重置到map_1_Image的上方
+            map_2_Image.y = map_1_Image.y - map_1_Image.height;
         }
     }
+
     Image
     {
         id: map_1_Image
