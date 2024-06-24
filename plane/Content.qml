@@ -307,14 +307,6 @@ Item{
             }
         }
     }
-    StackView{
-      id:stackview_2
-      anchors.fill: parent
-      onCurrentItemChanged: {
-          mode.visible=depth===0
-          player.visible = depth === 1
-      }
-    }
 
     //游戏主页
     ColumnLayout{
@@ -471,7 +463,9 @@ Item{
     Items{
         id:items
     }
-
+    Dialogs{
+        id:dialogs
+    }
 
     //玩家飞机样式选择
     ColumnLayout{
@@ -741,6 +735,7 @@ Item{
         }
     }
 
+    //游戏结束后弹窗计时器
     Timer{
         id:gameover_timer
         interval:250
@@ -748,6 +743,7 @@ Item{
         repeat: true
 
         onTriggered: {
+            //单人游戏界面
             if(!isDouble){
                 if(bloodProgress.value === 0){
                     dialogs.defeat.open();
@@ -756,6 +752,7 @@ Item{
                     gameover_timer.stop();
                 }
             }else{
+                //双人游戏界面
                 if(bloodProgress_1.value === 0 &&bloodProgress_2.value === 0){
                     dialogs.defeat.open();
                     dialogs.blurRect.visible = true;
@@ -779,7 +776,8 @@ Item{
             Column{
                 id: upleft
                 anchors.fill: parent
-                spacing: 4 ;padding:4
+                spacing: 4 ;
+                padding:4
                 // 生命机会 后面会放图片，我机死一次就去掉一个生命
                 Row{
                     id: life
@@ -1308,10 +1306,6 @@ Item{
                 else if (event.key === Qt.Key_Down) movingDown_P2 = false;
             }
          }
-
-    Dialogs{
-        id:dialogs
-    }
 
     Enemy{
         id:enemys
