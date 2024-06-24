@@ -40,6 +40,8 @@ Item {
                action: actions.continueAction
                onClicked: {
                    console.log("继续游戏")
+                   content.timer.start()
+                   pause.close()
                }
             }
             Button{

@@ -11,6 +11,9 @@ Item {
     property alias game_defeatMusic:_game_defeatMusic
     property string game_defeatMusicPath: "./wav/defeat.mp3"
 
+    property alias shoot_1_Music: shoot_1_Music
+    property string shootMusicPath: "./wav/shoot.mp3"
+
     MediaPlayer {
         id:gameMusic
         source: gameMusicPath
@@ -34,6 +37,11 @@ Item {
     MediaPlayer{
         id:_game_defeatMusic
         source: game_defeatMusicPath
+        audioOutput: AudioOutput {}
+    }
+    MediaPlayer{
+        id:shoot_1_Music
+        source: shootMusicPath
         audioOutput: AudioOutput {}
     }
 }

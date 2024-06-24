@@ -10,6 +10,7 @@ Item{
     property alias dialogs: dialogs
     property alias myplane: myplane
     property alias enemys: enemys
+    property alias timer: timer
 
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
@@ -37,6 +38,7 @@ Item{
     property bool movingUp_P2: false
     property bool movingDown_P2: false
     property string map_path: "./images/map1.png"    //地图图片源
+    property string mapView: "./images/map1.png"
     property int remainlife_1:myplane.lives-1
     property int remainlife_2:myplane.lives-1
     property alias bloodProgress: bloodProgress
@@ -169,9 +171,13 @@ Item{
                     }
                     // 监听当前索引的变化
                     onCurrentIndexChanged: {
-                        var currentMapPath = control.model.get(control.currentIndex).mapPath
-                        console.log("当前 mapPath:", currentMapPath)
                         map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath//当前选中的地图路径赋给map_path
+                        if(model.get(mapmodel.currentIndex).text === " 随机"){
+                            console.log("随机")
+                            mapView = "./images/random.png"
+                        }else{
+                            mapView = map_path
+                        }
                         console.log("Selected map source: ",map_path)
                     }
 
@@ -230,10 +236,16 @@ Item{
             }
 
             //地图缩略图位置
-            Rectangle{
+            Rectangle {
                 width: window_Width/4
                 height: window_Height/4
-                color: "black"
+                border.color: "darkgray"
+                border.width: 2
+                color: "gray"
+                Image {
+                    anchors.fill: parent
+                    source: mapView
+                }
             }
 
         }
@@ -311,14 +323,6 @@ Item{
                 console.log("clicked")
             }
         }
-    }
-    StackView{
-      id:stackview_2
-      anchors.fill: parent
-      onCurrentItemChanged: {
-          mode.visible=depth===0
-          player.visible = depth === 1
-      }
     }
 
     //游戏主页
@@ -476,7 +480,9 @@ Item{
     Items{
         id:items
     }
-
+    Dialogs{
+        id:dialogs
+    }
 
     //玩家飞机样式选择
     ColumnLayout{
@@ -722,7 +728,7 @@ Item{
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
-                    bullet.updateMybulletPosition()
+                    bullet.updateMybulletPosition1()
                 }
 
                 if(!myplane.isShield_1){//测试护盾
@@ -737,15 +743,20 @@ Item{
                 //双人
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
-                //测试道具获取
-                // if(bullet.isShooted){
-                //     //发射
-                //     items.item.setPosition()//测试获得道具
-                //     bullet.shoot()
-                // }else{
-                //     //未发射时跟随飞机移动
-                //     bullet.updateMybulletPosition()
-                // }
+                if(bullet.isShooted){
+                    //发射
+                    items.item.setPosition()//测试获得道具
+                    bullet.shoot()
+                }else{
+                    //未发射时跟随飞机移动
+                    bullet.updateMybulletPosition1()
+                }
+                if(bullet.isShooted_2){
+                    bullet.shoot2()
+                }else{
+                    bullet.updateMybulletPosition2()
+                }
+
                 items.item.move()//道具移动
                 items.item.got()//道具获得
                 if(!myplane.isShield_1){//测试护盾
@@ -760,6 +771,7 @@ Item{
         }
     }
 
+    //游戏结束后弹窗计时器
     Timer{
         id:gameover_timer
         interval:250
@@ -767,6 +779,7 @@ Item{
         repeat: true
 
         onTriggered: {
+            //单人游戏界面
             if(!isDouble){
                 if(bloodProgress.value === 0){
                     dialogs.defeat.open();
@@ -775,10 +788,10 @@ Item{
                     gameover_timer.stop();
                 }
             }else{
+                //双人游戏界面
                 if(bloodProgress_1.value === 0 &&bloodProgress_2.value === 0){
                     dialogs.defeat.open();
                     dialogs.blurRect.visible = true;
-                    timer.stop();
                     bgm.game_defeatMusic.play()
                     gameover_timer.stop();
                 }
@@ -798,7 +811,8 @@ Item{
             Column{
                 id: upleft
                 anchors.fill: parent
-                spacing: 4 ;padding:4
+                spacing: 4 ;
+                padding:4
                 // 生命机会 后面会放图片，我机死一次就去掉一个生命
                 Row{
                     id: life
@@ -883,6 +897,7 @@ Item{
                 anchors.right: parent.right
                 onClicked: {
                     dialogs.pause.open()
+                    timer.stop()//暂停游戏
                     console.log("暂停建已激活，跳出弹窗")
                 }
             }
@@ -954,6 +969,27 @@ Item{
                 // bullet.setBulletPosition()
             }
         }
+
+        // Keys.onPressed: {
+        //     switch(event.key){
+        //     case Qt.Key_A:
+        //         movingLeft_P1 = true;
+        //         break;
+        //     case Qt.Key_D:
+        //         movingRight_P1 = true;
+        //         break;
+        //     case Qt.Key_W:
+        //         movingUp_P1 = true;
+        //         break;
+        //     case Qt.Key_S:
+        //         movingDown_P1 = true;
+        //         break;
+        //     case Qt.Key_J:
+        //         bullet.isShooted = true;
+        //         bullet.shootTimer.start();
+        //         break;
+        //     }
+        // }
 
         Keys.onReleased:{
             if (event.key === Qt.Key_A) movingLeft_P1 = false;
@@ -1300,6 +1336,7 @@ Item{
             Popup {
                 id: dialog2
             }
+            //双人模式
             //操控飞机
             Keys.onPressed:{
                 //P1
@@ -1309,6 +1346,7 @@ Item{
                 else if (event.key === Qt.Key_S) movingDown_P1 = true;
                 else if (event.key === Qt.Key_J) {
                     bullet.isShooted = true;//攻击
+                    bullet.shootTimer.start()
                     items.item.setPosition()
                 }
 
@@ -1317,6 +1355,10 @@ Item{
                 else if (event.key === Qt.Key_Right) movingRight_P2 = true;
                 else if (event.key === Qt.Key_Up) movingUp_P2 = true;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = true;
+                else if (event.key === Qt.Key_0){
+                    bullet.isShooted_2 = true;
+                    bullet.shootTimer_2.start()
+                }
             }
             Keys.onReleased:{
                 //P1
@@ -1324,17 +1366,21 @@ Item{
                 else if (event.key === Qt.Key_D) movingRight_P1 = false;
                 else if (event.key === Qt.Key_W) movingUp_P1 = false;
                 else if (event.key === Qt.Key_S) movingDown_P1 = false;
+                else if (event.key === Qt.Key_J){
+                    bullet.isShooted = false;
+                    bullet.shootTimer.stop()
+                }
                 //P2
                 if (event.key === Qt.Key_Left) movingLeft_P2 = false;
                 else if (event.key === Qt.Key_Right) movingRight_P2 = false;
                 else if (event.key === Qt.Key_Up) movingUp_P2 = false;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = false;
+                else if (event.key === Qt.Key_0){
+                    bullet.isShooted_2 = false;
+                    bullet.shootTimer_2.stop()
+                }
             }
          }
-
-    Dialogs{
-        id:dialogs
-    }
 
     Enemy{
         id:enemys
