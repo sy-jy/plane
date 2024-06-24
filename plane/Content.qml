@@ -656,6 +656,7 @@ Item{
                 map.visible = true      //地图显示
                 timer.running = true    //开启计时器
                 enemys.gameTime.start()
+                enemys.bossTime.start()
                 enemys.visible = true
             }
 
@@ -718,6 +719,7 @@ Item{
         {
             map.updateMap()
             enemys.updateEnemys()
+            enemys.updateGame()
             //飞机移动重绘
             if(!isDouble){
                 //单人

@@ -6,70 +6,122 @@ Item {
     visible: false
     anchors.fill: parent
     focusPolicy: Qt.NoFocus
-    property int enemySpeed: 5
+    property int enemySpeed: 4
     property var enemys: []     // 敌机数组
     property alias gameTime: _gameTime
     property string path
+    property var boss: null     // Boss 对象
+    property int bossSpeed: 2
+    property alias bossTime: bossTime
 
-    // 定义一个敌机图片的ListModel
-        ListModel {
-            id: enemyImageModel
-            ListElement { source: "images/enemy1.png" }
-            ListElement { source: "images/enemy2.png" }
-            ListElement { source: "images/enemy3.png" }
-            ListElement { source: "images/enemy4.png" }
-            // 添加更多敌机图片路径
-        }
+    // 敌机图片的ListModel
+    ListModel {
+        id: enemyImageModel
+        ListElement { source: "images/enemy1.png" }
+        ListElement { source: "images/enemy2.png" }
+        ListElement { source: "images/enemy3.png" }
+        ListElement { source: "images/enemy4.png" }
+    }
 
-        Component {
-                id: enemy
-                Rectangle {
-                    width: 50
-                    height: 50
-                    color: "transparent"
-                    property string sourcePath // 定义一个属性来存储图片路径
+    // 敌机组件
+    Component {
+        id: enemy
+        Rectangle {
+            width: 85
+            height: 85
+            color: "transparent"
+            property string sourcePath
 
-                    Image {
-                        id: _enemys
-                        source: sourcePath // 使用定义的属性
-                        fillMode: Image.PreserveAspectFit
-                        anchors.fill: parent
-                    }
-                }
-            }
-
-            // 创建敌机的函数
-            function createEnemy() {
-                var newEnemy = enemy.createObject(gameArea)
-                newEnemy.x = Math.random() * (gameArea.width - newEnemy.width)
-                newEnemy.y = -newEnemy.height
-                // 设置随机图片路径
-                var randomIndex = Math.floor(Math.random() * enemyImageModel.count)
-                newEnemy.sourcePath = enemyImageModel.get(randomIndex).source
-                enemys.push(newEnemy)  // 创建的新敌机放入数组中
-            }
-
-    // 更新所有敌机的位置
-    function updateEnemys() {
-        for (var i = enemys.length-1; i >= 0; i--) {
-            var enemy = enemys[i]
-            enemy.y += gameArea.enemySpeed
-
-            // 检测敌机是否超出底部边界
-            if (enemy.y >= gameArea.height) {
-                enemy.destroy()      // 销毁超出底边的敌机
-                enemys.splice(i, 1)  // 从数组中移除敌机
+            Image {
+                id: _enemys
+                source: sourcePath
+                fillMode: Image.PreserveAspectFit
+                anchors.fill: parent
             }
         }
     }
 
-    // 定时器，用于生成敌机
+    // Boss组件
+    Component {
+        id: bossComponent
+        Rectangle {
+            id: boss1
+            width: 285
+            height: 380
+            color: "transparent"
+
+            Image {
+                id: _boss1
+                source: "images/boss1.png"
+                fillMode: Image.PreserveAspectFit
+                anchors.fill: parent
+            }
+
+            function updateBossPosition() {
+                boss1.y += bossSpeed
+                if (boss1.y > gameArea.height) {
+                    boss1.destroy()
+                    gameArea.boss = null
+                }
+            }
+        }
+    }
+
+    // 创建敌机
+    function createEnemy() {
+        var newEnemy = enemy.createObject(gameArea)
+        newEnemy.x = Math.random() * (gameArea.width - newEnemy.width)
+        newEnemy.y = -newEnemy.height
+        var randomIndex = Math.floor(Math.random() * enemyImageModel.count)
+        newEnemy.sourcePath = enemyImageModel.get(randomIndex).source
+        enemys.push(newEnemy)
+    }
+
+    // 更新所有敌机位置
+    function updateEnemys() {
+        for (var i = enemys.length - 1; i >= 0; i--) {
+            var enemy = enemys[i]
+            enemy.y += enemySpeed
+            if (enemy.y >= gameArea.height) {
+                enemy.destroy()
+                enemys.splice(i, 1)
+            }
+        }
+    }
+
+    // 创建boss
+    function createBoss() {
+        if (!gameArea.boss) {
+            var newBoss = bossComponent.createObject(gameArea)
+            newBoss.x = (gameArea.width - newBoss.width) / 2
+            newBoss.y = -newBoss.height
+            gameArea.boss = newBoss
+        }
+    }
+
+    // 更新boss出现后的游戏界面
+    function updateGame() {
+        updateEnemys()
+        if (gameArea.boss) {
+            gameArea.boss.updateBossPosition()
+        }
+    }
+
+    // 敌机生成
     Timer {
-        id:_gameTime
-        interval: 450  //新创敌机的时间间隔
+        id: _gameTime
+        interval: 450
         running: false
         repeat: true
         onTriggered: createEnemy()
+    }
+
+    // Boss生成（先暂定为时间，之后会改为击败敌机数或者获得的score来生成boss）
+    Timer {
+        id: bossTime
+        interval: 10000  //10s
+        running: true
+        onTriggered: createBoss()
     }
 }
 
