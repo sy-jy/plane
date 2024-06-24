@@ -37,6 +37,9 @@ Item{
     property string map_path: "./images/map1.png"    //地图图片源
     property int remainlife_1:myplane.lives-1
     property int remainlife_2:myplane.lives-1
+    property alias bloodProgress: bloodProgress
+    property alias bloodProgress_1: bloodProgress_1
+    property alias bloodProgress_2: bloodProgress_2
     // property alias blood: bloodSlider
     anchors.fill: parent
 
@@ -149,11 +152,11 @@ Item{
                             text:" 戈壁"
                             mapPath: "map1.png" }
                         ListElement{
-                            text:" 工厂"
-                            mapPath: "plane2.png" }
+                            text:" 雨林"
+                            mapPath: "map2.png" }
                         ListElement{
-                            text:" 天空"
-                            mapPath: "plane3.png" }
+                            text:" 墓地"
+                            mapPath: "map3.png" }
                     }
 
                     // 在模型定义之后，添加带有随机 mapPath 的 "随机" 元素
@@ -702,16 +705,19 @@ Item{
             if(!isDouble){
                 //单人
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
+                // console.log(myplane.isAccelerate_1)//检测是否加速
                 if(bullet.isShooted){
                     //发射
-                    items.item.setPosition()//测试获得道具
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
                     bullet.updateMybulletPosition()
                 }
 
-                bloodProgress.value-=1//测试血量条
+                if(!myplane.isShield_1){//测试护盾
+                    bloodProgress.value-=0.3//测试血量条
+                }
+
                 items.item.move()//道具移动
                 items.item.got()//道具获得
             }else{
@@ -729,8 +735,14 @@ Item{
                 // }
                 items.item.move()//道具移动
                 items.item.got()//道具获得
-                bloodProgress_1.value-=1//测试血量条
-                bloodProgress_2.value-=0.5//测试血量条
+                if(!myplane.isShield_1){//测试护盾
+                    bloodProgress_1.value-=0.3//测试血量条
+                }
+                // bloodProgress_1.value-=1//测试血量条
+                if(!myplane.isShield_2){//测试护盾
+                    bloodProgress_2.value-=0.1//测试血量条
+                }
+                // bloodProgress_2.value-=0.5//测试血量条
             }
         }
     }
@@ -927,10 +939,10 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
             else if (event.key === Qt.Key_J){
-
+                items.item.setPosition()//测试获得道具
                 bullet.isShooted = true;//攻击
                 bullet.shootTimer.start()
-                //bullet.setBulletPosition()
+                // bullet.setBulletPosition()
             }
         }
 
@@ -1286,7 +1298,11 @@ Item{
                 else if (event.key === Qt.Key_D) movingRight_P1 = true;
                 else if (event.key === Qt.Key_W) movingUp_P1 = true;
                 else if (event.key === Qt.Key_S) movingDown_P1 = true;
-                else if (event.key === Qt.Key_J) bullet.isShooted = true;//攻击
+                else if (event.key === Qt.Key_J) {
+                    bullet.isShooted = true;//攻击
+                    items.item.setPosition()
+                }
+
                 //P2
                 if (event.key === Qt.Key_Left)movingLeft_P2 = true;
                 else if (event.key === Qt.Key_Right) movingRight_P2 = true;

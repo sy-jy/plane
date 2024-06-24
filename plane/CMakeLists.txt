@@ -27,9 +27,7 @@ qt_add_qml_module(
   QML_FILES
   Dialogs.qml
   RESOURCES
-  images/bg1.jpg
-  images/bg2.jpg
-  images/bg3.jpg
+  images/map2.png
   images/plane1.png
   images/plane2.png
   images/plane3.png
@@ -80,9 +78,19 @@ qt_add_qml_module(
   images/warm.png
   QML_FILES
   Enemy.qml
-  QML_FILES Items.qml
-  RESOURCES images/powerUpShield.png images/powerUpAmmo.png
-  RESOURCES wav/defeat.mp3)
+  QML_FILES
+  Items.qml
+  RESOURCES
+  images/powerUpShield.png
+  images/powerUpAmmo.png
+  RESOURCES
+  wav/defeat.mp3
+  RESOURCES
+  images/powerUpShield.png
+  images/powerUpAmmo.png
+  RESOURCES
+  images/map3.png
+  RESOURCES images/powerUpSpeed.png images/increaseHp.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE
