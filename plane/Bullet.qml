@@ -2,7 +2,7 @@ import QtQuick
 
 Item {
     property int my_bulletSpeed: 25         //我方子弹的移动速度
-    property int moveSpeed:5
+    property int enemy_bulletSpeed:8       //敌方子弹的移动速度
 
     property int bullet_Width:window_Height/5/5           //子弹的图片大小
     property int bullet_Height: 15
@@ -11,9 +11,12 @@ Item {
     property int bulletY:(window_Height*4/5)
 
     property int maxBullets:window_Height/bullet_Height
-    property var bullets:[]                 //存储子弹的数组
+    //property var bullets:[]                 //存储子弹的数组
     property bool isShooted: false
     property bool isShooted_2: false
+    property bool isShooted_enemy: false
+
+    property alias enemy_bullet: _enemy_bullet
 
     anchors.fill: parent
 
@@ -25,7 +28,7 @@ Item {
         repeat: true
         running: false
         onTriggered: {
-            bullet.shoot()
+            shoot()
         }
     }
     Timer{
@@ -69,6 +72,13 @@ Item {
         my_bullet2_2.visible = false
     }
 
+    //敌机
+    function updateEnemybulletPosition(){
+        _enemy_bullet.x = content.enemys.enemy_1.x + 10
+        _enemy_bullet.y = content.enemys.enemy_1.y
+        _enemy_bullet.visible = false
+    }
+
     //单人模式
     //子弹射出，从屏幕下方移动到屏幕最上方
     function shoot(){
@@ -107,6 +117,17 @@ Item {
             isShooted_2 = false
         }
     }
+
+    function shoot_enemy(){
+        _enemy_bullet.visible = true
+        _enemy_bullet.y +=enemy_bulletSpeed;
+
+        if(_enemy_bullet.y > window_Height){
+            isShooted_enemy = false
+        }
+    }
+
+
 
     Image {
         id: my_bullet_1
@@ -152,5 +173,15 @@ Item {
         y:window_Height
         width: bullet_Width
         height: bullet_Height*2
+    }
+    Image {
+        id: _enemy_bullet
+        visible: false
+        source: "images/enemy_bullet1.png"
+        fillMode: Image.PreserveAspectFit
+        x:window_Width/2
+        y:0
+        width: bullet_Width
+        height: bullet_Height*4
     }
 }

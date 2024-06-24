@@ -91,7 +91,8 @@ qt_add_qml_module(
   RESOURCES
   images/map3.png
   RESOURCES images/powerUpSpeed.png images/increaseHp.png
-  RESOURCES images/bullet_mid.png)
+  RESOURCES images/bullet_mid.png
+  RESOURCES images/enemy_bullet1.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

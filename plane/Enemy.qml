@@ -7,6 +7,7 @@ Item {
         property int enemySpeed: 4
         // visible: false
         property alias enemy1: enemy1
+        property alias enemy_1:enemy
         focusPolicy: Qt.NoFocus
         property alias gameTimer: _gameTimer
 

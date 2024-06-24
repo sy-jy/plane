@@ -705,6 +705,7 @@ Item{
         onTriggered:
         {
             map.updateMap()
+            //bullet.shoot_enemy()
             //飞机移动重绘
             if(!isDouble){
                 //单人
@@ -721,8 +722,13 @@ Item{
                 if(!myplane.isShield_1){//测试护盾
                     bloodProgress.value-=0.3//测试血量条
                 }
-
-
+                if(enemys.enemy_1.y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
+                    bullet.isShooted_enemy = true
+                    bullet.shoot_enemy()
+                }
+                if(bullet.isShooted_enemy === false){
+                    bullet.updateEnemybulletPosition()
+                }
 
                 items.item.move()//道具移动
                 items.item.got()//道具获得
@@ -757,6 +763,22 @@ Item{
             }
         }
     }
+
+    // Timer{
+    //     id:enemy_shootTimer
+    //     interval: 250
+    //     running: true
+    //     repeat: true
+
+    //     onTriggered: {
+    //         bullet.isShooted_enemy = true
+    //         if(bullet.isShooted_enemy){
+    //             bullet.shoot_enemy()
+    //         }else{
+    //             bullet.updateEnemybulletPosition()
+    //         }
+    //     }
+    // }
 
     //游戏结束后弹窗计时器
     Timer{
@@ -945,6 +967,7 @@ Item{
         //操控飞机
         Keys.onPressed:{
             enemys.updateGame()
+            //bullet.isShooted_enemy = true
             if (event.key === Qt.Key_A)movingLeft_P1 = true;
             else if (event.key === Qt.Key_D) movingRight_P1 = true;
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
@@ -953,30 +976,8 @@ Item{
                 items.item.setPosition()//测试获得道具
                 bullet.isShooted = true;//攻击
                 bullet.shootTimer.start()
-                // bullet.setBulletPosition()
             }
         }
-
-        // Keys.onPressed: {
-        //     switch(event.key){
-        //     case Qt.Key_A:
-        //         movingLeft_P1 = true;
-        //         break;
-        //     case Qt.Key_D:
-        //         movingRight_P1 = true;
-        //         break;
-        //     case Qt.Key_W:
-        //         movingUp_P1 = true;
-        //         break;
-        //     case Qt.Key_S:
-        //         movingDown_P1 = true;
-        //         break;
-        //     case Qt.Key_J:
-        //         bullet.isShooted = true;
-        //         bullet.shootTimer.start();
-        //         break;
-        //     }
-        // }
 
         Keys.onReleased:{
             if (event.key === Qt.Key_A) movingLeft_P1 = false;
@@ -984,7 +985,6 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = false;
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
             else if (event.key === Qt.Key_J){
-                bullet.isShooted = false;
                 bullet.shootTimer.stop()
             }
         }
