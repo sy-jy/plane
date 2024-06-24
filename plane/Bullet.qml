@@ -37,7 +37,14 @@ Item {
             shoot2()
         }
     }
-
+    //固定子弹初始位置与飞机位置同步
+    function updateMybulletPosition(){
+        if(!isShooted){ // 只有当子弹不在飞行中时才更新位置
+            my_bullet_1.x = content.myplane.myplane_1.x + content.myplane.myplane_1.width/2 - bullet_Width/2;
+            my_bullet_1.y = content.myplane.myplane_1.y - bullet_Height;
+            my_bullet_1.visible = false
+        }
+    }
     //单人模式子弹位置更新
     //固定子弹初始位置与飞机位置同步
     function updateMybulletPosition1(){
@@ -72,12 +79,15 @@ Item {
     //单人模式
     //子弹射出，从屏幕下方移动到屏幕最上方
     function shoot(){
+        bgm.shoot_1_Music.play()
         my_bullet_1.visible = true
         my_bullet_1.y -=my_bulletSpeed;
+        isShooted = true; // 设置为true，表示子弹正在飞行中
+        // if(my_bullet_1.y + my_bullet_1.height < 0){
 
-        my_bullet1_2.visible = true
-        my_bullet1_2.y -=my_bulletSpeed;
-
+        // my_bullet1_2.visible = true
+        // my_bullet1_2.y -=my_bulletSpeed;
+        // }
         // my_bullet_mid.visible = true
         // my_bullet_mid.y -=my_bulletSpeed/2;
 

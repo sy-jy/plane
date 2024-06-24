@@ -10,6 +10,7 @@ Item{
     property alias dialogs: dialogs
     property alias myplane: myplane
     property alias enemys: enemys
+    property alias timer: timer
 
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
@@ -37,6 +38,7 @@ Item{
     property bool movingUp_P2: false
     property bool movingDown_P2: false
     property string map_path: "./images/map1.png"    //地图图片源
+    property string mapView: "./images/map1.png"
     property int remainlife_1:myplane.lives-1
     property int remainlife_2:myplane.lives-1
     property alias bloodProgress: bloodProgress
@@ -169,9 +171,13 @@ Item{
                     }
                     // 监听当前索引的变化
                     onCurrentIndexChanged: {
-                        var currentMapPath = control.model.get(control.currentIndex).mapPath
-                        console.log("当前 mapPath:", currentMapPath)
                         map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath//当前选中的地图路径赋给map_path
+                        if(model.get(mapmodel.currentIndex).text === " 随机"){
+                            console.log("随机")
+                            mapView = "./images/random.png"
+                        }else{
+                            mapView = map_path
+                        }
                         console.log("Selected map source: ",map_path)
                     }
 
@@ -230,10 +236,16 @@ Item{
             }
 
             //地图缩略图位置
-            Rectangle{
+            Rectangle {
                 width: window_Width/4
                 height: window_Height/4
-                color: "black"
+                border.color: "darkgray"
+                border.width: 2
+                color: "gray"
+                Image {
+                    anchors.fill: parent
+                    source: mapView
+                }
             }
 
         }
@@ -884,6 +896,7 @@ Item{
                 anchors.right: parent.right
                 onClicked: {
                     dialogs.pause.open()
+                    timer.stop()//暂停游戏
                     console.log("暂停建已激活，跳出弹窗")
                 }
             }
