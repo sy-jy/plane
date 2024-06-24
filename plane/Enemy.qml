@@ -13,6 +13,7 @@ Item {
     property var boss: null     // Boss 对象
     property int bossSpeed: 2
     property alias bossTime: bossTime
+    property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
 
     // 敌机图片的ListModel
     ListModel {
@@ -46,24 +47,37 @@ Item {
         id: bossComponent
         Rectangle {
             id: boss1
-            width: 285
-            height: 380
+            width: 550
+            height: 300
             color: "transparent"
-
+            property alias boss1: boss1
+            // focusPolicy: Qt.NoFocus
             Image {
                 id: _boss1
-                source: "images/boss1.png"
-                fillMode: Image.PreserveAspectFit
+                source: "images/boss2.png"
                 anchors.fill: parent
             }
 
+            //boss固定上方位置水平移动
             function updateBossPosition() {
-                boss1.y += bossSpeed
-                if (boss1.y > gameArea.height) {
-                    boss1.destroy()
-                    gameArea.boss = null
+                // boss1.y += bossSpeed
+                if(boss1.y >= 0){
+                    boss1.x += bossSpeed*bossDirection
+                    if (boss1.x + bossSpeed <= 0 || boss1.x + bossSpeed >= gameArea.width - boss1.width) {
+                        bossDirection *= -1 // 反转移动方向
+                    }
+                }else{
+                    boss1.y += bossSpeed
                 }
             }
+            //boss垂直运动直到消失于界面
+            // function updateBossPosition() {
+            //     boss1.y += bossSpeed
+            //     if (boss1.y > gameArea.height) {
+            //         boss1.destroy()
+            //         gameArea.boss = null
+            //     }
+            // }
         }
     }
 
@@ -94,7 +108,7 @@ Item {
         if (!gameArea.boss) {
             var newBoss = bossComponent.createObject(gameArea)
             newBoss.x = (gameArea.width - newBoss.width) / 2
-            newBoss.y = -newBoss.height
+            newBoss.y = -300
             gameArea.boss = newBoss
         }
     }
