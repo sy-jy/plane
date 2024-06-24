@@ -11,6 +11,7 @@ Item{
     property alias myplane: myplane
     property alias enemys: enemys
     property alias timer: timer
+    property alias easy: easy
 
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
@@ -37,13 +38,19 @@ Item{
     property bool movingRight_P2: false
     property bool movingUp_P2: false
     property bool movingDown_P2: false
+
     property string map_path: "./images/map1.png"    //地图图片源
     property string mapView: "./images/map1.png"
+
     property int remainlife_1:myplane.lives-1
     property int remainlife_2:myplane.lives-1
     property alias bloodProgress: bloodProgress
     property alias bloodProgress_1: bloodProgress_1
     property alias bloodProgress_2: bloodProgress_2
+
+    //道具生成
+    property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
+    property int itemUpdateCounter: 0
     // property alias blood: bloodSlider
     anchors.fill: parent
 
@@ -100,6 +107,7 @@ Item{
                     font.letterSpacing: 15
                     font.pointSize: 18 // 设置字体大小（以磅为单位）
                     font.bold: true // 设置字体加粗
+
                     background:Rectangle{
                         implicitHeight: 55
                         implicitWidth: 100
@@ -442,6 +450,9 @@ Item{
                     implicitWidth: 60
                     color: "pink"
                 }
+                onClicked: {
+                    dialogs.setting.open()
+                }
             }
         }
     }
@@ -662,21 +673,26 @@ Item{
             Keys.onSpacePressed: {
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
+                //双人
                 if(showDualSelection&&plane.currentIndexWSAD!==-1&&plane.currentIndexArrows!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
                     myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
                     console.log("Selected P1 source: ",myplane_1_path)
                     console.log("Selected P2 source: ",myplane_2_path)
                     startgame()
+                    bloodProgress_1.value = myplane.blood
+                    bloodProgress_2.value = myplane.blood
                     myplane.doubleplayer()  //显示双人飞机
                     myplane.shield_1.activateShield()//开局护盾
                     myplane.shield_2.activateShield()//开局护盾
                     doublegamelayout.forceActiveFocus()
                     doublegamelayout.visible = true
                 }
+                //单人
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
                     startgame()
+                    bloodProgress.value = myplane.blood
                     myplane.singleplayer()  //显示单人飞机
                     myplane.shield_1.activateShield()//开局护盾
                     singalgamelayout.forceActiveFocus()
@@ -718,6 +734,12 @@ Item{
         {
             map.updateMap()
             enemys.updateEnemys()
+            // 更新道具位置计数器
+            itemUpdateCounter++
+            if (itemUpdateCounter >= itemUpdateInterval) {
+                items.item.setPosition() // 测试获得道具
+                itemUpdateCounter = 0 // 重置计数器
+            }
             //飞机移动重绘
             if(!isDouble){
                 //单人
@@ -963,7 +985,7 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
             else if (event.key === Qt.Key_J){
-                items.item.setPosition()//测试获得道具
+
                 bullet.isShooted = true;//攻击
                 bullet.shootTimer.start()
                 // bullet.setBulletPosition()
@@ -997,7 +1019,6 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = false;
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
             else if (event.key === Qt.Key_J){
-                bullet.isShooted = false;
                 bullet.shootTimer.stop()
             }
         }
