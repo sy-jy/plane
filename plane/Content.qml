@@ -649,13 +649,13 @@ Item{
                 console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
                 map.visible = true      //地图显示
                 timer.running = true    //开启计时器
+                enemys.gameTime.start()
+                enemys.visible = true
             }
 
             Keys.onSpacePressed: {
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
-                enemys.gameTimer.start()
-                enemys.visible = true
                 if(showDualSelection&&plane.currentIndexWSAD!==-1&&plane.currentIndexArrows!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
                     myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
@@ -711,6 +711,7 @@ Item{
         onTriggered:
         {
             map.updateMap()
+            enemys.updateEnemys()
             //飞机移动重绘
             if(!isDouble){
                 //单人
@@ -942,7 +943,6 @@ Item{
         }
         //操控飞机
         Keys.onPressed:{
-            enemys.updateGame()
             if (event.key === Qt.Key_A)movingLeft_P1 = true;
             else if (event.key === Qt.Key_D) movingRight_P1 = true;
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
