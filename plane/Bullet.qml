@@ -12,9 +12,9 @@ Item {
 
     property int maxBullets:window_Height/bullet_Height
     //property var bullets:[]                 //存储子弹的数组
-    property bool isShooted: false
-    property bool isShooted_2: false
-    property bool isShooted_enemy: false
+    property bool isShooted: false                  //玩家一子弹发射情况
+    property bool isShooted_2: false                //玩家二子弹发射情况
+    property bool isShooted_enemy: false            //敌机子弹发射情况
 
     property alias enemy_bullet: _enemy_bullet
 
@@ -40,36 +40,50 @@ Item {
             shoot2()
         }
     }
+    // //固定子弹初始位置与飞机位置同步
+    // function updateMybulletPosition(){
+    //     if(!isShooted){ // 只有当子弹不在飞行中时才更新位置
+    //         my_bullet_1.x = content.myplane.myplane_1.x + content.myplane.myplane_1.width/2 - bullet_Width/2;
+    //         my_bullet_1.y = content.myplane.myplane_1.y - bullet_Height;
+    //         my_bullet_1.visible = false
+    //     }
+    // }
 
     //单人模式子弹位置更新
     //固定子弹初始位置与飞机位置同步
     function updateMybulletPosition1(){
-        my_bullet_1.x = content.myplane.myplane_1.x + window_Height/25;
-        my_bullet_1.y = content.myplane.myplane_1.y;
-        my_bullet_1.visible = false
+        if(!isShooted){
+            my_bullet_1.x = content.myplane.myplane_1.x + window_Height/25;
+            my_bullet_1.y = content.myplane.myplane_1.y;
+            my_bullet_1.visible = false
 
-        my_bullet_mid.x = content.myplane.myplane_1.x + window_Height*2/25;
-        my_bullet_mid.y = content.myplane.myplane_1.y;
-        my_bullet_mid.visible = false
+            my_bullet_mid.x = content.myplane.myplane_1.x + window_Height*2/25;
+            my_bullet_mid.y = content.myplane.myplane_1.y;
+            my_bullet_mid.visible = false
 
-        my_bullet1_2.x = content.myplane.myplane_1.x + window_Height*3/25;
-        my_bullet1_2.y = content.myplane.myplane_1.y;
-        my_bullet1_2.visible = false
+            my_bullet1_2.x = content.myplane.myplane_1.x + window_Height*3/25;
+            my_bullet1_2.y = content.myplane.myplane_1.y;
+            my_bullet1_2.visible = false
+        }
+
+
     }
 
     //双人模式玩家二子弹位置更新
     function updateMybulletPosition2(){
-        my_bullet_2.x = content.myplane.myplane_2.x + window_Height/25;
-        my_bullet_2.y = content.myplane.myplane_2.y;
-        my_bullet_2.visible = false
+        if(!isShooted_2){
+            my_bullet_2.x = content.myplane.myplane_2.x + window_Height/25;
+            my_bullet_2.y = content.myplane.myplane_2.y;
+            my_bullet_2.visible = false
 
-        my_bullet_mid.x = content.myplane.myplane_2.x + window_Height*2/25;
-        my_bullet_mid.y = content.myplane.myplane_2.y;
-        my_bullet_mid.visible = false
+            // my_bullet_mid.x = content.myplane.myplane_2.x + window_Height*2/25;
+            // my_bullet_mid.y = content.myplane.myplane_2.y;
+            // my_bullet_mid.visible = false
 
-        my_bullet2_2.x = content.myplane.myplane_2.x + window_Height*3/25;
-        my_bullet2_2.y = content.myplane.myplane_2.y;
-        my_bullet2_2.visible = false
+            my_bullet2_2.x = content.myplane.myplane_2.x + window_Height*3/25;
+            my_bullet2_2.y = content.myplane.myplane_2.y;
+            my_bullet2_2.visible = false
+        }
     }
 
     //敌机
@@ -82,12 +96,15 @@ Item {
     //单人模式
     //子弹射出，从屏幕下方移动到屏幕最上方
     function shoot(){
+        bgm.shoot_1_Music.play()
         my_bullet_1.visible = true
         my_bullet_1.y -=my_bulletSpeed;
 
         my_bullet1_2.visible = true
         my_bullet1_2.y -=my_bulletSpeed;
 
+
+        isShooted = true; // 设置为true，表示子弹正在飞行中
         // my_bullet_mid.visible = true
         // my_bullet_mid.y -=my_bulletSpeed/2;
 

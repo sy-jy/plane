@@ -10,6 +10,8 @@ Item{
     property alias dialogs: dialogs
     property alias myplane: myplane
     property alias enemys: enemys
+    property alias timer: timer
+    property alias easy: easy
 
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
@@ -36,12 +38,19 @@ Item{
     property bool movingRight_P2: false
     property bool movingUp_P2: false
     property bool movingDown_P2: false
+
     property string map_path: "./images/map1.png"    //地图图片源
+    property string mapView: "./images/map1.png"
+
     property int remainlife_1:myplane.lives-1
     property int remainlife_2:myplane.lives-1
     property alias bloodProgress: bloodProgress
     property alias bloodProgress_1: bloodProgress_1
     property alias bloodProgress_2: bloodProgress_2
+
+    //道具生成
+    property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
+    property int itemUpdateCounter: 0
     // property alias blood: bloodSlider
     anchors.fill: parent
 
@@ -98,6 +107,7 @@ Item{
                     font.letterSpacing: 15
                     font.pointSize: 18 // 设置字体大小（以磅为单位）
                     font.bold: true // 设置字体加粗
+
                     background:Rectangle{
                         implicitHeight: 55
                         implicitWidth: 100
@@ -169,9 +179,13 @@ Item{
                     }
                     // 监听当前索引的变化
                     onCurrentIndexChanged: {
-                        var currentMapPath = control.model.get(control.currentIndex).mapPath
-                        console.log("当前 mapPath:", currentMapPath)
                         map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath//当前选中的地图路径赋给map_path
+                        if(model.get(mapmodel.currentIndex).text === " 随机"){
+                            console.log("随机")
+                            mapView = "./images/random.png"
+                        }else{
+                            mapView = map_path
+                        }
                         console.log("Selected map source: ",map_path)
                     }
 
@@ -230,10 +244,16 @@ Item{
             }
 
             //地图缩略图位置
-            Rectangle{
+            Rectangle {
                 width: window_Width/4
                 height: window_Height/4
-                color: "black"
+                border.color: "darkgray"
+                border.width: 2
+                color: "gray"
+                Image {
+                    anchors.fill: parent
+                    source: mapView
+                }
             }
 
         }
@@ -429,6 +449,9 @@ Item{
                     implicitHeight:60
                     implicitWidth: 60
                     color: "pink"
+                }
+                onClicked: {
+                    dialogs.setting.open()
                 }
             }
         }
@@ -643,28 +666,34 @@ Item{
                 console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
                 map.visible = true      //地图显示
                 timer.running = true    //开启计时器
+                enemys.gameTime.start()
+                enemys.bossTime.start()
+                enemys.visible = true
             }
 
             Keys.onSpacePressed: {
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
-                enemys.gameTimer.start()
-                enemys.visible = true
+                //双人
                 if(showDualSelection&&plane.currentIndexWSAD!==-1&&plane.currentIndexArrows!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
                     myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
                     console.log("Selected P1 source: ",myplane_1_path)
                     console.log("Selected P2 source: ",myplane_2_path)
                     startgame()
+                    bloodProgress_1.value = myplane.blood
+                    bloodProgress_2.value = myplane.blood
                     myplane.doubleplayer()  //显示双人飞机
                     myplane.shield_1.activateShield()//开局护盾
                     myplane.shield_2.activateShield()//开局护盾
                     doublegamelayout.forceActiveFocus()
                     doublegamelayout.visible = true
                 }
+                //单人
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
                     startgame()
+                    bloodProgress.value = myplane.blood
                     myplane.singleplayer()  //显示单人飞机
                     myplane.shield_1.activateShield()//开局护盾
                     singalgamelayout.forceActiveFocus()
@@ -706,6 +735,14 @@ Item{
         {
             map.updateMap()
             //bullet.shoot_enemy()
+            enemys.updateEnemys()
+            enemys.updateGame()
+            // 更新道具位置计数器
+            itemUpdateCounter++
+            if (itemUpdateCounter >= itemUpdateInterval) {
+                items.item.setPosition() // 测试获得道具
+                itemUpdateCounter = 0 // 重置计数器
+            }
             //飞机移动重绘
             if(!isDouble){
                 //单人
@@ -722,6 +759,7 @@ Item{
                 if(!myplane.isShield_1){//测试护盾
                     bloodProgress.value-=0.3//测试血量条
                 }
+                //敌机子弹判定
                 if(enemys.enemy_1.y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
                     bullet.isShooted_enemy = true
                     bullet.shoot_enemy()
@@ -763,22 +801,6 @@ Item{
             }
         }
     }
-
-    // Timer{
-    //     id:enemy_shootTimer
-    //     interval: 250
-    //     running: true
-    //     repeat: true
-
-    //     onTriggered: {
-    //         bullet.isShooted_enemy = true
-    //         if(bullet.isShooted_enemy){
-    //             bullet.shoot_enemy()
-    //         }else{
-    //             bullet.updateEnemybulletPosition()
-    //         }
-    //     }
-    // }
 
     //游戏结束后弹窗计时器
     Timer{
@@ -906,6 +928,7 @@ Item{
                 anchors.right: parent.right
                 onClicked: {
                     dialogs.pause.open()
+                    timer.stop()//暂停游戏
                     console.log("暂停建已激活，跳出弹窗")
                 }
             }
@@ -967,13 +990,11 @@ Item{
         //操控飞机
         Keys.onPressed:{
             enemys.updateGame()
-            //bullet.isShooted_enemy = true
             if (event.key === Qt.Key_A)movingLeft_P1 = true;
             else if (event.key === Qt.Key_D) movingRight_P1 = true;
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
             else if (event.key === Qt.Key_J){
-                items.item.setPosition()//测试获得道具
                 bullet.isShooted = true;//攻击
                 bullet.shootTimer.start()
             }
@@ -1354,7 +1375,7 @@ Item{
                 else if (event.key === Qt.Key_W) movingUp_P1 = false;
                 else if (event.key === Qt.Key_S) movingDown_P1 = false;
                 else if (event.key === Qt.Key_J){
-                    bullet.isShooted = false;
+                    //bullet.isShooted = false;
                     bullet.shootTimer.stop()
                 }
                 //P2
@@ -1363,7 +1384,7 @@ Item{
                 else if (event.key === Qt.Key_Up) movingUp_P2 = false;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = false;
                 else if (event.key === Qt.Key_0){
-                    bullet.isShooted_2 = false;
+                    //bullet.isShooted_2 = false;
                     bullet.shootTimer_2.stop()
                 }
             }

@@ -13,6 +13,188 @@ Item {
 
     property alias blurRect:_blurRect
 
+    property alias setting: setting
+
+    Dialog{
+        id:setting
+        width: window_Width/2
+        height: window_Height/2
+        anchors.centerIn: parent
+        modal: true
+        Column {
+            anchors.centerIn: parent
+            spacing: window_Height/10
+            Text {
+                text: qsTr(" 设置")
+                font.letterSpacing: window_Width/12
+                font.pointSize: 20
+                font.bold: true
+                color: "white"
+            }
+            Rectangle{
+                id:musicVolume
+                width: window_Width/3
+                height: window_Height/25
+                color:"transparent"
+                Row{
+                    spacing: window_Width/35
+                    Text {
+                        text: "背景音乐"
+                        font.pointSize: 12
+                        font.bold: true
+                        color: "white"
+                    }
+                    // 音量滑块
+                    Slider {
+                        id: musicSlider
+                        focus: true
+                        from: 0
+                        to: 100
+                        value: 100 // 初始值与音频播放器的音量一致
+                        onFocusChanged: bgm.focusSound.play()
+                        // 添加一个视觉指示器来表示Slider是否获得焦点
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "transparent"
+                            visible: musicSlider.focus // 仅在Slider获得焦点时可见
+
+                            // 当Slider获得焦点时的背景颜色
+                            border.color: musicSlider.focus ? "white" : "transparent"
+                            border.width: musicSlider.focus ? 2 : 0
+                        }
+                        onValueChanged: {
+                            // 当滑块值变化时，更新音频播放器的音量
+                            bgm.gameVolume.volume = musicSlider.value/100
+                            bgm.testMusicVolume.volume = musicSlider.value/100
+                            bgm.testMusic.play()
+                            console.log(bgm.gameVolume.volume)
+                            // audioPlayer.volume = volumeSlider.value
+                        }
+
+                        contentItem: Rectangle {
+                            width: musicSlider.value/musicSlider.to*window_Width/6
+                            height: musicVolume.height
+                            color: "red"
+                        }
+                        background: Rectangle {
+                            implicitWidth: window_Width/6
+                            implicitHeight: musicVolume.height
+                            color: "transparent" // 进度条背景的颜色
+                        }
+                        handle: none
+                    }
+                    Keys.onPressed: (event) => {
+                            if (event.key === Qt.Key_A) {
+                                // 按下A键，音量减少
+                                musicSlider.value -= 5
+                            } else if (event.key === Qt.Key_D) {
+                                // 按下D键，音量增加
+                                musicSlider.value += 5
+                            }else if (event.key === Qt.Key_W) {
+                                // 按下W键，切换焦点
+                                musicSlider.focus = true
+                                soundSlider.focus = false
+                            }else if (event.key === Qt.Key_S) {
+                                // 按下S键，切换焦点
+                                musicSlider.focus = false
+                                soundSlider.focus = true
+                            }
+
+                        }
+
+                    // 显示当前音量
+                    Text {
+                        text:  musicSlider.value
+                        font.pointSize: 12
+                        font.bold: true
+                        color: "white"
+                    }
+                }
+            }
+            Rectangle{
+                id:soundVolume
+                width: window_Width/3
+                height: window_Height/25
+                color:"transparent"
+                Row{
+                    spacing: window_Width/35
+                    Text {
+                        text: "游戏音效"
+                        font.pointSize: 12
+                        font.bold: true
+                        color: "white"
+                    }
+                    // 音量滑块
+                    Slider {
+                        id: soundSlider
+                        from: 0
+                        to: 100
+                        value: 100 // 初始值与音频播放器的音量一致
+                        // 添加一个视觉指示器来表示Slider是否获得焦点
+                        Rectangle {
+                            anchors.fill: parent
+                            color: "transparent"
+                            visible: soundSlider.focus // 仅在Slider获得焦点时可见
+
+                            // 当Slider获得焦点时的背景颜色
+                            border.color: soundSlider.focus ? "white" : "transparent"
+                            border.width: soundSlider.focus ? 2 : 0
+                        }
+                        onValueChanged: {
+                            // 当滑块值变化时，更新音频播放器的音量
+                            bgm.testSoundVolume.volume = soundSlider.value/100
+                            bgm.testSound.play()
+                            bgm.life_loseMusicVolume.volume = soundSlider.value/100
+                            bgm.upAmmoVolume.volume = soundSlider.value/100
+                            bgm.game_defeatMusicVolume.volume = soundSlider.value/100
+                            bgm.shootMusicVolume.volume = soundSlider.value/100
+                            bgm.focusSoundVolume.volume = soundSlider.value/100
+
+                        }
+
+                        contentItem: Rectangle {
+                            width: soundSlider.value/soundSlider.to*window_Width/6
+                            height: soundVolume.height
+                            color: "red"
+                        }
+                        background: Rectangle {
+                            implicitWidth: window_Width/6
+                            implicitHeight: soundVolume.height
+                            color: "transparent" // 进度条背景的颜色
+                        }
+                        handle: none
+                    }
+                    Keys.onPressed: (event) => {
+                            if (event.key === Qt.Key_A) {
+                                // 按下A键，音量减少
+                                soundSlider.value -= 5
+                            } else if (event.key === Qt.Key_D) {
+                                // 按下D键，音量增加
+                                soundSlider.value += 5
+                            }else if (event.key === Qt.Key_W) {
+                                // 按下W键，切换焦点
+                                musicSlider.focus = true
+                                soundSlider.focus = false
+                            }else if (event.key === Qt.Key_S) {
+                                // 按下S键，切换焦点
+                                musicSlider.focus = false
+                                soundSlider.focus = true
+                            }
+
+                        }
+
+                    // 显示当前音量
+                    Text {
+                        text:  soundSlider.value
+                        font.pointSize: 12
+                        font.bold: true
+                        color: "white"
+                    }
+                }
+            }
+        }
+    }
+
     //暂停建点击触发的弹窗（重新开始 继续游戏 退出游戏 音效建）
     Dialog{
         id: _pause
@@ -40,6 +222,8 @@ Item {
                action: actions.continueAction
                onClicked: {
                    console.log("继续游戏")
+                   content.timer.start()
+                   pause.close()
                }
             }
             Button{
