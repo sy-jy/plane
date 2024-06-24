@@ -711,7 +711,7 @@ Item{
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
-                    bullet.updateMybulletPosition()
+                    bullet.updateMybulletPosition1()
                 }
 
                 if(!myplane.isShield_1){//测试护盾
@@ -724,15 +724,20 @@ Item{
                 //双人
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
-                //测试道具获取
-                // if(bullet.isShooted){
-                //     //发射
-                //     items.item.setPosition()//测试获得道具
-                //     bullet.shoot()
-                // }else{
-                //     //未发射时跟随飞机移动
-                //     bullet.updateMybulletPosition()
-                // }
+                if(bullet.isShooted){
+                    //发射
+                    items.item.setPosition()//测试获得道具
+                    bullet.shoot()
+                }else{
+                    //未发射时跟随飞机移动
+                    bullet.updateMybulletPosition1()
+                }
+                if(bullet.isShooted_2){
+                    bullet.shoot2()
+                }else{
+                    bullet.updateMybulletPosition2()
+                }
+
                 items.item.move()//道具移动
                 items.item.got()//道具获得
                 if(!myplane.isShield_1){//测试护盾
@@ -768,7 +773,6 @@ Item{
                 if(bloodProgress_1.value === 0 &&bloodProgress_2.value === 0){
                     dialogs.defeat.open();
                     dialogs.blurRect.visible = true;
-                    timer.stop();
                     bgm.game_defeatMusic.play()
                     gameover_timer.stop();
                 }
@@ -945,6 +949,27 @@ Item{
                 // bullet.setBulletPosition()
             }
         }
+
+        // Keys.onPressed: {
+        //     switch(event.key){
+        //     case Qt.Key_A:
+        //         movingLeft_P1 = true;
+        //         break;
+        //     case Qt.Key_D:
+        //         movingRight_P1 = true;
+        //         break;
+        //     case Qt.Key_W:
+        //         movingUp_P1 = true;
+        //         break;
+        //     case Qt.Key_S:
+        //         movingDown_P1 = true;
+        //         break;
+        //     case Qt.Key_J:
+        //         bullet.isShooted = true;
+        //         bullet.shootTimer.start();
+        //         break;
+        //     }
+        // }
 
         Keys.onReleased:{
             if (event.key === Qt.Key_A) movingLeft_P1 = false;
@@ -1291,6 +1316,7 @@ Item{
             Popup {
                 id: dialog2
             }
+            //双人模式
             //操控飞机
             Keys.onPressed:{
                 //P1
@@ -1300,6 +1326,7 @@ Item{
                 else if (event.key === Qt.Key_S) movingDown_P1 = true;
                 else if (event.key === Qt.Key_J) {
                     bullet.isShooted = true;//攻击
+                    bullet.shootTimer.start()
                     items.item.setPosition()
                 }
 
@@ -1308,6 +1335,10 @@ Item{
                 else if (event.key === Qt.Key_Right) movingRight_P2 = true;
                 else if (event.key === Qt.Key_Up) movingUp_P2 = true;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = true;
+                else if (event.key === Qt.Key_0){
+                    bullet.isShooted_2 = true;
+                    bullet.shootTimer_2.start()
+                }
             }
             Keys.onReleased:{
                 //P1
@@ -1315,11 +1346,19 @@ Item{
                 else if (event.key === Qt.Key_D) movingRight_P1 = false;
                 else if (event.key === Qt.Key_W) movingUp_P1 = false;
                 else if (event.key === Qt.Key_S) movingDown_P1 = false;
+                else if (event.key === Qt.Key_J){
+                    bullet.isShooted = false;
+                    bullet.shootTimer.stop()
+                }
                 //P2
                 if (event.key === Qt.Key_Left) movingLeft_P2 = false;
                 else if (event.key === Qt.Key_Right) movingRight_P2 = false;
                 else if (event.key === Qt.Key_Up) movingUp_P2 = false;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = false;
+                else if (event.key === Qt.Key_0){
+                    bullet.isShooted_2 = false;
+                    bullet.shootTimer_2.stop()
+                }
             }
          }
 
