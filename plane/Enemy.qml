@@ -3,24 +3,22 @@ import QtQuick
 import QtQuick.Controls
 
 Item {
-        id: gameArea
-        anchors.fill: parent
-        property int enemySpeed: 2
-        property var enemy_1:enemy
-        property alias enemyComponent:enemyComponent
-        //property alias enemy:newEnemy
-        focusPolicy: Qt.NoFocus
-        //property alias gameTimer: _gameTimer
-
-        visible: false
-        property var enemys: []     // 敌机数组
-        property alias gameTime: _gameTime
-        property string path
-        property var boss: null     // Boss对象
-        property int bossSpeed: 2
-        property alias bossTime: bossTime
-        property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
-        // property var newboss:newBoss
+    id: gameArea
+    anchors.fill: parent
+    property int enemySpeed: 2
+    property alias enemyComponent:enemyComponent
+    //property alias enemy:newEnemy
+    focusPolicy: Qt.NoFocus
+    //property alias gameTimer: _gameTimer
+    visible: false
+    property var enemys: []     // 敌机数组
+    property alias gameTime: _gameTime
+    property string path
+    property var boss: null     // Boss对象
+    property int bossSpeed: 2
+    property alias bossTime: bossTime
+    property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
+    property bool bossAppeared: false
 
     // 敌机图片的ListModel
     ListModel {
@@ -129,6 +127,7 @@ Item {
             boss = newBoss
             newBoss.y = -300
             boss = newBoss
+            bossAppeared = true
         }
     }
     function destroyBoss(){
