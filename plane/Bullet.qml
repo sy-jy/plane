@@ -124,14 +124,14 @@ Item {
 
     //双人模式
     function shoot2(){
+        bgm.shoot_2_Music.play()
         my_bullet_2.visible = true
         my_bullet_2.y -=my_bulletSpeed;
 
         my_bullet2_2.visible = true
         my_bullet2_2.y -=my_bulletSpeed;
 
-        isShooted_2 = true;
-
+        isShooted_2 = true; // 设置为true，表示子弹正在飞行中
         if(my_bullet_2.y + my_bullet_2.height < 0){
             isShooted_2 = false
         }

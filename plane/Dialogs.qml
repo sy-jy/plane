@@ -81,7 +81,7 @@ Item {
                             implicitHeight: musicVolume.height
                             color: "transparent" // 进度条背景的颜色
                         }
-                        handle: none
+                        handle: null
                     }
                     Keys.onPressed: (event) => {
                             if (event.key === Qt.Key_A) {
@@ -147,7 +147,8 @@ Item {
                             bgm.life_loseMusicVolume.volume = soundSlider.value/100
                             bgm.upAmmoVolume.volume = soundSlider.value/100
                             bgm.game_defeatMusicVolume.volume = soundSlider.value/100
-                            bgm.shootMusicVolume.volume = soundSlider.value/100
+                            bgm.shoot_1_MusicVolume.volume = soundSlider.value/100
+                            bgm.shoot_2_MusicVolume.volume = soundSlider.value/100
                             bgm.focusSoundVolume.volume = soundSlider.value/100
 
                         }
@@ -162,7 +163,7 @@ Item {
                             implicitHeight: soundVolume.height
                             color: "transparent" // 进度条背景的颜色
                         }
-                        handle: none
+                        handle: null
                     }
                     Keys.onPressed: (event) => {
                             if (event.key === Qt.Key_A) {
@@ -194,6 +195,50 @@ Item {
             }
         }
     }
+    function restartgame(){
+        console.log("重新开始游戏")
+        //重置我方战机位置
+        myplane.plane_1_X = (window_Width-myplane.myplane_Width)/9
+        myplane.plane_1_Y = window_Height-myplane.myplane_Height
+        myplane.plane_2_X = (window_Width-myplane.myplane_Width)/9*8
+        myplane.plane_2_Y = window_Height-myplane.myplane_Height
+        myplane.planeX = (window_Width-myplane.myplane_Width)/2
+        myplane.planeY = window_Height-myplane.myplane_Height
+        //重置护盾
+        myplane.shield_1.activateShield()//开局护盾
+        myplane.shield_1_Timer.restart()
+        if(content.isDouble){
+            myplane.shield_2.activateShield()//开局护盾
+            myplane.shield_2_Timer.restart()
+        }
+        //重置生命
+        myplane.isSurvive_1 = true
+        myplane.isSurvive_2 = true
+        content.remainlife_1 = myplane.lives-1
+        if(content.isDouble){
+            content.bloodProgress_1.value = myplane.blood
+            content.bloodProgress_2.value = myplane.blood
+            content.remainlife_2 = myplane.lives-1
+            for(var i = 0;i<content.lifeModel_1.count;i++){
+                content.lifeModel_1.get(i).visible = true
+            }
+            for(i = 0;i<content.lifeModel_2.count;i++){
+                content.lifeModel_2.get(i).visible = true
+            }
+
+        }else{
+            content.bloodProgress.value = myplane.blood
+            for(i = 0;i<content.lifeModel.count;i++){
+                content.lifeModel.get(i).visible = true
+            }
+
+        }
+        enemys.destroyEnemy()
+        enemys.destroyBoss()
+        enemys.gameTime.start()
+        enemys.bossTime.start()
+        content.timer.start()
+    }
 
     //暂停建点击触发的弹窗（重新开始 继续游戏 退出游戏 音效建）
     Dialog{
@@ -201,7 +246,7 @@ Item {
         width: 280;height: 350
         anchors.centerIn: parent
         modal: true
-
+        closePolicy: Popup.NoAutoClose
         Column{
             // anchors.fill: parent
             anchors.centerIn: parent
@@ -212,8 +257,9 @@ Item {
                anchors.horizontalCenter: parent.horizontalCenter
                action: actions.restartAction
                onClicked: {
-               console.log("重新开始游戏")
-           }
+                   restartgame()
+                   pause.close()
+               }
             }
             Button{
                id: _continue
@@ -222,6 +268,10 @@ Item {
                action: actions.continueAction
                onClicked: {
                    console.log("继续游戏")
+                   myplane.shield_1_Timer.start()
+                   myplane.shield_1_FadeAnimation.start()
+                   enemys.gameTime.start()
+                   enemys.bossTime.start()
                    content.timer.start()
                    pause.close()
                }
@@ -331,6 +381,7 @@ Item {
                     onClicked: {
                         defeat_Dialog.visible = false;
                         _blurRect.visible = false;
+                        restartgame()
                     }
                 }
             }
