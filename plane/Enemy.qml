@@ -97,6 +97,14 @@ Item {
         enemys.push(newEnemy)
     }
 
+    function destroyEnemy(){
+        while(enemys.length!==0){
+            var enemy = enemys[enemys.length-1]
+            enemy.destroy()
+            enemys.pop()
+        }
+    }
+
     // 更新所有敌机位置
     function updateEnemys() {
         for (var i = enemys.length - 1; i >= 0; i--) {
@@ -111,11 +119,16 @@ Item {
 
     // 创建boss
     function createBoss() {
-        if (!gameArea.boss) {
+        if (!boss) {
             var newBoss = bossComponent.createObject(gameArea)
             newBoss.x = (gameArea.width - newBoss.width) / 2
             newBoss.y = -300
-            gameArea.boss = newBoss
+            boss = newBoss
+        }
+    }
+    function destroyBoss(){
+        if(boss){//防止摧毁空的boss
+            boss.destroy()
         }
     }
 

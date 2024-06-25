@@ -18,7 +18,9 @@ Item {
 
     property alias shoot_1_Music: shoot_1_Music
     property string shootMusicPath: "./wav/shoot.mp3"
-    property alias shootMusicVolume: shootMusicVolume
+    property alias shoot_1_MusicVolume: shoot_1_MusicVolume
+    property alias shoot_2_Music: shoot_2_Music
+    property alias shoot_2_MusicVolume: shoot_2_MusicVolume
 
     property string testVolumePath: "./wav/volume.mp3"
     property alias testMusic: testMusic
@@ -81,7 +83,16 @@ Item {
         source: shootMusicPath
         // 设置音频输出
         audioOutput: AudioOutput {
-            id:shootMusicVolume
+            id:shoot_1_MusicVolume
+            volume: 1
+        }
+    }
+    MediaPlayer{
+        id:shoot_2_Music
+        source: shootMusicPath
+        // 设置音频输出
+        audioOutput: AudioOutput {
+            id:shoot_2_MusicVolume
             volume: 1
         }
     }

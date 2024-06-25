@@ -27,6 +27,10 @@ Item {
     property int shieldDuration: 5000 // 护盾持续时间（毫秒）
     property int shieldFadeDuration: 3000 // 护盾闪烁时间（毫秒）
     property bool isFading: false // 护盾是否正在闪烁
+    property alias shield_1_Timer: shield_1_Timer
+    property alias shield_2_Timer: shield_2_Timer
+    property alias shield_1_FadeAnimation: shield_1_FadeAnimation
+    property alias shield_2_FadeAnimation: shield_2_FadeAnimation
     //速度
     property int upSpeed: 7
     property bool isAccelerate_1: false
