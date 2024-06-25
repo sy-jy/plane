@@ -16,6 +16,10 @@ Item {
     property string game_defeatMusicPath: "./wav/defeat.mp3"
     property alias game_defeatMusicVolume: _game_defeatMusicVolume
 
+    property alias game_victoryMusic:_game_victoryMusic
+    property string game_victoryMusicPath: "./wav/victory.mp3"
+    property alias game_victoryMusicVolume: _game_victoryMusicVolume
+
     property alias shoot_1_Music: shoot_1_Music
     property string shootMusicPath: "./wav/shoot.mp3"
     property alias shoot_1_MusicVolume: shoot_1_MusicVolume
@@ -78,6 +82,16 @@ Item {
             volume: 1
         }
     }
+    MediaPlayer{
+        id:_game_victoryMusic
+        source: game_victoryMusicPath
+        // 设置音频输出
+        audioOutput: AudioOutput {
+            id:_game_victoryMusicVolume
+            volume: 1
+        }
+    }
+
     MediaPlayer{
         id:shoot_1_Music
         source: shootMusicPath

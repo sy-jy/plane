@@ -208,7 +208,7 @@ Item {
                     && my_bullet_1.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet_1.visible = false
-                //bossbloodProgress.value -=50                 //击中boss后boss血量减少
+                bossbloodProgress1.value -=50                 //击中boss后boss血量减少
                 break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.boss.x
@@ -217,7 +217,7 @@ Item {
                     && my_bullet1_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet1_2.visible = false
-                // bossbloodProgress.value -=50
+                bossbloodProgress1.value -=50
                 break;
             }
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.boss.x
@@ -226,7 +226,7 @@ Item {
                     && my_bullet_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet_2.visible = false
-                // bossbloodProgress.value -=50
+                bossbloodProgress1.value -=50
                 break;
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.boss.x
@@ -235,7 +235,7 @@ Item {
                     && my_bullet2_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet2_2.visible = false
-                // bossbloodProgress.value -=50
+                bossbloodProgress1.value -=50
                 break;
             }
         }

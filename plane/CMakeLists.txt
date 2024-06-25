@@ -116,7 +116,8 @@ qt_add_qml_module(
   images/enemyboom.png
   QML_FILES
   Boom.qml
-  RESOURCES images/boss_bullet1.png)
+  RESOURCES images/boss_bullet1.png
+  RESOURCES wav/victory.mp3)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

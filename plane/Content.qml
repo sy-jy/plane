@@ -881,11 +881,16 @@ Item{
         onTriggered: {
             //单人游戏界面
             if(!isDouble){
-                if(bloodProgress/*bossbloodProgress1*/.value === 0){
+                if(bloodProgress.value === 0){
                     dialogs.defeat.open();
-                    // dialogs.victory.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
+                    gameover_timer.stop();
+                }
+                if(bossbloodProgress1.value === 0){
+                    dialogs.victory.open();
+                    dialogs.blurRect.visible = true;
+                    bgm.game_victoryMusic.play()
                     gameover_timer.stop();
                 }
             }else{
@@ -894,6 +899,12 @@ Item{
                     dialogs.defeat.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
+                    gameover_timer.stop();
+                }
+                if(bossbloodProgress2.value === 0){
+                    dialogs.victory.open();
+                    dialogs.blurRect.visible = true;
+                    bgm.game_victoryMusic.play()
                     gameover_timer.stop();
                 }
             }
