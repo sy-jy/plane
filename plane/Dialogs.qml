@@ -195,7 +195,7 @@ Item {
             }
         }
     }
-    function restartgame(){
+    function restartGame(){
         console.log("重新开始游戏")
         //重置我方战机位置
         myplane.plane_1_X = (window_Width-myplane.myplane_Width)/9
@@ -225,18 +225,35 @@ Item {
             for(i = 0;i<content.lifeModel_2.count;i++){
                 content.lifeModel_2.get(i).visible = true
             }
-
+            //重置boss血量条
+            content.bossbloodProgress2.visible = false
+            content.bossbloodProgress2.value = 1000
         }else{
             content.bloodProgress.value = myplane.blood
             for(i = 0;i<content.lifeModel.count;i++){
                 content.lifeModel.get(i).visible = true
             }
-
+            //重置boss血量条
+            content.bossbloodProgress1.visible = false
+            content.bossbloodProgress1.value = 1000
         }
+
+        //重置道具生成冷却时长
+        content.itemUpdateCounter = 0
+        items.item.visible = false
+
+        content.gameover_timer.start()
+
+        bullet.isShooted_boss = false
+        bullet.isShooted_enemy = false
+        bullet.enemy_bullet.visible = false
+        bullet.boss_bullet.visible = false
+        enemys.bossAppeared = false
         enemys.destroyEnemy()
         enemys.destroyBoss()
         enemys.gameTime.start()
         enemys.bossTime.start()
+
         content.timer.start()
     }
 
@@ -257,7 +274,7 @@ Item {
                anchors.horizontalCenter: parent.horizontalCenter
                action: actions.restartAction
                onClicked: {
-                   restartgame()
+                   restartGame()
                    pause.close()
                }
             }
@@ -270,6 +287,8 @@ Item {
                    console.log("继续游戏")
                    myplane.shield_1_Timer.start()
                    myplane.shield_1_FadeAnimation.start()
+                   myplane.shield_2_Timer.start()
+                   myplane.shield_2_FadeAnimation.start()
                    enemys.gameTime.start()
                    enemys.bossTime.start()
                    content.timer.start()
@@ -307,6 +326,7 @@ Item {
             id:victory_Dialog
             width: 410
             height:210
+            closePolicy: Popup.NoAutoClose
             background:Rectangle{               //设置弹窗背景透明
                 opacity: 0
             }
@@ -349,6 +369,7 @@ Item {
             id:defeat_Dialog
             width: 410
             height: 210
+            closePolicy: Popup.NoAutoClose
             background:Rectangle{
                 opacity: 0
             }
@@ -381,7 +402,8 @@ Item {
                     onClicked: {
                         defeat_Dialog.visible = false;
                         _blurRect.visible = false;
-                        restartgame()
+                        restartGame()
+
                     }
                 }
             }

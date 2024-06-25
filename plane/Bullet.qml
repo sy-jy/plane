@@ -12,16 +12,17 @@ Item {
 
     property int maxBullets:window_Height/bullet_Height
     //property var bullets:[]                 //存储子弹的数组
-    property bool isShooted: false                  //玩家一子弹发射情况
+    property bool isShooted_1: false                  //玩家一子弹发射情况
     property bool isShooted_2: false                //玩家二子弹发射情况
     property bool isShooted_enemy: false            //敌机子弹发射情况
     property bool isShooted_boss:false               //boss子弹发射情况
 
     property alias enemy_bullet: _enemy_bullet
+    property alias boss_bullet: _boss_bullet
 
     anchors.fill: parent
 
-    property alias shootTimer: _shootTimer
+    property alias shootTimer_1: _shootTimer
     property alias shootTimer_2: _shootTimer_2
     Timer{
         id:_shootTimer
@@ -45,7 +46,7 @@ Item {
     //单人模式子弹位置更新
     //固定子弹初始位置与飞机位置同步
     function updateMybulletPosition1(){
-        if(!isShooted){
+        if(!isShooted_1){
             my_bullet_1.x = content.myplane.myplane_1.x + window_Height/25;
             my_bullet_1.y = content.myplane.myplane_1.y;
             my_bullet_1.visible = false
@@ -104,12 +105,12 @@ Item {
         my_bullet1_2.y -=my_bulletSpeed;
 
 
-        isShooted = true; // 设置为true，表示子弹正在飞行中
+        isShooted_1 = true; // 设置为true，表示子弹正在飞行中
         // my_bullet_mid.visible = true
         // my_bullet_mid.y -=my_bulletSpeed/2;
 
         if(my_bullet_1.y + my_bullet_1.height< 0){
-            isShooted = false
+            isShooted_1 = false
         }
     }
 
@@ -119,7 +120,7 @@ Item {
         my_bullet_mid.y -=my_bulletSpeed/2;
 
         if(my_bullet_mid.y + my_bullet_mid.height< 0)
-            isShooted = false
+            isShooted_1 = false
     }
 
     //双人模式
@@ -168,7 +169,7 @@ Item {
                     && my_bullet_1.x<content.enemys.enemys[i].x + 65
                     && my_bullet_1.y+my_bullet_1.height>content.enemys.enemys[i].y
                     && my_bullet_1.y<content.enemys.enemys[i].y+65){
-
+                isShooted_1 = false
                 my_bullet_1.visible = false
                 content.enemys.enemys[i].visible = false
                 break;
@@ -202,6 +203,7 @@ Item {
                 break;
             }
             //击中boss
+            if(!enemys.bossAppeared){continue}
             if(my_bullet_1.x+my_bullet_1.width >content.enemys.boss.x
                     && my_bullet_1.x<content.enemys.boss.x + content.enemys.boss.width
                     && my_bullet_1.y+my_bullet_1.height>content.enemys.boss.y
@@ -249,10 +251,12 @@ Item {
                 && _enemy_bullet.y + _enemy_bullet.height > content.myplane.myplane_1.y
                 && _enemy_bullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height){
             _enemy_bullet.visible = false
-            if(!isDouble){
-                bloodProgress.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
-            }else{
-                bloodProgress_1.value -=10                  //双人模式：普通敌机子弹击中我方玩家1之后，玩家1血量减少
+            if(!myplane.isShield_1){
+                if(!isDouble){
+                    bloodProgress.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
+                }else{
+                    bloodProgress_1.value -=10                  //双人模式：普通敌机子弹击中我方玩家1之后，玩家1血量减少
+                }
             }
         }
         if(_enemy_bullet.x + _enemy_bullet.width > content.myplane.myplane_2.x
@@ -260,27 +264,34 @@ Item {
                 && _enemy_bullet.y + _enemy_bullet.height > content.myplane.myplane_2.y
                 && _enemy_bullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height){
             _enemy_bullet.visible = false
-            bloodProgress_2.value -=10          //双人模式：普通敌机子弹击中我方玩家2之后，玩家2血量减少
-        }
-
-        //boss发射子弹碰撞检测
-        if(_boss_bullet.x + _boss_bullet.width > content.myplane.myplane_1.x
-                && _boss_bullet.x < content.myplane.myplane_1.x + content.myplane.myplane_1.width
-                && _boss_bullet.y + _boss_bullet.height > content.myplane.myplane_1.y
-                && _boss_bullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height){
-            _boss_bullet.visible = false
-            if(!isDouble){
-                bloodProgress.value -=50                    //单人模式：boss子弹击中后，我方血量减少
-            }else{
-                bloodProgress_1.value -=50                  //双人模式：boss子弹击中我方玩家1之后，玩家1血量减少
+            if(!myplane.isShield_2){
+                bloodProgress_2.value -=10          //双人模式：普通敌机子弹击中我方玩家2之后，玩家2血量减少
             }
         }
-        if(_boss_bullet.x + _boss_bullet.width > content.myplane.myplane_2.x
-                && _boss_bullet.x < content.myplane.myplane_2.x + content.myplane.myplane_2.width
-                && _boss_bullet.y + _boss_bullet.height > content.myplane.myplane_2.y
-                && _boss_bullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height){
-            _boss_bullet.visible = false
-            bloodProgress_2.value -=50          //双人模式：boss子弹击中我方玩家2之后，玩家2血量减少
+        if(enemys.bossAppeared){
+            //boss发射子弹碰撞检测
+            if(_boss_bullet.x + _boss_bullet.width > content.myplane.myplane_1.x
+                    && _boss_bullet.x < content.myplane.myplane_1.x + content.myplane.myplane_1.width
+                    && _boss_bullet.y + _boss_bullet.height > content.myplane.myplane_1.y
+                    && _boss_bullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height){
+                _boss_bullet.visible = false
+                if(!myplane.isShield_1){
+                    if(!isDouble){
+                        bloodProgress.value -=50                    //单人模式：boss子弹击中后，我方血量减少
+                    }else{
+                        bloodProgress_1.value -=50                  //双人模式：boss子弹击中我方玩家1之后，玩家1血量减少
+                    }
+                }
+            }
+            if(_boss_bullet.x + _boss_bullet.width > content.myplane.myplane_2.x
+                    && _boss_bullet.x < content.myplane.myplane_2.x + content.myplane.myplane_2.width
+                    && _boss_bullet.y + _boss_bullet.height > content.myplane.myplane_2.y
+                    && _boss_bullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height){
+                _boss_bullet.visible = false
+                if(!myplane.isShield_2){
+                    bloodProgress_2.value -=50          //双人模式：boss子弹击中我方玩家2之后，玩家2血量减少
+                }
+            }
         }
     }
 
