@@ -51,11 +51,38 @@ Item{
     property alias bossbloodProgress2: bossbloodProgress2
 
 
+    property alias lifeModel: lifeModel
+    property alias lifeModel_1: lifeModel_1
+    property alias lifeModel_2: lifeModel_2
+
     //道具生成
     property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
     property int itemUpdateCounter: 0
     // property alias blood: bloodSlider
     anchors.fill: parent
+    //暂停游戏
+    function stopGame(){
+        dialogs.pause.open()
+        timer.stop()//暂停游戏
+        myplane.shield_1_Timer.stop()
+        myplane.shield_1_FadeAnimation.stop()
+        enemys.gameTime.stop()
+        enemys.bossTime.stop()
+        //重置移动状态（如果不重置松开按钮前点暂停会导致下一次点击移动松开前飞机一直移动）
+        movingLeft_P1 = false
+        movingRight_P1 = false
+        movingUp_P1 = false
+        movingDown_P1 = false
+        if(isDouble){
+            myplane.shield_2_Timer.stop()
+            myplane.shield_2_FadeAnimation.stop()
+            movingLeft_P2 = false
+            movingRight_P2 = false
+            movingUp_P2 = false
+            movingDown_P2 = false
+        }
+        console.log("暂停建已激活，跳出弹窗")
+    }
 
     //模式选择
     ColumnLayout{
@@ -844,7 +871,6 @@ Item{
             }
         }
     }
-
     //单人游戏界面
     Item{
         id: singalgamelayout
@@ -961,6 +987,9 @@ Item{
 
 
             }
+
+
+
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
                 id: pause1
@@ -971,9 +1000,7 @@ Item{
                 font.bold: true
                 anchors.right: parent.right
                 onClicked: {
-                    dialogs.pause.open()
-                    timer.stop()//暂停游戏
-                    console.log("暂停建已激活，跳出弹窗")
+                    stopGame()
                 }
             }
         }
@@ -1203,8 +1230,7 @@ Item{
                     font.bold: true
                     anchors.right: parent.right
                     onClicked:{
-                            dialogs.pause.open()
-                            console.log("暂停建已激活，跳出弹窗")
+                            stopGame()
                         }
                     }
             }
