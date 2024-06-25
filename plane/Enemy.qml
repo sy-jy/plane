@@ -5,14 +5,13 @@ Item {
         id: gameArea
         anchors.fill: parent
         property int enemySpeed: 4
-        // visible: false
-        //property alias enemy1: enemy1
-        property alias enemy_1:enemy
+        property var enemy_1:enemy
+        property alias enemyComponent:enemyComponent
+        //property alias enemy:newEnemy
         focusPolicy: Qt.NoFocus
         //property alias gameTimer: _gameTimer
 
     visible: false
-
     property var enemys: []     // 敌机数组
     property alias gameTime: _gameTime
     property string path
@@ -20,6 +19,7 @@ Item {
     property int bossSpeed: 2
     property alias bossTime: bossTime
     property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
+    // property var newboss:newBoss
 
     // 敌机图片的ListModel
     ListModel {
@@ -32,9 +32,9 @@ Item {
 
     // 敌机组件
     Component {
-        id: enemy
+        id: enemyComponent
         Rectangle {
-            width: 85
+            width: 65
             height: 85
             color: "transparent"
             property string sourcePath
@@ -89,7 +89,7 @@ Item {
 
     // 创建敌机
     function createEnemy() {
-        var newEnemy = enemy.createObject(gameArea)
+        var newEnemy = enemyComponent.createObject(gameArea)
         newEnemy.x = Math.random() * (gameArea.width - newEnemy.width)
         newEnemy.y = -newEnemy.height
         var randomIndex = Math.floor(Math.random() * enemyImageModel.count)
@@ -111,19 +111,19 @@ Item {
 
     // 创建boss
     function createBoss() {
-        if (!gameArea.boss) {
+        if (!boss) {
             var newBoss = bossComponent.createObject(gameArea)
             newBoss.x = (gameArea.width - newBoss.width) / 2
             newBoss.y = -300
-            gameArea.boss = newBoss
+            boss = newBoss
         }
     }
 
     // 更新boss出现后的游戏界面
     function updateGame() {
         updateEnemys()
-        if (gameArea.boss) {
-            gameArea.boss.updateBossPosition()
+        if (boss) {
+            boss.updateBossPosition()
         }
     }
 

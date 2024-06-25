@@ -734,7 +734,6 @@ Item{
         onTriggered:
         {
             map.updateMap()
-            //bullet.shoot_enemy()
             enemys.updateEnemys()
             enemys.updateGame()
             // 更新道具位置计数器
@@ -759,13 +758,23 @@ Item{
                 if(!myplane.isShield_1){//测试护盾
                     bloodProgress.value-=0.3//测试血量条
                 }
-                //敌机子弹判定
-                if(enemys.enemy_1.y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
-                    bullet.isShooted_enemy = true
-                    bullet.shoot_enemy()
+                //遍历敌机数组，判定敌机出场开始射击子弹
+                for(var i = 0;i<enemys.enemys.length;i++){
+                    if(enemys.enemys[i].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
+                        //bullet.isShooted_enemy = true
+                        bullet.shoot_enemy()
+                    }
                 }
                 if(bullet.isShooted_enemy === false){
                     bullet.updateEnemybulletPosition()
+                }
+                //敌方boss子弹发射判定
+                if(enemys.boss.y ===0){
+                    // bullet.iShooted_boss = true
+                    bullet.shoot_boss()
+                }
+                if(bullet.isShooted_boss === false){
+                    bullet.updateEnemyBossbulletPosition()
                 }
 
                 items.item.move()//道具移动
@@ -775,17 +784,36 @@ Item{
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
                 if(bullet.isShooted){
-                    //发射
+                    //玩家1发射
                     items.item.setPosition()//测试获得道具
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
                     bullet.updateMybulletPosition1()
                 }
+                //玩家2发射
                 if(bullet.isShooted_2){
                     bullet.shoot2()
                 }else{
                     bullet.updateMybulletPosition2()
+                }
+                //遍历敌机数组，判定敌机出场开始射击子弹
+                for(var j = 0;j<enemys.enemys.length;j++){
+                    if(enemys.enemys[j].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
+                        bullet.isShooted_enemy = true
+                        bullet.shoot_enemy()
+                    }
+                }
+                if(bullet.isShooted_enemy === false){
+                    bullet.updateEnemybulletPosition()
+                }
+                //敌方boss子弹发射判定
+                if(enemys.boss.y===0){
+                    //bullet.iShooted_boss = true
+                    bullet.shoot_boss()
+                }
+                if(bullet.isShooted_boss === false){
+                    bullet.updateEnemyBossbulletPosition()
                 }
 
                 items.item.move()//道具移动
@@ -827,6 +855,17 @@ Item{
                     gameover_timer.stop();
                 }
             }
+        }
+    }
+
+    Timer{
+        id:_checkCollision
+        interval: 16
+        running: true
+        repeat: true
+        onTriggered: {
+            bullet.checkCollision()
+            bullet.checkCollision2()
         }
     }
 
