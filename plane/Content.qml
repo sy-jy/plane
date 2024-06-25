@@ -47,6 +47,9 @@ Item{
     property alias bloodProgress: bloodProgress
     property alias bloodProgress_1: bloodProgress_1
     property alias bloodProgress_2: bloodProgress_2
+    property alias bossbloodProgress1: bossbloodProgress1
+    property alias bossbloodProgress2: bossbloodProgress2
+
 
     //道具生成
     property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
@@ -746,6 +749,12 @@ Item{
             //飞机移动重绘
             if(!isDouble){
                 //单人
+                //敌机血量条测试（时间的判断）
+                if(enemys.boss){
+                    // bossblood.visible =true
+                    bossbloodProgress1.value-=0.4
+                }
+
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
                 // console.log(myplane.isAccelerate_1)//检测是否加速
                 if(bullet.isShooted){
@@ -772,6 +781,11 @@ Item{
                 items.item.got()//道具获得
             }else{
                 //双人
+                //敌机血量条测试（时间的判断）
+                if(enemys.boss){
+                    bossbloodProgress2.value-=0.4
+                }
+
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
                 if(bullet.isShooted){
@@ -812,8 +826,9 @@ Item{
         onTriggered: {
             //单人游戏界面
             if(!isDouble){
-                if(bloodProgress.value === 0){
+                if(bloodProgress/*bossbloodProgress1*/.value === 0){
                     dialogs.defeat.open();
+                    // dialogs.victory.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
                     gameover_timer.stop();
@@ -903,19 +918,48 @@ Item{
                 //敌机Boss的血量条
             Rectangle {
                 id: bossblood
-                visible:  true  //等Boss出来时血量可见
                 height: 25
                 width: 535
-                color: "red"
+                color: "transparent"
                 anchors.horizontalCenter: parent.horizontalCenter
-                // anchors.left: upleft.right
-                Text {
-                    id: blood
-                    text: qsTr("Boss血量条")
+                ProgressBar{
+                    id: bossbloodProgress1
+                    visible:  false  //等Boss出来时血量可见
+                    anchors.fill: parent
+                    value: 1000
+                    from:0
+                    to: 1000
                     anchors.centerIn: parent
-                    font.pointSize:  15
-                    textFormat: Text.StyledText
+                    contentItem: Rectangle{
+                        width: bossbloodProgress1.value/bossbloodProgress1.to*bossbloodProgress1.width
+                        height: bossbloodProgress1.height
+                        radius: 15
+                        color: "red"
+                    }
+                    background: Rectangle{
+                        implicitWidth: bossbloodProgress1.width
+                        implicitHeight: bossbloodProgress1.height
+                        radius: 15
+                        color: "gray" // 进度条背景的颜色
+                    }
+                    onValueChanged:{
+                        console.log("BOSS血量：",bossbloodProgress1.value)
+                        //爆炸音效和爆炸动画
+                        if(bossbloodProgress1 === 0){
+
+                        }
+                    }
+                    Text {
+                        id: blood
+                        text: qsTr("Boss血量条")
+                        anchors.centerIn: parent
+                        font.pointSize:  15
+                        textFormat: Text.StyledText
+                    }
+
                 }
+
+
             }
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
@@ -1108,12 +1152,11 @@ Item{
                 //敌机Boss的血量条
                 Rectangle {
                     id: bossblood2
-                    visible:  true  //等Boss出来时血量可见
+                    // visible:  false  //等Boss出来时血量可见
                     height: 25
                     width: 535
-                    color: "red"
+                    color: "transparent"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    // anchors.left: jinbi.right
                     Text {
                         id: blood2
                         text: qsTr("Boss血量条")
@@ -1121,44 +1164,33 @@ Item{
                         font.pointSize:  15
                         textFormat: Text.StyledText
                     }
-                    // 血量条背景
-                    Rectangle {
-                        id: bossbloodBackground
+                    ProgressBar{
+                        id: bossbloodProgress2
+                        visible:  false  //等Boss出来时血量可见
+                        anchors.fill: parent
+                        value: 1000
+                        from:0
+                        to: 1000
                         anchors.centerIn: parent
-                        // width: 300
-                        // height: 30
-                        color: "gray"
-                    }
-
-                    // 血量条当前值
-                    Rectangle {
-                        id: bossbloodmove
-                        anchors.left: bossbloodBackground.left
-                        anchors.verticalCenter: bossbloodBackground.verticalCenter
-                        width: bossbloodBackground.width * bloodValue
-                        height: bossbloodBackground.height
-                        color: "red"
-                    }
-
-                    // 血量逻辑
-                    property real bloodValue: 1.0 // 初始血量为满血
-
-                    // 减少血量的函数
-                    function decreaseBlood() {
-                        bloodValue -= 0.01; // 每次减少1%
-                        if (bloodValue < 0) {
-                            bloodValue = 0;
+                        contentItem: Rectangle{
+                            width: bossbloodProgress2.value/bossbloodProgress2.to*bossbloodProgress2.width
+                            height: bossbloodProgress2.height
+                            radius: 15
+                            color: "red"
                         }
-                        bossbloodmove.width = bossbloodBackground.width * bloodValue;
-                    }
+                        background: Rectangle{
+                            implicitWidth: bossbloodProgress2.width
+                            implicitHeight: bossbloodProgress2.height
+                            radius: 15
+                            color: "gray" // 进度条背景的颜色
+                        }
+                        onValueChanged:{
+                            console.log("BOSS血量：",bossbloodProgress2.value)
+                            //爆炸音效和爆炸动画
+                            if(bossbloodProgress2 === 0){
 
-                    // Timer用于定期减少血量
-                    Timer {
-                        id: bloodTimer
-                        interval: 1000 // 1秒减少一次血量
-                        running: true
-                        repeat: true
-                        onTriggered: enemys.decreaseBlood()
+                            }
+                        }
                     }
                 }
 
@@ -1392,6 +1424,9 @@ Item{
 
     Enemy{
         id:enemys
+    }
+    Boom{
+        id:boom
     }
 }
 

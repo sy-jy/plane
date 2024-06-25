@@ -1,22 +1,19 @@
+//敌机的出现
 import QtQuick
 import QtQuick.Controls
 
 Item {
-        id: gameArea
-        anchors.fill: parent
-        property int enemySpeed: 4
-        // visible: false
-        //property alias enemy1: enemy1
-        property alias enemy_1:enemy
-        focusPolicy: Qt.NoFocus
-        //property alias gameTimer: _gameTimer
+    id: gameArea
+    anchors.fill: parent
+    property int enemySpeed: 2
+    focusPolicy: Qt.NoFocus
 
     visible: false
 
     property var enemys: []     // 敌机数组
     property alias gameTime: _gameTime
     property string path
-    property var boss: null     // Boss 对象
+    property var boss: null     // Boss对象
     property int bossSpeed: 2
     property alias bossTime: bossTime
     property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
@@ -32,10 +29,10 @@ Item {
 
     // 敌机组件
     Component {
-        id: enemy
+        id: enemyComponent
         Rectangle {
-            width: 85
-            height: 85
+            width: 65
+            height: 65
             color: "transparent"
             property string sourcePath
 
@@ -53,8 +50,8 @@ Item {
         id: bossComponent
         Rectangle {
             id: boss1
-            width: 550
-            height: 300
+            width: 400
+            height: 200
             color: "transparent"
             property alias boss1: boss1
             // focusPolicy: Qt.NoFocus
@@ -68,6 +65,8 @@ Item {
             function updateBossPosition() {
                 // boss1.y += bossSpeed
                 if(boss1.y >= 0){
+                    content.bossbloodProgress1.visible=true
+                    content.bossbloodProgress2.visible=true
                     boss1.x += bossSpeed*bossDirection
                     if (boss1.x + bossSpeed <= 0 || boss1.x + bossSpeed >= gameArea.width - boss1.width) {
                         bossDirection *= -1 // 反转移动方向
@@ -89,7 +88,7 @@ Item {
 
     // 创建敌机
     function createEnemy() {
-        var newEnemy = enemy.createObject(gameArea)
+        var newEnemy = enemyComponent.createObject(gameArea)
         newEnemy.x = Math.random() * (gameArea.width - newEnemy.width)
         newEnemy.y = -newEnemy.height
         var randomIndex = Math.floor(Math.random() * enemyImageModel.count)
@@ -111,19 +110,19 @@ Item {
 
     // 创建boss
     function createBoss() {
-        if (!gameArea.boss) {
+        if (!boss) {
             var newBoss = bossComponent.createObject(gameArea)
             newBoss.x = (gameArea.width - newBoss.width) / 2
-            newBoss.y = -300
-            gameArea.boss = newBoss
+            newBoss.y = -200
+            boss = newBoss
         }
     }
 
     // 更新boss出现后的游戏界面
     function updateGame() {
         updateEnemys()
-        if (gameArea.boss) {
-            gameArea.boss.updateBossPosition()
+        if (boss) {
+            boss.updateBossPosition()
         }
     }
 
@@ -133,7 +132,10 @@ Item {
         interval: 450
         running: false
         repeat: true
-        onTriggered: createEnemy()
+        onTriggered: {
+            interval: 1000
+            createEnemy()
+        }
     }
 
     // Boss生成（先暂定为时间，之后会改为击败敌机数或者获得的score来生成boss）
@@ -144,6 +146,8 @@ Item {
         onTriggered: createBoss()
     }
 }
+
+
 
 ////敌机要走完窗口高度才能重新生成
 // Item {
