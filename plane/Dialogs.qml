@@ -12,6 +12,7 @@ Item {
     property bool musicEnabled: true  // 用于跟踪音效状态的属性
 
     property alias blurRect:_blurRect
+    property alias bossAppearTimer:_boss_appearTimer                    //boss出场计时器
 
     property alias setting: setting
 
@@ -253,6 +254,7 @@ Item {
         enemys.destroyBoss()
         enemys.gameTime.start()
         enemys.bossTime.start()
+        dialogs.bossAppearTimer.start()
 
         content.timer.start()
     }
@@ -407,6 +409,46 @@ Item {
                     }
                 }
             }
+        }
+    }
+
+    Dialog{
+        id:_boss_appear
+        width: 250
+        height: 50
+        focus: false
+        background:Rectangle{
+            opacity: 0
+        }
+        anchors.centerIn: parent
+        contentItem: Column{
+            width: parent.width
+            height: parent.height
+            Image {
+                source: "images/boss_2.png"
+                width: 240
+                height: 40
+                anchors.centerIn: parent
+            }
+        }
+    }
+
+    Timer{
+        id:_boss_appearTimer
+        interval: 8000
+        running: true
+        onTriggered:{
+            _boss_appear.open()
+            _closeTimer.start()
+        }
+    }
+    Timer{
+        id:_closeTimer
+        interval: 2000
+        running: false
+        onTriggered: {
+            _boss_appear.close()
+            _closeTimer.stop()
         }
     }
 }
