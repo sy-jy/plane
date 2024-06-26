@@ -14,6 +14,8 @@ Item {
     //property var bullets:[]                 //存储子弹的数组
     property bool isShooted_1: false                  //玩家一子弹发射情况
     property bool isShooted_2: false                //玩家二子弹发射情况
+    property bool isShooted_mid: false              //玩家1拾取道具后新增子弹样式发射情况
+    property bool isShooted_mid2: false             //玩家2拾取道具后新增子弹样式发射情况
     property bool isShooted_enemy: false            //敌机子弹发射情况
     property bool isShooted_boss:false               //boss子弹发射情况
 
@@ -68,9 +70,9 @@ Item {
             my_bullet_2.y = content.myplane.myplane_2.y;
             my_bullet_2.visible = false
 
-            // my_bullet_mid.x = content.myplane.myplane_2.x + window_Height*2/25;
-            // my_bullet_mid.y = content.myplane.myplane_2.y;
-            // my_bullet_mid.visible = false
+            my_bullet_mid2.x = content.myplane.myplane_2.x + window_Height*2/25;
+            my_bullet_mid2.y = content.myplane.myplane_2.y;
+            my_bullet_mid2.visible = false
 
             my_bullet2_2.x = content.myplane.myplane_2.x + window_Height*3/25;
             my_bullet2_2.y = content.myplane.myplane_2.y;
@@ -90,7 +92,7 @@ Item {
     //boss子弹位置更新
     function updateEnemyBossbulletPosition(){
         _boss_bullet.x = content.enemys.boss.x + content.enemys.boss.width /2 - _boss_bullet.width/2
-        _boss_bullet.y = content.enemys.boss.y + 280//content.enemys.boss.height
+        _boss_bullet.y = content.enemys.boss.y + 180//content.enemys.boss.height
         _boss_bullet.visible = false
     }
 
@@ -104,10 +106,7 @@ Item {
         my_bullet1_2.visible = true
         my_bullet1_2.y -=my_bulletSpeed;
 
-
         isShooted_1 = true; // 设置为true，表示子弹正在飞行中
-        // my_bullet_mid.visible = true
-        // my_bullet_mid.y -=my_bulletSpeed/2;
 
         if(my_bullet_1.y + my_bullet_1.height< 0){
             isShooted_1 = false
@@ -115,12 +114,26 @@ Item {
     }
 
     //获取道具后增加的子弹样式1
+    //玩家1
     function shoot_mid(){
+
         my_bullet_mid.visible = true
         my_bullet_mid.y -=my_bulletSpeed/2;
 
+        isShooted_mid = true
+
         if(my_bullet_mid.y + my_bullet_mid.height< 0)
-            isShooted_1 = false
+            isShooted_mid = false
+    }
+    //玩家2
+    function shoot_mid2(){
+        my_bullet_mid2.visible = true
+        my_bullet_mid2.y -=my_bulletSpeed/2;
+
+        isShooted_mid2 = true
+
+        if(my_bullet_mid2.y + my_bullet_mid2.height< 0)
+            isShooted_mid2 = false
     }
 
     //双人模式
@@ -389,8 +402,17 @@ Item {
         fillMode: Image.PreserveAspectFit
         x:window_Width/2
         y:window_Height
-        width: bullet_Width
-        height: bullet_Height*2
+        width: bullet_Width*2
+        height: bullet_Height*4
+    }
+    Image {
+        id: my_bullet_mid2
+        source: "images/bullet_mid.png"
+        fillMode: Image.PreserveAspectFit
+        x:window_Width/2
+        y:window_Height
+        width: bullet_Width*2
+        height: bullet_Height*4
     }
     Image {
         id: _enemy_bullet

@@ -15,6 +15,7 @@ Item{
     property alias gameover_timer: gameover_timer
     property alias singalgamelayout: singalgamelayout
     property alias doublegamelayout: doublegamelayout
+    property alias bullet:bullet
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
@@ -432,7 +433,6 @@ Item{
             id:_homepage
             anchors.fill: parent
             visible: true
-
             //游戏主页大厅标题
             Text {
                 Layout.alignment: Qt.AlignHCenter
@@ -829,6 +829,11 @@ Item{
                     //未发射时跟随飞机移动
                     bullet.updateMybulletPosition1()
                 }
+                if(bullet.isShooted_mid){
+                    bullet.shoot_mid()
+                }else{
+                    bullet.updateMybulletPosition1()
+                }
 
                 if(!myplane.isShield_1){//测试护盾
                     bloodProgress.value-=0.3//测试血量条
@@ -874,6 +879,16 @@ Item{
                 //玩家2发射
                 if(bullet.isShooted_2){
                     bullet.shoot2()
+                }else{
+                    bullet.updateMybulletPosition2()
+                }
+                if(bullet.isShooted_mid){
+                    bullet.shoot_mid()
+                }else{
+                    bullet.updateMybulletPosition1()
+                }
+                if(bullet.isShooted_mid2){
+                    bullet.shoot_mid2()
                 }else{
                     bullet.updateMybulletPosition2()
                 }

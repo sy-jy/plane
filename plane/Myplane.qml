@@ -172,8 +172,26 @@ Item {
         function activateAmmo() {
             if(dialogs.musicEnabled){
                 bgm.upAmmo.play()
+                // content.bullet.isShooted_mid = true
+                ammo_Timer.start()                                      //子弹增加道具效果计时
+            }
+
+            if(!isDouble){
+                content.bullet.isShooted_mid = true
+            }/*else{
+                content.bullet.isShooted_mid = true
+                content.bullet.isShooted_mid2 = true
+            }*/
+        }
+        Timer{
+            id:ammo_Timer
+            interval: 8000      //持续8秒
+            running:false
+            onTriggered: {
+                content.bullet.isShooted_mid = false
             }
         }
+
         //hp增加
         Timer {//防止一次道具多次加hp
             id: hpIncreaseTimer_1
