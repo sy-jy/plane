@@ -26,7 +26,8 @@ Item {
     property string shieldPath: "./images/heroSuper.png" // 护盾图像路径
     property int shieldDuration: 5000 // 护盾持续时间（毫秒）
     property int shieldFadeDuration: 3000 // 护盾闪烁时间（毫秒）
-    property bool isFading: false // 护盾是否正在闪烁
+    property bool isFading_1: false // 护盾是否正在闪烁
+    property bool isFading_2: false // 护盾是否正在闪烁
     property alias shield_1_Timer: shield_1_Timer
     property alias shield_2_Timer: shield_2_Timer
     property alias shield_1_FadeAnimation: shield_1_FadeAnimation
@@ -40,6 +41,13 @@ Item {
     //hp
     property bool canIncreaseHp_1: true // 标志位，用于控制是否可以增加HP
     property bool canIncreaseHp_2: true // 标志位，用于控制是否可以增加HP
+
+    //bomb
+    property bool isBomb: false
+    property int bombCenterX:bomb.x + bomb.width / 2
+    property int bombCenterY:bomb.y + bomb.height / 2
+    property int bombRadius: bomb.width/2
+    property alias bomb: bomb
     function singleplayer(){
         myplane_1.visible = true
     }
@@ -73,6 +81,28 @@ Item {
         myplane_2.y = plane_2_Y;
     }
 
+    function startBomb(){
+        bomb.visible = true
+        bombshine.start()
+        bombMove.start()
+        isBomb = true
+    }
+    function stopBomb(){
+        bomb.visible = false
+        bombCenterX=(window_Width-bomb.width)/2 + bomb.width / 2
+        bombCenterY=window_Height + bomb.height / 2
+        bombshine.stop()
+        bombMove.stop()
+    }
+    function pauseBomb(){
+        bombshine.pause()
+        bombMove.pause()
+    }
+    function resumeBomb(){
+        bombshine.resume()
+        bombMove.resume()
+    }
+
     //飞机操控
     Image {
         id: myplane_1
@@ -103,10 +133,15 @@ Item {
                 id: shield_1_FadeAnimation
                 loops: 3 // 循环次数
                 running: false // 默认不运行
+                onStarted: {
+                    isFading_1 = true
+                }
+
                 onFinished: {
-                        shield_1.visible = false
-                        isShield_1 = false
-                    }
+                    shield_1.visible = false
+                    isShield_1 = false
+                    isFading_1 = false
+                }
                 PropertyAnimation {
                     from: 0.8
                     to: 0.1
@@ -132,7 +167,7 @@ Item {
             function startShieldFadeAnimation() {
                 shield_1_Timer.triggered.disconnect(startShieldFadeAnimation) // 断开连接，防止重复触发
                 shield_1_FadeAnimation.start() // 开始闪烁动画
-            }    
+            }
         }
         function activateAmmo() {
             if(dialogs.musicEnabled){
@@ -207,10 +242,14 @@ Item {
                 id: shield_2_FadeAnimation
                 loops: 3 // 循环次数
                 running: false // 默认不运行
+                onStarted: {
+                    isFading_2 = true
+                }
                 onFinished: {
-                        shield_2.visible = false
-                        isShield_2 = false
-                    }
+                    shield_2.visible = false
+                    isShield_2 = false
+                    isFading_2 = false
+                }
                 PropertyAnimation {
                     from: 0.8
                     to: 0.1
@@ -271,6 +310,51 @@ Item {
         function activateSpeed(){
             isAccelerate_2 = true
             accelerateTimer_2.start()
+        }
+    }
+
+    //冲击波
+    Image {
+        id: bomb
+        width: 1600
+        height: 1600
+        visible: false
+        source: "./images/superBomb.png"
+        x:(window_Width-bomb.width)/2
+        y:window_Height
+        // 闪烁动画
+        SequentialAnimation on opacity {
+            id:bombshine
+            running: false
+            loops: Animation.Infinite // 无限循环
+            NumberAnimation {
+                from: 1.0
+                to: 0.1
+                duration: 300
+                easing.type: Easing.InCirc
+            }
+            NumberAnimation {
+                from: 0.1
+                to: 1.0
+                duration: 300
+                easing.type: Easing.InCirc
+            }
+        }
+
+        // Y坐标动画
+        NumberAnimation on y {
+            id:bombMove
+            running: false
+            from: window_Height
+            to: -400
+            duration: 2000
+            easing.type: Easing.InOutQuart
+        }
+        onXChanged: {
+            bombCenterX = bomb.x + bomb.width / 2
+        }
+        onYChanged: {
+            bombCenterY = bomb.y + bomb.height / 2
         }
     }
 }

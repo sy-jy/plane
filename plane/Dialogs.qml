@@ -195,8 +195,8 @@ Item {
             }
         }
     }
-    function restartGame(){
-        console.log("重新开始游戏")
+
+    function reset(){
         //重置我方战机位置
         myplane.plane_1_X = (window_Width-myplane.myplane_Width)/9
         myplane.plane_1_Y = window_Height-myplane.myplane_Height
@@ -206,10 +206,10 @@ Item {
         myplane.planeY = window_Height-myplane.myplane_Height
         //重置护盾
         myplane.shield_1.activateShield()//开局护盾
-        myplane.shield_1_Timer.restart()
+        myplane.shield_1_FadeAnimation.stop()
         if(content.isDouble){
             myplane.shield_2.activateShield()//开局护盾
-            myplane.shield_2_Timer.restart()
+            myplane.shield_2_FadeAnimation.stop()
         }
         //重置生命
         myplane.isSurvive_1 = true
@@ -242,18 +242,48 @@ Item {
         content.itemUpdateCounter = 0
         items.item.visible = false
 
-        content.gameover_timer.start()
+        //清除冲击波
+        myplane.stopBomb()
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
-        bullet.enemy_bullet.visible = false
-        bullet.boss_bullet.visible = false
+        bullet.cleanBullt()
         enemys.bossAppeared = false
         enemys.destroyEnemy()
         enemys.destroyBoss()
+    }
+
+    function returnhome(){
+        map.visible = false      //地图显示
+        enemys.visible = false
+        myplane.myplane_1.visible = false
+        if(content.isDouble){
+            myplane.myplane_2.visible = false
+            content.doublegamelayout.visible = false
+        }else{
+            content.singalgamelayout.visible = false
+        }
+        reset()
+        bgm.gameMusic.stop()
+        content.stackview.popToIndex(0)
+        //重置模式选择
+        content.mode.defaultOption()
+        //重置选框
+        content.currentIndexWSAD = -1
+        content.currentIndexArrows = -1
+        content.plane.recreateHighlights()
+    }
+
+    function restartGame(){
+        console.log("重新开始游戏")
+        reset()
+        myplane.shield_1_Timer.restart()
+        if(content.isDouble){
+            myplane.shield_2_Timer.restart()
+        }
+        content.gameover_timer.start()
         enemys.gameTime.start()
         enemys.bossTime.start()
-
         content.timer.start()
     }
 
@@ -286,9 +316,10 @@ Item {
                onClicked: {
                    console.log("继续游戏")
                    myplane.shield_1_Timer.start()
-                   myplane.shield_1_FadeAnimation.start()
+                   myplane.shield_1_FadeAnimation.resume()
                    myplane.shield_2_Timer.start()
-                   myplane.shield_2_FadeAnimation.start()
+                   myplane.shield_2_FadeAnimation.resume()
+                   myplane.resumeBomb()
                    enemys.gameTime.start()
                    enemys.bossTime.start()
                    content.timer.start()
@@ -301,6 +332,8 @@ Item {
                 anchors.horizontalCenter: parent.horizontalCenter
                 action: actions.exitAction
                 onClicked: {
+                    returnhome()
+                    pause.close()
                     console.log("退出游戏")
                 }
              }
@@ -352,6 +385,7 @@ Item {
                 onClicked: {
                     victory_Dialog.visible = false;
                     _blurRect.visible = false;
+                    returnhome()
                 }
             }
             Button{
@@ -395,6 +429,7 @@ Item {
                     onClicked: {
                         defeat_Dialog.visible = false;
                         _blurRect.visible = false;
+                        returnhome()
                     }
                 }
                 Button{

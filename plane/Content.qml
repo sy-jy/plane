@@ -5,7 +5,7 @@ Item{
     property alias mode: mode
     property alias player: player
     property alias plane: plane
-    property alias homepage: _homepage
+    // property alias homepage: _homepage
     property alias stackview: _stackview
     property alias dialogs: dialogs
     property alias myplane: myplane
@@ -13,7 +13,8 @@ Item{
     property alias timer: timer
     property alias easy: easy
     property alias gameover_timer: gameover_timer
-
+    property alias singalgamelayout: singalgamelayout
+    property alias doublegamelayout: doublegamelayout
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
@@ -66,7 +67,9 @@ Item{
 
         timer.stop()//暂停游戏
         myplane.shield_1_Timer.stop()
-        myplane.shield_1_FadeAnimation.stop()
+        if(myplane.isFading_1){
+            myplane.shield_1_FadeAnimation.pause()
+        }
         enemys.gameTime.stop()
         enemys.bossTime.stop()
         //重置移动状态（如果不重置松开按钮前点暂停会导致下一次点击移动松开前飞机一直移动）
@@ -75,9 +78,14 @@ Item{
         movingUp_P1 = false
         movingDown_P1 = false
         bullet.isShooted_1 = false
+        if(myplane.isBomb){
+            myplane.pauseBomb()
+        }
         if(isDouble){
             myplane.shield_2_Timer.stop()
-            myplane.shield_2_FadeAnimation.stop()
+            if(myplane.isFading_2){
+                myplane.shield_2_FadeAnimation.pause()
+            }
             movingLeft_P2 = false
             movingRight_P2 = false
             movingUp_P2 = false
@@ -135,9 +143,17 @@ Item{
     }
     //模式选择
     ColumnLayout{
-
         visible: false
         id:mode
+        function defaultOption(){
+            easy.checked = true
+            control.currentIndex = 0
+            singleButton.checked = true
+            doubleButton.checked = false
+            plane.showDualSelection = false
+            isDouble = false
+        }
+
         //难度模式选择
         RowLayout{
             Layout.topMargin: window_Height/15
@@ -404,159 +420,144 @@ Item{
             }
             onClicked: {
                 _stackview.push(planeSet)
-                plane.visible = true
                 plane.focus = true// 确保GridView可以接收键盘事件
-                mode.focus = false
                 console.log("clicked")
             }
         }
     }
+    Component {
+        id: homepageComponent
+        //游戏主页
+        ColumnLayout{
+            id:_homepage
+            anchors.fill: parent
+            visible: true
 
-    //游戏主页
-    ColumnLayout{
-        id:_homepage
-        anchors.fill: parent
-        visible: true
-        //游戏主页大厅标题
-        Text {
-            Layout.alignment: Qt.AlignHCenter
-            text: qsTr("飞机大战")
-            font.letterSpacing: 20
-            font.pointSize: 40
-            color: "black"
-        }
-
-        //按钮垂直排序
-        Column{
-            id:gameButton
-            spacing:25
-            Layout.alignment: Qt.AlignHCenter
-            Button {
-                id:start
-                focus:true
-                text:qsTr("开始游戏")
-                font.pointSize: 25
-                font.letterSpacing: 10
-                // Image{
-                //    source: "images/start.png"
-                //    width: 161
-                //    height: 43
-                //    Layout.alignment: Qt.AlignHCenter
-                // }
-                background: Rectangle{
-                    // width: 150
-                    // height: 44
-                    border.color: start.focus ? "red" : "white"
-                    color: "yellow"
-                }
-                Component.onCompleted: {
-                    start.forceActiveFocus();           //页面加载完成后强制按钮获得焦点
-                }
-
-                onClicked: {
-                    _stackview.push(mode)                //跳转到mode页面
-                    console.log("start clicked")
-                }
-                Keys.onEscapePressed: {
-                    exit.focus = true
-                }
-                //键盘快捷键响应
-                Keys.onSpacePressed: {
-                    start.clicked()
-                    start.focus = false//解决空格连续跳转问题
-                }
+            //游戏主页大厅标题
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: qsTr("飞机大战")
+                font.letterSpacing: 20
+                font.pointSize: 40
+                color: "black"
             }
 
-            Button {
-                id:exit
-                text:qsTr("退出游戏")
-                font.pointSize: 25
-                font.letterSpacing: 10                  //设置文字与文字之间间隔
-                //indicator: Image{source:"./picture/退出游戏.jpg"}
-                background: Rectangle{
-                    border.color: exit.focus ? "red" : "white"
-                    color: "blue    "
-                }
-                onClicked: {
-                    Qt.quit()
-                    console.log("exit clicked")
-                }
-                Keys.onUpPressed: {
-                    start.focus = true
-                }
-            }
-        }
-        //将按钮分组，实现按钮间的互斥选择，也就是一个组内只能选择一个按钮
-        ButtonGroup{
-            buttons: gameButton.children
-        }
+            //按钮垂直排序
+            Column{
+                id:gameButton
+                spacing:25
+                Layout.alignment: Qt.AlignHCenter
+                Button {
+                    id:start
+                    focus:true
+                    text:qsTr("开始游戏")
+                    font.pointSize: 25
+                    font.letterSpacing: 10
+                    // Image{
+                    //    source: "images/start.png"
+                    //    width: 161
+                    //    height: 43
+                    //    Layout.alignment: Qt.AlignHCenter
+                    // }
+                    background: Rectangle{
+                        // width: 150
+                        // height: 44
+                        border.color: start.focus ? "red" : "white"
+                        color: "yellow"
+                    }
+                    Component.onCompleted: {
+                        start.forceActiveFocus();           //页面加载完成后强制按钮获得焦点
+                    }
 
-        //水平顺序排列
-        Row{
-            spacing: 20
-            Layout.alignment: Qt.AlignHCenter
-            id:menu
-            anchors.bottom: parent.bottom
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.bottomMargin: 5                 //设置与底部间距
+                    onClicked: {
+                        _stackview.push(mode)                //跳转到mode页面
+                        console.log("start clicked")
+                    }
+                    Keys.onEscapePressed: {
+                        exit.focus = true
+                    }
+                    //键盘快捷键响应
+                    Keys.onSpacePressed: {
+                        start.clicked()
+                        start.focus = false//解决空格连续跳转问题
+                    }
+                }
 
-            Button{
-                id:skin
-                text: qsTr("皮肤")
-                background:Rectangle{
-                    implicitHeight:60
-                    implicitWidth: 60
-                    color: "pink"
+                Button {
+                    id:exit
+                    text:qsTr("退出游戏")
+                    font.pointSize: 25
+                    font.letterSpacing: 10                  //设置文字与文字之间间隔
+                    //indicator: Image{source:"./picture/退出游戏.jpg"}
+                    background: Rectangle{
+                        border.color: exit.focus ? "red" : "white"
+                        color: "blue    "
+                    }
+                    onClicked: {
+                        Qt.quit()
+                        console.log("exit clicked")
+                    }
+                    Keys.onUpPressed: {
+                        start.focus = true
+                    }
                 }
             }
-            Button{
-                id:storeButton
-                text: qsTr("商店")
-                background:Rectangle{
-                    implicitHeight:60
-                    implicitWidth: 60
-                    color: "pink"
-                }
-                onClicked: {
-                     stackview_3.push(store)
-                }
+            //将按钮分组，实现按钮间的互斥选择，也就是一个组内只能选择一个按钮
+            ButtonGroup{
+                buttons: gameButton.children
             }
-            Button{
-                id:set
-                text: qsTr("设置")
-                background:Rectangle{
-                    implicitHeight:60
-                    implicitWidth: 60
-                    color: "pink"
+
+            //水平顺序排列
+            Row{
+                spacing: 20
+                Layout.alignment: Qt.AlignHCenter
+                id:menu
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                anchors.bottomMargin: 5                 //设置与底部间距
+
+                Button{
+                    id:skin
+                    text: qsTr("皮肤")
+                    background:Rectangle{
+                        implicitHeight:60
+                        implicitWidth: 60
+                        color: "pink"
+                    }
                 }
-                onClicked: {
-                    dialogs.setting.open()
+                Button{
+                    id:storeButton
+                    text: qsTr("商店")
+                    background:Rectangle{
+                        implicitHeight:60
+                        implicitWidth: 60
+                        color: "pink"
+                    }
+                    onClicked: {
+                         stackview.push(store)
+                    }
+                }
+                Button{
+                    id:set
+                    text: qsTr("设置")
+                    background:Rectangle{
+                        implicitHeight:60
+                        implicitWidth: 60
+                        color: "pink"
+                    }
+                    onClicked: {
+                        dialogs.setting.open()
+                    }
                 }
             }
         }
     }
     StackView{
       id:_stackview
+      initialItem: homepageComponent.createObject(_stackview)
       anchors.fill: parent
-      onCurrentItemChanged: {
-          homepage.visible=depth===0
-          mode.visible = depth === 1
-      }
     }
-    StackView{
-      id:stackview_3
-      initialItem: homepage
-      anchors.fill: parent
-      onCurrentItemChanged: {
 
-          store.visible = currentItem === store;
-          homepage.visible = currentItem === homepage;
-
-          if(currentItem === homepage){
-              start.forceActiveFocus();                 //切换回homepage时强制按钮获得焦点，否则焦点丢失
-          }
-      }
-    }
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
@@ -618,6 +619,16 @@ Item{
             // 创建两个选择框显示实例
             property var highlightWSAD: highlightComponent.createObject(plane,{"border.color": "red","playerNum": "P1"})
             property var highlightArrows: highlightComponent.createObject(plane,{"border.color": "blue","playerNum": "P2"})
+            // 创建和销毁实例的函数
+            function recreateHighlights() {
+                // 销毁现有的实例
+                highlightWSAD.destroy()
+                highlightArrows.destroy()
+
+                // 创建新的实例
+                highlightWSAD = highlightComponent.createObject(plane,{"border.color": "red","playerNum": "P1"})
+                highlightArrows = highlightComponent.createObject(plane,{"border.color": "blue","playerNum": "P2"})
+            }
             // 更新选择框显示的位置（到第一行点击Up会直接跳到第一个选项，到最后一行点击Down会直接跳到最后一个选项）
             function updateHighlight(index, highlight) {
                 if (index >= 0 && index < model.count) {
@@ -788,6 +799,10 @@ Item{
             map.updateMap()
             enemys.updateEnemys()
             enemys.updateGame()
+            if(myplane.bomb.y === -400){
+                myplane.stopBomb()
+            }
+
             // 更新道具位置计数器
             itemUpdateCounter++
             // console.log(itemUpdateCounter)
@@ -851,7 +866,6 @@ Item{
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
                 if(bullet.isShooted_1){
                     //发射
-                    items.item.setPosition()//测试获得道具
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
@@ -908,6 +922,7 @@ Item{
         onTriggered: {
             //单人游戏界面
             if(!isDouble){
+                //失败
                 if(!myplane.isSurvive_1){
                     stopGame()
                     dialogs.defeat.open();
@@ -915,7 +930,9 @@ Item{
                     bgm.game_defeatMusic.play()
                     gameover_timer.stop();
                 }
+                //胜利
                 if(bossbloodProgress1.value === 0){
+                    stopGame()
                     dialogs.victory.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_victoryMusic.play()
@@ -923,6 +940,7 @@ Item{
                 }
             }else{
                 //双人游戏界面
+                //失败
                 if(!myplane.isSurvive_1 && !myplane.isSurvive_2){
                     stopGame()
                     dialogs.defeat.open();
@@ -930,7 +948,9 @@ Item{
                     bgm.game_defeatMusic.play()
                     gameover_timer.stop();
                 }
+                //胜利
                 if(bossbloodProgress2.value === 0){
+                    stopGame()
                     dialogs.victory.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_victoryMusic.play()
@@ -940,6 +960,7 @@ Item{
         }
     }
 
+    //碰撞检测
     Timer{
         id:_checkCollision
         interval: 16
@@ -948,6 +969,7 @@ Item{
         onTriggered: {
             bullet.checkCollision()
             bullet.checkCollision2()
+            bullet.checkCollisionBomb()
         }
     }
 
@@ -1121,7 +1143,8 @@ Item{
                             remainlife_1--;
                             lifeModel.get(remainlife_1).visible= false
                             bloodProgress.value = myplane.blood
-                            myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                            // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                            myplane.startBomb()
                         }
                         if(bloodProgress.value===0&&remainlife_1===0){
                             console.log("die")
@@ -1175,7 +1198,7 @@ Item{
         Button{
             text:'返回主页'
             onClicked: {
-                stackview_3.pop()                   //返回上一页
+                stackview.pop()                   //返回上一页
             }
         }
 
@@ -1193,22 +1216,6 @@ Item{
                 height: 70
                 color: "pink"
             }
-            // property bool showDualSelection: false
-            // Component{
-            //     id: highlightComponent_2
-            //     Rectangle{
-            //         visible: true
-            //         color:  "transparent"
-            //         border.color: "red"
-            //         border.width: 3
-            //         radius: 10
-            //         SequentialAnimation on opacity {
-            //             loops: Animation.Infinite
-            //             PropertyAnimation { duration: 1000; to: 0.0 }
-            //             PropertyAnimation { duration: 1000; to: 1.0 }
-            //         }
-            //     }
-            // }
         }
     }
 
@@ -1389,7 +1396,7 @@ Item{
                                         remainlife_1--;
                                         lifeModel_1.get(remainlife_1).visible= false
                                         bloodProgress_1.value = myplane.blood
-                                        myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                                        myplane.startBomb()
                                     }
                                     if(bloodProgress_1.value===0&&remainlife_1===0){
                                         myplane.isSurvive_1 = false
@@ -1472,7 +1479,7 @@ Item{
                                         remainlife_2--;
                                         lifeModel_2.get(remainlife_2).visible= false
                                         bloodProgress_2.value = myplane.blood
-                                        myplane.shield_2.activateShield()//失去一条命，护盾无敌时间
+                                        myplane.startBomb()
                                     }
                                     if(bloodProgress_2.value===0&&remainlife_2===0){
                                         myplane.isSurvive_2 = false

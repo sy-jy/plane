@@ -295,6 +295,58 @@ Item {
         }
     }
 
+    //冲击波和敌机碰撞检测
+    function checkCollisionBomb(){
+        for(var i = content.enemys.enemys.length - 1; i >= 0; i--){
+            var enemy = content.enemys.enemys[i];
+            var enemyWidth = enemy.width;
+            var enemyHeight = enemy.height;
+
+            // 计算敌机的边界框
+            var enemyLeft = enemy.x - enemyWidth / 2;
+            var enemyRight = enemy.x + enemyWidth / 2;
+            var enemyTop = enemy.y - enemyHeight / 2;
+            var enemyBottom = enemy.y + enemyHeight / 2;
+
+            // 检查敌机边界框的四个角是否在冲击波区域内
+            var corners = [
+                { x: enemyLeft, y: enemyTop },
+                { x: enemyRight, y: enemyTop },
+                { x: enemyLeft, y: enemyBottom },
+                { x: enemyRight, y: enemyBottom }
+            ];
+            for(var j = 0; j < corners.length; j++){
+                var corner = corners[j];
+                var dx = corner.x - myplane.bombCenterX;
+                var dy = corner.y - myplane.bombCenterY;
+                var distance = Math.sqrt(dx * dx + dy * dy);
+
+                // 如果任何一个角的距离小于或等于冲击波的半径，那么发生碰撞
+                if(distance <= myplane.bombRadius){
+                    // 处理碰撞销毁敌机
+                    enemy.destroy()
+                    // 从数组中移除敌机
+                    content.enemys.enemys.splice(i, 1);
+                    //消除所有子弹
+                    _enemy_bullet.visible = false
+                    _boss_bullet.visible = false
+                    break;
+                }
+            }
+        }
+    }
+
+
+    function cleanBullt(){
+        my_bullet_1.visible = false
+        my_bullet_2.visible = false
+        my_bullet1_2.visible = false
+        my_bullet2_2.visible = false
+        my_bullet_mid.visible = false
+        _enemy_bullet.visible = false
+        _boss_bullet.visible = false
+    }
+
     Image {
         id: my_bullet_1
         source: "images/bullet_1.png"
