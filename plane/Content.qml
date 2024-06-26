@@ -12,7 +12,7 @@ Item{
     property alias enemys: enemys
     property alias timer: timer
     property alias easy: easy
-
+    property alias boom: boom
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows

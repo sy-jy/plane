@@ -171,6 +171,7 @@ Item {
 
                 my_bullet_1.visible = false
                 content.enemys.enemys[i].visible = false
+                content.boom.Boom.start()
                 break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.enemys[i].x
