@@ -5,7 +5,7 @@ Item{
     property alias mode: mode
     property alias player: player
     property alias plane: plane
-    // property alias homepage: _homepage
+    property alias homepage: _homepage
     property alias stackview: _stackview
     property alias dialogs: dialogs
     property alias myplane: myplane
@@ -13,11 +13,6 @@ Item{
     property alias timer: timer
     property alias easy: easy
     property alias boom: boom
-
-    property alias gameover_timer: gameover_timer
-    property alias singalgamelayout: singalgamelayout
-    property alias doublegamelayout: doublegamelayout
-    property alias bullet:bullet
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
@@ -61,102 +56,39 @@ Item{
     property alias lifeModel_2: lifeModel_2
 
     //道具生成
-    property int itemUpdateInterval: 5 * desiredFramesPerSecond // 5秒更新一次
+    property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
     property int itemUpdateCounter: 0
+    // property alias blood: bloodSlider
     anchors.fill: parent
     //暂停游戏
     function stopGame(){
-
+        dialogs.pause.open()
         timer.stop()//暂停游戏
         myplane.shield_1_Timer.stop()
-        if(myplane.isFading_1){
-            myplane.shield_1_FadeAnimation.pause()
-        }
+        myplane.shield_1_FadeAnimation.stop()
         enemys.gameTime.stop()
         enemys.bossTime.stop()
-
         //重置移动状态（如果不重置松开按钮前点暂停会导致下一次点击移动松开前飞机一直移动）
         movingLeft_P1 = false
         movingRight_P1 = false
         movingUp_P1 = false
         movingDown_P1 = false
-        bullet.isShooted_1 = false
-        if(myplane.isBomb){
-            myplane.pauseBomb()
-        }
         if(isDouble){
             myplane.shield_2_Timer.stop()
-            if(myplane.isFading_2){
-                myplane.shield_2_FadeAnimation.pause()
-            }
+            myplane.shield_2_FadeAnimation.stop()
             movingLeft_P2 = false
             movingRight_P2 = false
             movingUp_P2 = false
             movingDown_P2 = false
-            bullet.isShooted_2 = false
         }
-        shootTimerSwich()
         console.log("暂停建已激活，跳出弹窗")
     }
 
-    //开始游戏
-    function startGame(){
-        bgm.gameMusic.play()
-        console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
-        mapNext.visible = true      //地图显示
-        timer.running = true    //开启计时器
-        enemys.gameTime.start()
-        enemys.bossTime.start()
-        enemys.visible = true
-        planeSet.visible = false
-    }
-
-    function shootTimerSwich(){
-        if(bullet.isShooted_1){
-            bullet.shootTimer_1.start()
-        }else{
-            bullet.shootTimer_1.stop()
-        }
-        if(bullet.isShooted_2){
-            bullet.shootTimer_2.start()
-        }else{
-            bullet.shootTimer_2.stop()
-        }
-    }
-    Map{
-        id:mapNext
-    }
-    Bullet{
-        id:bullet
-    }
-    Myplane{
-        id:myplane
-    }
-    Enemy{
-        id:enemys
-    }
-    Boom{
-        id:boom
-    }
-    Items{
-        id:items
-    }
-    Dialogs{
-        id:dialogs
-    }
     //模式选择
     ColumnLayout{
+
         visible: false
         id:mode
-        function defaultOption(){
-            easy.checked = true
-            control.currentIndex = 0
-            singleButton.checked = true
-            doubleButton.checked = false
-            plane.showDualSelection = false
-            isDouble = false
-        }
-
         //难度模式选择
         RowLayout{
             Layout.topMargin: window_Height/15
@@ -234,17 +166,12 @@ Item{
 
             //地图选择
             // 按钮
-
             Rectangle{
                 clip: true
                 width: 200
                 height:40
                 ComboBox {
                     id:control
-                    function mapNext(){
-                        mapmodel.currentIndex = (mapmodel.currentIndex+1)%(model.count-1)
-                        map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath
-                    }
                     background:Rectangle{
                         implicitWidth: 200
                         implicitHeight: 40
@@ -264,7 +191,7 @@ Item{
                     // 定义您的模型，不包括 "随机" 元素
                     model: ListModel{
                         ListElement{
-                            text:" 公路"
+                            text:" 戈壁"
                             mapPath: "map1.png" }
                         ListElement{
                             text:" 雨林"
@@ -428,141 +355,174 @@ Item{
             }
             onClicked: {
                 _stackview.push(planeSet)
+                plane.visible = true
                 plane.focus = true// 确保GridView可以接收键盘事件
+                mode.focus = false
                 console.log("clicked")
             }
         }
     }
-    Component {
-        id: homepageComponent
-        //游戏主页
-        ColumnLayout{
-            id:_homepage
-            anchors.fill: parent
-            visible: true
-            //游戏主页大厅标题
-            Text {
-                Layout.alignment: Qt.AlignHCenter
-                text: qsTr("飞机大战")
-                font.letterSpacing: 20
-                font.pointSize: 40
-                color: "black"
-            }
 
-            //按钮垂直排序
-            Column{
-                id:gameButton
-                spacing:25
-                Layout.alignment: Qt.AlignHCenter
-                Button {
-                    id:start
-                    focus:true
-                    text:qsTr("开始游戏")
-                    font.pointSize: 25
-                    font.letterSpacing: 10
-                    // Image{
-                    //    source: "images/start.png"
-                    //    width: 161
-                    //    height: 43
-                    //    Layout.alignment: Qt.AlignHCenter
-                    // }
-                    background: Rectangle{
-                        // width: 150
-                        // height: 44
-                        border.color: start.focus ? "red" : "white"
-                        color: "yellow"
-                    }
-                    Component.onCompleted: {
-                        start.forceActiveFocus();           //页面加载完成后强制按钮获得焦点
-                    }
+    //游戏主页
+    ColumnLayout{
+        id:_homepage
+        anchors.fill: parent
+        visible: true
+        //游戏主页大厅标题
+        Text {
+            Layout.alignment: Qt.AlignHCenter
+            text: qsTr("飞机大战")
+            font.letterSpacing: 20
+            font.pointSize: 40
+            color: "black"
+        }
 
-                    onClicked: {
-                        _stackview.push(mode)                //跳转到mode页面
-                        console.log("start clicked")
-                    }
-                    Keys.onEscapePressed: {
-                        exit.focus = true
-                    }
-                    //键盘快捷键响应
-                    Keys.onSpacePressed: {
-                        start.clicked()
-                        start.focus = false//解决空格连续跳转问题
-                    }
+        //按钮垂直排序
+        Column{
+            id:gameButton
+            spacing:25
+            Layout.alignment: Qt.AlignHCenter
+            Button {
+                id:start
+                focus:true
+                text:qsTr("开始游戏")
+                font.pointSize: 25
+                font.letterSpacing: 10
+                // Image{
+                //    source: "images/start.png"
+                //    width: 161
+                //    height: 43
+                //    Layout.alignment: Qt.AlignHCenter
+                // }
+                background: Rectangle{
+                    // width: 150
+                    // height: 44
+                    border.color: start.focus ? "red" : "white"
+                    color: "yellow"
+                }
+                Component.onCompleted: {
+                    start.forceActiveFocus();           //页面加载完成后强制按钮获得焦点
                 }
 
-                Button {
-                    id:exit
-                    text:qsTr("退出游戏")
-                    font.pointSize: 25
-                    font.letterSpacing: 10                  //设置文字与文字之间间隔
-                    //indicator: Image{source:"./picture/退出游戏.jpg"}
-                    background: Rectangle{
-                        border.color: exit.focus ? "red" : "white"
-                        color: "blue    "
-                    }
-                    onClicked: {
-                        Qt.quit()
-                        console.log("exit clicked")
-                    }
-                    Keys.onUpPressed: {
-                        start.focus = true
-                    }
+                onClicked: {
+                    _stackview.push(mode)                //跳转到mode页面
+                    console.log("start clicked")
+                }
+                Keys.onEscapePressed: {
+                    exit.focus = true
+                }
+                //键盘快捷键响应
+                Keys.onSpacePressed: {
+                    start.clicked()
+                    start.focus = false//解决空格连续跳转问题
                 }
             }
-            //将按钮分组，实现按钮间的互斥选择，也就是一个组内只能选择一个按钮
-            ButtonGroup{
-                buttons: gameButton.children
+
+            Button {
+                id:exit
+                text:qsTr("退出游戏")
+                font.pointSize: 25
+                font.letterSpacing: 10                  //设置文字与文字之间间隔
+                //indicator: Image{source:"./picture/退出游戏.jpg"}
+                background: Rectangle{
+                    border.color: exit.focus ? "red" : "white"
+                    color: "blue    "
+                }
+                onClicked: {
+                    Qt.quit()
+                    console.log("exit clicked")
+                }
+                Keys.onUpPressed: {
+                    start.focus = true
+                }
             }
+        }
+        //将按钮分组，实现按钮间的互斥选择，也就是一个组内只能选择一个按钮
+        ButtonGroup{
+            buttons: gameButton.children
+        }
 
-            //水平顺序排列
-            Row{
-                spacing: 20
-                Layout.alignment: Qt.AlignHCenter
-                id:menu
-                anchors.bottom: parent.bottom
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.bottomMargin: 5                 //设置与底部间距
+        //水平顺序排列
+        Row{
+            spacing: 20
+            Layout.alignment: Qt.AlignHCenter
+            id:menu
+            anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottomMargin: 5                 //设置与底部间距
 
-                Button{
-                    id:skin
-                    text: qsTr("皮肤")
-                    background:Rectangle{
-                        implicitHeight:60
-                        implicitWidth: 60
-                        color: "pink"
-                    }
+            Button{
+                id:skin
+                text: qsTr("皮肤")
+                background:Rectangle{
+                    implicitHeight:60
+                    implicitWidth: 60
+                    color: "pink"
                 }
-                Button{
-                    id:storeButton
-                    text: qsTr("商店")
-                    background:Rectangle{
-                        implicitHeight:60
-                        implicitWidth: 60
-                        color: "pink"
-                    }
-                    onClicked: {
-                         stackview.push(store)
-                    }
+            }
+            Button{
+                id:storeButton
+                text: qsTr("商店")
+                background:Rectangle{
+                    implicitHeight:60
+                    implicitWidth: 60
+                    color: "pink"
                 }
-                Button{
-                    id:set
-                    text: qsTr("设置")
-                    background:Rectangle{
-                        implicitHeight:60
-                        implicitWidth: 60
-                        color: "pink"
-                    }
-                    onClicked: {
-                        dialogs.setting.open()
-                    }
+                onClicked: {
+                     stackview_3.push(store)
+                }
+            }
+            Button{
+                id:set
+                text: qsTr("设置")
+                background:Rectangle{
+                    implicitHeight:60
+                    implicitWidth: 60
+                    color: "pink"
+                }
+                onClicked: {
+                    dialogs.setting.open()
                 }
             }
         }
     }
     StackView{
       id:_stackview
-      initialItem: homepageComponent.createObject(_stackview)
       anchors.fill: parent
+      onCurrentItemChanged: {
+          homepage.visible=depth===0
+          mode.visible = depth === 1
+      }
+    }
+    StackView{
+      id:stackview_3
+      initialItem: homepage
+      anchors.fill: parent
+      onCurrentItemChanged: {
+
+          store.visible = currentItem === store;
+          homepage.visible = currentItem === homepage;
+
+          if(currentItem === homepage){
+              start.forceActiveFocus();                 //切换回homepage时强制按钮获得焦点，否则焦点丢失
+          }
+      }
+    }
+
+    Map{
+        id:map
+    }
+    Myplane{
+        id:myplane
+    }
+    Bullet{
+        id:bullet
+    }
+    Items{
+        id:items
+    }
+    Dialogs{
+        id:dialogs
     }
 
     //玩家飞机样式选择
@@ -626,16 +586,6 @@ Item{
             // 创建两个选择框显示实例
             property var highlightWSAD: highlightComponent.createObject(plane,{"border.color": "red","playerNum": "P1"})
             property var highlightArrows: highlightComponent.createObject(plane,{"border.color": "blue","playerNum": "P2"})
-            // 创建和销毁实例的函数
-            function recreateHighlights() {
-                // 销毁现有的实例
-                highlightWSAD.destroy()
-                highlightArrows.destroy()
-
-                // 创建新的实例
-                highlightWSAD = highlightComponent.createObject(plane,{"border.color": "red","playerNum": "P1"})
-                highlightArrows = highlightComponent.createObject(plane,{"border.color": "blue","playerNum": "P2"})
-            }
             // 更新选择框显示的位置（到第一行点击Up会直接跳到第一个选项，到最后一行点击Down会直接跳到最后一个选项）
             function updateHighlight(index, highlight) {
                 if (index >= 0 && index < model.count) {
@@ -741,6 +691,16 @@ Item{
                     }
                 }
             }
+            function startgame(){
+                bgm.gameMusic.play()
+                console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
+                map.visible = true      //地图显示
+                timer.running = true    //开启计时器
+                enemys.gameTime.start()
+                enemys.bossTime.start()
+                enemys.visible = true
+            }
+
             Keys.onSpacePressed: {
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
@@ -750,7 +710,7 @@ Item{
                     myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
                     console.log("Selected P1 source: ",myplane_1_path)
                     console.log("Selected P2 source: ",myplane_2_path)
-                    startGame()
+                    startgame()
                     bloodProgress_1.value = myplane.blood
                     bloodProgress_2.value = myplane.blood
                     myplane.doubleplayer()  //显示双人飞机
@@ -762,7 +722,7 @@ Item{
                 //单人
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
-                    startGame()
+                    startgame()
                     bloodProgress.value = myplane.blood
                     myplane.singleplayer()  //显示单人飞机
                     myplane.shield_1.activateShield()//开局护盾
@@ -795,10 +755,6 @@ Item{
             Layout.alignment: Qt.AlignHCenter
         }
     }
-    property int hitCooldown_1: 0
-    property int hitBossCooldown_1: 0
-    property int hitCooldown_2: 0
-    property int hitBossCooldown_2: 0
     //刷新画面
     Timer{
         id: timer
@@ -807,13 +763,9 @@ Item{
         running: false
         onTriggered:
         {
-            mapNext.updateMap()
+            map.updateMap()
             enemys.updateEnemys()
             enemys.updateGame()
-            if(myplane.bomb.y === -400){
-                myplane.stopBomb()
-            }
-
             // 更新道具位置计数器
             itemUpdateCounter++
             if (itemUpdateCounter >= itemUpdateInterval) {
@@ -824,25 +776,24 @@ Item{
             if(!isDouble){
                 //单人
                 //敌机血量条测试（时间的判断）
-                // if(enemys.boss){
-                //     // bossblood.visible =true
-                //     bossbloodProgress1.value-=0.4
-                // }
+                if(enemys.boss){
+                    // bossblood.visible =true
+                    bossbloodProgress1.value-=0.4
+                }
 
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
                 // console.log(myplane.isAccelerate_1)//检测是否加速
-                if(bullet.isShooted_1){
+                if(bullet.isShooted){
                     //发射
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
                     bullet.updateMybulletPosition1()
                 }
-                // if(bullet.isShooted_mid){
-                //     bullet.shoot_mid()
-                // }else{
-                //     bullet.updateMybulletPosition1()
-                // }
+
+                if(!myplane.isShield_1){//测试护盾
+                    bloodProgress.value-=0.3//测试血量条
+                }
                 //遍历敌机数组，判定敌机出场开始射击子弹
                 for(var i = 0;i<enemys.enemys.length;i++){
                     if(enemys.enemys[i].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
@@ -854,65 +805,16 @@ Item{
                     bullet.updateEnemybulletPosition()
                 }
                 //敌方boss子弹发射判定
-                if(enemys.bossAppeared){
-                    if(enemys.boss.y ===0){
-                        // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
-                    }
-                    if(bullet.isShooted_boss === false){
-                        bullet.updateEnemyBossbulletPosition()
-                    }
+                if(enemys.boss.y ===0){
+                    // bullet.iShooted_boss = true
+                    bullet.shoot_boss()
                 }
+                if(bullet.isShooted_boss === false){
+                    bullet.updateEnemyBossbulletPosition()
+                }
+
                 items.item.move()//道具移动
                 items.item.got()//道具获得
-
-                // 在计时器的每次触发时减少冷却时间
-                if(hitCooldown_1 > 0){
-                    hitCooldown_1--;
-                }
-                if(hitCooldown_1 <= 0 && bullet.isHit_1){
-                    bloodProgress.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
-                    if(bloodProgress.value===0&&remainlife_1!==0){
-                        if(dialogs.musicEnabled){//开启了音效
-                            bgm.life_loseMusic.play()//失去生命的音效
-                        }
-
-                        remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
-                        bloodProgress.value = myplane.blood
-                        myplane.startBomb()
-                    }
-                    if(bloodProgress.value===0&&remainlife_1===0){
-                        console.log("die")
-                        myplane.isSurvive_1 = false
-                        // myplane.myplane_1.visible = false
-                    }
-                    bullet.isHit_1 = false
-                    hitCooldown_1 = 10 // 设置冷却时间为10帧
-                }
-                if(hitBossCooldown_1 > 0){
-                    hitBossCooldown_1--;
-                }
-                if(hitBossCooldown_1 <= 0 &&bullet.isBossHit_1){
-                    bloodProgress.value -=50
-                    if(bloodProgress.value===0&&remainlife_1!==0){
-                        if(dialogs.musicEnabled){//开启了音效
-                            bgm.life_loseMusic.play()//失去生命的音效
-                        }
-                        remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
-                        bloodProgress.value = myplane.blood
-                        // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
-                        myplane.startBomb()
-                    }
-                    if(bloodProgress.value===0&&remainlife_1===0){
-                        console.log("die")
-                        myplane.isSurvive_1 = false
-                        // myplane.myplane_1.visible = false
-                    }
-                    bullet.isBossHit_1 = false
-                    hitBossCooldown_1 = 60 // 设置冷却时间为60帧
-                }
             }else{
                 //双人
                 //敌机血量条测试（时间的判断）
@@ -922,8 +824,9 @@ Item{
 
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
-                if(bullet.isShooted_1){
-                    //发射
+                if(bullet.isShooted){
+                    //玩家1发射
+                    items.item.setPosition()//测试获得道具
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
@@ -935,16 +838,6 @@ Item{
                 }else{
                     bullet.updateMybulletPosition2()
                 }
-                // if(bullet.isShooted_mid){
-                //     bullet.shoot_mid()
-                // }else{
-                //     bullet.updateMybulletPosition1()
-                // }
-                // if(bullet.isShooted_mid2){
-                //     bullet.shoot_mid2()
-                // }else{
-                //     bullet.updateMybulletPosition2()
-                // }
                 //遍历敌机数组，判定敌机出场开始射击子弹
                 for(var j = 0;j<enemys.enemys.length;j++){
                     if(enemys.enemys[j].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
@@ -956,107 +849,24 @@ Item{
                     bullet.updateEnemybulletPosition()
                 }
                 //敌方boss子弹发射判定
-                if(enemys.bossAppeared){
-                    if(enemys.boss.y ===0){
-                        // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
-                    }
-                    if(bullet.isShooted_boss === false){
-                        bullet.updateEnemyBossbulletPosition()
-                    }
+                if(enemys.boss.y===0){
+                    //bullet.iShooted_boss = true
+                    bullet.shoot_boss()
+                }
+                if(bullet.isShooted_boss === false){
+                    bullet.updateEnemyBossbulletPosition()
                 }
 
                 items.item.move()//道具移动
                 items.item.got()//道具获得
-                // 在计时器的每次触发时减少冷却时间
-                if(hitCooldown_1 > 0){
-                    hitCooldown_1--;
+                if(!myplane.isShield_1){//测试护盾
+                    bloodProgress_1.value-=0.3//测试血量条
                 }
-                if(hitCooldown_1 <= 0 && bullet.isHit_1){
-                    bloodProgress_1.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
-                    if(bloodProgress_1.value===0&&remainlife_1!==0){
-                        if(dialogs.musicEnabled){//开启了音效
-                            bgm.life_loseMusic.play()//失去生命的音效
-                        }
-
-                        remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
-                        bloodProgress_1.value = myplane.blood
-                        myplane.startBomb()
-                    }
-                    if(bloodProgress_1.value===0&&remainlife_1===0){
-                        console.log("die")
-                        myplane.isSurvive_1 = false
-                        // myplane.myplane_1.visible = false
-                    }
-                    bullet.isHit_1 = false
-                    hitCooldown_1 = 10 // 设置冷却时间为10帧
+                // bloodProgress_1.value-=1//测试血量条
+                if(!myplane.isShield_2){//测试护盾
+                    bloodProgress_2.value-=0.1//测试血量条
                 }
-                if(hitBossCooldown_1 > 0){
-                    hitBossCooldown_1--;
-                }
-                if(hitBossCooldown_1 <= 0 &&bullet.isBossHit_1){
-                    bloodProgress_1.value -=50
-                    if(bloodProgress_1.value===0&&remainlife_1!==0){
-                        if(dialogs.musicEnabled){//开启了音效
-                            bgm.life_loseMusic.play()//失去生命的音效
-                        }
-                        remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
-                        bloodProgress_1.value = myplane.blood
-                        myplane.startBomb()
-                    }
-                    if(bloodProgress_1.value===0&&remainlife_1===0){
-                        console.log("die")
-                        myplane.isSurvive_1 = false
-                    }
-                    bullet.isBossHit_1 = false
-                    hitBossCooldown_1 = 60 // 设置冷却时间为60帧
-                }
-
-                // 在计时器的每次触发时减少冷却时间
-                if(hitCooldown_2 > 0){
-                    hitCooldown_2--;
-                }
-                if(hitCooldown_2 <= 0 && bullet.isHit_2){
-                    bloodProgress_2.value -=10
-                    if(bloodProgress_2.value===0&&remainlife_2!==0){
-                        if(dialogs.musicEnabled){//开启了音效
-                            bgm.life_loseMusic.play()//失去生命的音效
-                        }
-                        remainlife_2--;
-                        lifeModel.get(remainlife_2).visible= false
-                        bloodProgress_2.value = myplane.blood
-                        myplane.startBomb()
-                    }
-                    if(bloodProgress_2.value===0&&remainlife_2===0){
-                        console.log("die")
-                        myplane.isSurvive_2 = false
-                    }
-                    bullet.isHit_2 = false
-                    hitCooldown_2 = 10 // 设置冷却时间为10帧
-                }
-                if(hitBossCooldown_2 > 0){
-                    hitBossCooldown_2--;
-                }
-                if(hitBossCooldown_2 <= 0 &&bullet.isBossHit_2){
-                    bloodProgress_2.value -=50
-                    if(bloodProgress_2.value===0&&remainlife_2!==0){
-                        if(dialogs.musicEnabled){//开启了音效
-                            bgm.life_loseMusic.play()//失去生命的音效
-                        }
-                        remainlife_2--;
-                        lifeModel.get(remainlife_2).visible= false
-                        bloodProgress_2.value = myplane.blood
-                        myplane.startBomb()
-                    }
-                    if(bloodProgress_2.value===0&&remainlife_2===0){
-                        console.log("die")
-                        myplane.isSurvive_2 = false
-                    }
-                    bullet.isBossHit_2 = false
-                    hitBossCooldown_2 = 60 // 设置冷却时间为60帧
-                }
+                // bloodProgress_2.value-=0.5//测试血量条
             }
         }
     }
@@ -1071,46 +881,25 @@ Item{
         onTriggered: {
             //单人游戏界面
             if(!isDouble){
-                //失败
-                if(!myplane.isSurvive_1){
-                    stopGame()
+                if(bloodProgress/*bossbloodProgress1*/.value === 0){
                     dialogs.defeat.open();
+                    // dialogs.victory.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
-                    gameover_timer.stop();
-                }
-                //胜利
-                if(bossbloodProgress1.value === 0){
-                    // boom.startboom()
-                    stopGame()
-                    dialogs.victory.open();
-                    dialogs.blurRect.visible = true;
-                    bgm.game_victoryMusic.play()
                     gameover_timer.stop();
                 }
             }else{
                 //双人游戏界面
-                //失败
-                if(!myplane.isSurvive_1 && !myplane.isSurvive_2){
-                    stopGame()
+                if(bloodProgress_1.value === 0 &&bloodProgress_2.value === 0){
                     dialogs.defeat.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
-                    gameover_timer.stop();
-                }
-                //胜利
-                if(bossbloodProgress2.value === 0){
-                    stopGame()
-                    dialogs.victory.open();
-                    dialogs.blurRect.visible = true;
-                    bgm.game_victoryMusic.play()
                     gameover_timer.stop();
                 }
             }
         }
     }
 
-    //碰撞检测
     Timer{
         id:_checkCollision
         interval: 16
@@ -1119,7 +908,6 @@ Item{
         onTriggered: {
             bullet.checkCollision()
             bullet.checkCollision2()
-            bullet.checkCollisionBomb()
         }
     }
 
@@ -1221,12 +1009,11 @@ Item{
                         color: "gray" // 进度条背景的颜色
                     }
                     onValueChanged:{
-                        // console.log("BOSS血量：",bossbloodProgress1.value)
+                        console.log("BOSS血量：",bossbloodProgress1.value)
                         //爆炸音效和爆炸动画
-                        // if(bossbloodProgress1.value === 0){
-                        //     boom.bossboom.running = true
-                        //     boom.bossboom.visible = true
-                        // }
+                        if(bossbloodProgress1 === 0){
+
+                        }
                     }
                     Text {
                         id: blood
@@ -1235,24 +1022,25 @@ Item{
                         font.pointSize:  15
                         textFormat: Text.StyledText
                     }
+
                 }
+
+
             }
+
+
+
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
                 id: pause1
-                // text: " 暂停 "
-                icon.name:"media-playback-pause"
-                flat:true
-                height: 35
-                width: 45
-                // font.pointSize:8
-                // font.bold: true
+                text: " 暂停 "
+                height: 50
+                width: 50
+                font.pointSize:8
+                font.bold: true
                 anchors.right: parent.right
                 onClicked: {
-                    if(dialogs.blurRect.visible === false){
-                        stopGame()
-                        dialogs.pause.open()
-                    }
+                    stopGame()
                 }
             }
         }
@@ -1287,26 +1075,20 @@ Item{
                         radius: 20
                         color: "gray" // 进度条背景的颜色
                     }
-                    // onValueChanged: {
-                    //     // 添加血量变化的逻辑
-                    //     console.log("当前血量：", bloodProgress.value)
-                    //     if(bloodProgress.value===0&&remainlife_1!==0){
-                    //         if(dialogs.musicEnabled){//开启了音效
-                    //             bgm.life_loseMusic.play()//失去生命的音效
-                    //         }
+                    onValueChanged: {
+                        // 添加血量变化的逻辑
+                        console.log("当前血量：", bloodProgress.value)
+                        if(bloodProgress.value===0&&remainlife_1!==0){
+                            if(dialogs.musicEnabled){//开启了音效
+                                bgm.life_loseMusic.play()//失去生命的音效
+                            }
 
-                    //         remainlife_1--;
-                    //         lifeModel.get(remainlife_1).visible= false
-                    //         bloodProgress.value = myplane.blood
-                    //         // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
-                    //         myplane.startBomb()
-                    //     }
-                    //     if(bloodProgress.value===0&&remainlife_1===0){
-                    //         console.log("die")
-                    //         myplane.isSurvive_1 = false
-                    //         // myplane.myplane_1.visible = false
-                    //     }
-                    // }
+                            remainlife_1--;
+                            lifeModel.get(remainlife_1).visible= false
+                            bloodProgress.value = myplane.blood
+                            myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                        }
+                    }
                 }
                 Text {
                     id: _player
@@ -1324,8 +1106,8 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
             else if (event.key === Qt.Key_J){
-                bullet.isShooted_1 = true;//攻击
-                shootTimerSwich()
+                bullet.isShooted = true;//攻击
+                bullet.shootTimer.start()
             }
         }
 
@@ -1335,7 +1117,7 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = false;
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
             else if (event.key === Qt.Key_J){
-                bullet.shootTimer_1.stop()
+                bullet.shootTimer.stop()
             }
         }
     }
@@ -1353,7 +1135,7 @@ Item{
         Button{
             text:'返回主页'
             onClicked: {
-                stackview.pop()                   //返回上一页
+                stackview_3.pop()                   //返回上一页
             }
         }
 
@@ -1371,6 +1153,22 @@ Item{
                 height: 70
                 color: "pink"
             }
+            // property bool showDualSelection: false
+            // Component{
+            //     id: highlightComponent_2
+            //     Rectangle{
+            //         visible: true
+            //         color:  "transparent"
+            //         border.color: "red"
+            //         border.width: 3
+            //         radius: 10
+            //         SequentialAnimation on opacity {
+            //             loops: Animation.Infinite
+            //             PropertyAnimation { duration: 1000; to: 0.0 }
+            //             PropertyAnimation { duration: 1000; to: 1.0 }
+            //         }
+            //     }
+            // }
         }
     }
 
@@ -1466,20 +1264,15 @@ Item{
                 //暂停图标（会放标签图），点击暂停会弹出对话框
                 Button{
                     id: pause2
-                    icon.name:"media-playback-pause"
-                    flat:true
-                    height: 35
-                    width: 45
-                    // font.pointSize:8
-                    // font.bold: true
+                    text: qsTr(" 暂停 ")
+                    height: 50; width: 50
+                    font.pointSize:8
+                    font.bold: true
                     anchors.right: parent.right
-                    onClicked: {
-                        if(dialogs.blurRect.visible === false){
+                    onClicked:{
                             stopGame()
-                            dialogs.pause.open()
                         }
                     }
-                }
             }
 
             //P1 P2
@@ -1494,8 +1287,7 @@ Item{
                     anchors.bottom: parent.bottom
                     padding: 5
                     Row{
-                        spacing:2 ;
-                        padding: 2
+                        spacing:2 ;padding: 2
                         ListModel {
                             id: lifeModel_1
                             ListElement { visible: true}
@@ -1544,22 +1336,19 @@ Item{
                                     radius: 20
                                     color: "gray" // 进度条背景的颜色
                                 }
-                                // onValueChanged: {
-                                //     // 添加血量变化的逻辑
-                                //     // console.log("当前血量：", bloodProgress_1.value)
-                                //     if(bloodProgress_1.value===0&&remainlife_1!==0){
-                                //         if(dialogs.musicEnabled){//开启了音效
-                                //             bgm.life_loseMusic.play()//失去生命的音效
-                                //         }
-                                //         remainlife_1--;
-                                //         lifeModel_1.get(remainlife_1).visible= false
-                                //         bloodProgress_1.value = myplane.blood
-                                //         myplane.startBomb()
-                                //     }
-                                //     if(bloodProgress_1.value===0&&remainlife_1===0){
-                                //         myplane.isSurvive_1 = false
-                                //     }
-                                // }
+                                onValueChanged: {
+                                    // 添加血量变化的逻辑
+                                    console.log("当前血量：", bloodProgress_1.value)
+                                    if(bloodProgress_1.value===0&&remainlife_1!==0){
+                                        if(dialogs.musicEnabled){//开启了音效
+                                            bgm.life_loseMusic.play()//失去生命的音效
+                                        }
+                                        remainlife_1--;
+                                        lifeModel_1.get(remainlife_1).visible= false
+                                        bloodProgress_1.value = myplane.blood
+                                        myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                                    }
+                                }
                             }
                         Text {
                             id: _player1text
@@ -1577,8 +1366,7 @@ Item{
                     anchors.bottom: parent.bottom
                     padding: 5
                     Row{
-                        spacing:2 ;
-                        padding:2
+                        spacing:2 ; padding: 2
                         ListModel {
                             id: lifeModel_2
                             ListElement { visible: true}
@@ -1627,22 +1415,19 @@ Item{
                                     radius: 20
                                     color: "gray" // 进度条背景的颜色
                                 }
-                                // onValueChanged: {
-                                //     // 添加血量变化的逻辑
-                                //     // console.log("当前血量：", bloodProgress_2.value)
-                                //     if(bloodProgress_2.value===0&&remainlife_2!==0){
-                                //         if(dialogs.musicEnabled){//开启了音效
-                                //             bgm.life_loseMusic.play()//失去生命的音效
-                                //         }
-                                //         remainlife_2--;
-                                //         lifeModel_2.get(remainlife_2).visible= false
-                                //         bloodProgress_2.value = myplane.blood
-                                //         myplane.startBomb()
-                                //     }
-                                //     if(bloodProgress_2.value===0&&remainlife_2===0){
-                                //         myplane.isSurvive_2 = false
-                                //     }
-                                // }
+                                onValueChanged: {
+                                    // 添加血量变化的逻辑
+                                    console.log("当前血量：", bloodProgress_2.value)
+                                    if(bloodProgress_2.value===0&&remainlife_2!==0){
+                                        if(dialogs.musicEnabled){//开启了音效
+                                            bgm.life_loseMusic.play()//失去生命的音效
+                                        }
+                                        remainlife_2--;
+                                        lifeModel_2.get(remainlife_2).visible= false
+                                        bloodProgress_2.value = myplane.blood
+                                        myplane.shield_2.activateShield()//失去一条命，护盾无敌时间
+                                    }
+                                }
                             }
                         Text {
                             id: _player2text
@@ -1666,8 +1451,9 @@ Item{
                 else if (event.key === Qt.Key_W) movingUp_P1 = true;
                 else if (event.key === Qt.Key_S) movingDown_P1 = true;
                 else if (event.key === Qt.Key_J) {
-                    bullet.isShooted_1 = true;//攻击
-                    shootTimerSwich()
+                    bullet.isShooted = true;//攻击
+                    bullet.shootTimer.start()
+                    items.item.setPosition()
                 }
 
                 //P2
@@ -1677,7 +1463,7 @@ Item{
                 else if (event.key === Qt.Key_Down) movingDown_P2 = true;
                 else if (event.key === Qt.Key_0){
                     bullet.isShooted_2 = true;
-                    shootTimerSwich()
+                    bullet.shootTimer_2.start()
                 }
             }
             Keys.onReleased:{
@@ -1687,8 +1473,8 @@ Item{
                 else if (event.key === Qt.Key_W) movingUp_P1 = false;
                 else if (event.key === Qt.Key_S) movingDown_P1 = false;
                 else if (event.key === Qt.Key_J){
-                    bullet.isShooted_1 = false;
-                    shootTimerSwich()
+                    //bullet.isShooted = false;
+                    bullet.shootTimer.stop()
                 }
                 //P2
                 if (event.key === Qt.Key_Left) movingLeft_P2 = false;
@@ -1696,10 +1482,17 @@ Item{
                 else if (event.key === Qt.Key_Up) movingUp_P2 = false;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = false;
                 else if (event.key === Qt.Key_0){
-                    bullet.isShooted_2 = false;
-                    shootTimerSwich()
+                    //bullet.isShooted_2 = false;
+                    bullet.shootTimer_2.stop()
                 }
             }
          }
+
+    Enemy{
+        id:enemys
+    }
+    Boom{
+        id:boom
+    }
 }
 

@@ -200,7 +200,13 @@ Item {
                 isShooted_1 = false
                 my_bullet_1.visible = false
                 content.enemys.enemys[i].visible = false
-                break;
+                if(content.enemys.enemys[i].visible === false){
+                    console.log("子弹爆炸")
+                    content.boom.enemyboom.visible = true
+                    content.boom.enemyboom.running = true
+                    break;
+                }
+                // break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.enemys[i].x
                     && my_bullet1_2.x<content.enemys.enemys[i].x + 65
@@ -209,7 +215,13 @@ Item {
 
                 my_bullet1_2.visible = false
                 content.enemys.enemys[i].visible = false
-                break;
+                if(content.enemys.enemys[i].visible === false){
+                    console.log("子弹爆炸")
+                    content.boom.enemyboom.visible = true
+                    content.boom.enemyboom.running = true
+                    break;
+                }
+                // break;
             }
             //我方玩家2击中普通敌机
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.enemys[i].x
@@ -219,7 +231,13 @@ Item {
 
                 my_bullet_2.visible = false
                 content.enemys.enemys[i].visible = false
-                break;
+                if(content.enemys.enemys[i].visible === false){
+                    console.log("子弹爆炸")
+                    content.boom.enemyboom.visible = true
+                    content.boom.enemyboom.running = true
+                    break;
+                }
+                // break;
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.enemys[i].x
                     && my_bullet2_2.x<content.enemys.enemys[i].x + 65
@@ -228,7 +246,13 @@ Item {
 
                 my_bullet2_2.visible = false
                 content.enemys.enemys[i].visible = false
-                break;
+                if(content.enemys.enemys[i].visible === false){
+                    console.log("子弹爆炸")
+                    content.boom.enemyboom.visible = true
+                    content.boom.enemyboom.running = true
+                    break;
+                }
+                // break;
             }
             //击中boss
             if(!enemys.bossAppeared){continue}
@@ -239,7 +263,14 @@ Item {
 
                 my_bullet_1.visible = false
                 bossbloodProgress1.value -=50                 //击中boss后boss血量减少
-                break;
+                if(bossbloodProgress1.value === 0){
+                    content.enemys.boss.visible = false
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+                    break;
+                }
+                // break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.boss.x
                     && my_bullet1_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -248,7 +279,14 @@ Item {
 
                 my_bullet1_2.visible = false
                 bossbloodProgress1.value -=50
-                break;
+                if(bossbloodProgress1.value === 0){
+                    content.enemys.boss.visible = false
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+                    break;
+                }
+                // break;
             }
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.boss.x
                     && my_bullet_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -257,7 +295,14 @@ Item {
 
                 my_bullet_2.visible = false
                 bossbloodProgress1.value -=50
-                break;
+                if(bossbloodProgress1.value === 0){
+                    content.enemys.boss.visible = false
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+                    break;
+                }
+                // break;
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.boss.x
                     && my_bullet2_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -266,7 +311,14 @@ Item {
 
                 my_bullet2_2.visible = false
                 bossbloodProgress1.value -=50
-                break;
+                if(bossbloodProgress1.value === 0){
+                    content.enemys.boss.visible = false
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+                    break;
+                }
+                // break;
             }
         }
     }
