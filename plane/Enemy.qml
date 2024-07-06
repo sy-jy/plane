@@ -159,9 +159,11 @@ Item {
     // Boss生成（先暂定为时间，之后会改为击败敌机数或者获得的score来生成boss）
     Timer {
         id: bossTime
-        interval: 10000  //10s
-        running: true
-        onTriggered: createBoss()
+        interval: 1000//10000  //10s
+        running: false
+        onTriggered: {
+            createBoss()
+        }
     }
 }
 

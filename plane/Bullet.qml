@@ -185,6 +185,11 @@ Item {
                 isShooted_1 = false
                 my_bullet_1.visible = false
                 content.enemys.enemys[i].visible = false
+                if(!isDouble){
+                    score1++
+                }else{
+                    score2++
+                }
                 break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.enemys[i].x
@@ -194,6 +199,11 @@ Item {
 
                 my_bullet1_2.visible = false
                 content.enemys.enemys[i].visible = false
+                if(!isDouble){
+                    score1++
+                }else{
+                    score2++
+                }
                 break;
             }
             //我方玩家2击中普通敌机
@@ -204,6 +214,11 @@ Item {
 
                 my_bullet_2.visible = false
                 content.enemys.enemys[i].visible = false
+                if(!isDouble){
+                    score1++
+                }else{
+                    score2++
+                }
                 break;
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.enemys[i].x
@@ -213,6 +228,11 @@ Item {
 
                 my_bullet2_2.visible = false
                 content.enemys.enemys[i].visible = false
+                if(!isDouble){
+                    score1++
+                }else{
+                    score2++
+                }
                 break;
             }
             //击中boss

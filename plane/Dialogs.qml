@@ -4,6 +4,7 @@ import QtQuick.Layouts
 
 Item {
     property alias victory: victory_Dialog
+    property alias victory2: victory2_Dialog
     property alias defeat: defeat_Dialog
     anchors.fill: parent
     property alias pause: _pause
@@ -15,6 +16,8 @@ Item {
     property alias bossAppearTimer:_boss_appearTimer                    //boss出场计时器
 
     property alias setting: setting
+
+    property alias closeTime:_closeTimer
 
     Dialog{
         id:setting
@@ -284,9 +287,10 @@ Item {
         }
         content.gameover_timer.start()
         enemys.gameTime.start()
-        enemys.bossTime.start()
-        dialogs.bossAppearTimer.start()
+        //enemys.bossTime.start()
+        //dialogs.bossAppearTimer.start()
         content.timer.start()
+        content.score1 =0
     }
 
     //暂停建点击触发的弹窗（重新开始 继续游戏 退出游戏 音效建）
@@ -356,7 +360,7 @@ Item {
         color:"dimgray"                 //设置为灰色背景
         opacity: 0.9                    //设置透明度
 
-        //游戏胜利弹窗
+        //简单模式游戏胜利弹窗
         Dialog{
             id:victory_Dialog
             width: 410
@@ -396,6 +400,39 @@ Item {
                     _blurRect.visible = false;
                     victory_Dialog.visible = false
                     }
+                }
+            }
+        }
+        //困难模式游戏胜利弹窗
+        Dialog{
+            id:victory2_Dialog
+            width: 410
+            height:210
+            closePolicy: Popup.NoAutoClose
+            background:Rectangle{               //设置弹窗背景透明
+                opacity: 0
+            }
+
+            anchors.centerIn: parent            //弹窗居中
+
+            contentItem: Column{
+                width: parent.width
+                height: parent.height
+                Image {
+                    source: "images/victory.png"
+                    width: 384
+                    height: 182
+                    anchors.centerIn: parent
+                }
+            }
+            Button{
+                text: "返回"
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                onClicked: {
+                    victory2_Dialog.visible = false;
+                    _blurRect.visible = false;
+                    returnhome()
                 }
             }
         }
@@ -470,11 +507,18 @@ Item {
 
     Timer{
         id:_boss_appearTimer
-        interval: 8000
+        interval: 16
         running: true
+        repeat: true
         onTriggered:{
-            _boss_appear.open()
-            _closeTimer.start()
+            if(score1 === 20){
+                _boss_appear.open()
+                _closeTimer.start()
+            }
+            if(score2 === 20){
+                _boss_appear.open()
+                _closeTimer.start()
+            }
         }
     }
     Timer{
@@ -483,6 +527,7 @@ Item {
         running: false
         onTriggered: {
             _boss_appear.close()
+            enemys.bossTime.start()
             _closeTimer.stop()
         }
     }

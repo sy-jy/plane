@@ -62,6 +62,11 @@ Item{
     property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
     property int itemUpdateCounter: 0
     // property alias blood: bloodSlider
+
+    //局内积分
+    property int score1: 0
+    property int score2: 0
+
     anchors.fill: parent
     //暂停游戏
     function stopGame(){
@@ -104,7 +109,7 @@ Item{
         map.visible = true      //地图显示
         timer.running = true    //开启计时器
         enemys.gameTime.start()
-        enemys.bossTime.start()
+        //enemys.bossTime.start()
         enemys.visible = true
         planeSet.visible = false
     }
@@ -948,7 +953,7 @@ Item{
                 //胜利
                 if(bossbloodProgress1.value === 0){
                     stopGame()
-                    dialogs.victory.open();
+                    easy.checked?dialogs.victory.open():dialogs.victory2.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_victoryMusic.play()
                     gameover_timer.stop();
@@ -966,7 +971,7 @@ Item{
                 //胜利
                 if(bossbloodProgress2.value === 0){
                     stopGame()
-                    dialogs.victory.open();
+                    easy.checked?dialogs.victory.open():dialogs.victory2.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_victoryMusic.play()
                     gameover_timer.stop();
@@ -978,7 +983,7 @@ Item{
     //碰撞检测
     Timer{
         id:_checkCollision
-        interval: 16
+        interval:16
         running: true
         repeat: true
         onTriggered: {
@@ -1037,7 +1042,7 @@ Item{
                         width: 70
                         color: "#00F215"
                         Text{
-                            text: qsTr("积分值")
+                            text: qsTr("积分值") + score1
                             anchors.centerIn: parent  //居中
                         }
                     }
@@ -1255,7 +1260,7 @@ Item{
                             width: 70
                             color: "#00F215"
                             Text{
-                                text: qsTr("积分值")
+                                text: qsTr("积分值")+ score2
                                 anchors.centerIn: parent
                             }
                         }
