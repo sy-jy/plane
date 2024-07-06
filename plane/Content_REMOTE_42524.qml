@@ -12,10 +12,9 @@ Item{
     property alias enemys: enemys
     property alias timer: timer
     property alias easy: easy
-    property alias boom: boom
-
     property alias gameover_timer: gameover_timer
     property alias bullet:bullet
+
 
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
@@ -939,7 +938,6 @@ Item{
                     gameover_timer.stop();
                 }
                 if(bossbloodProgress1.value === 0){
-                    // boom.startboom()
                     stopGame()
                     dialogs.victory.open();
                     dialogs.blurRect.visible = true;
@@ -1077,10 +1075,9 @@ Item{
                     onValueChanged:{
                         console.log("BOSS血量：",bossbloodProgress1.value)
                         //爆炸音效和爆炸动画
-                        // if(bossbloodProgress1.value === 0){
-                        //     boom.bossboom.running = true
-                        //     boom.bossboom.visible = true
-                        // }
+                        if(bossbloodProgress1 === 0){
+
+                        }
                     }
                     Text {
                         id: blood

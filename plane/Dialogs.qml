@@ -12,6 +12,7 @@ Item {
     property bool musicEnabled: true  // 用于跟踪音效状态的属性
 
     property alias blurRect:_blurRect
+    property alias bossAppearTimer:_boss_appearTimer                    //boss出场计时器
 
     property alias setting: setting
 
@@ -195,7 +196,7 @@ Item {
             }
         }
     }
-    function restartgame(){
+    function restartGame(){
         console.log("重新开始游戏")
         //重置我方战机位置
         myplane.plane_1_X = (window_Width-myplane.myplane_Width)/9
@@ -225,18 +226,36 @@ Item {
             for(i = 0;i<content.lifeModel_2.count;i++){
                 content.lifeModel_2.get(i).visible = true
             }
-
+            //重置boss血量条
+            content.bossbloodProgress2.visible = false
+            content.bossbloodProgress2.value = 1000
         }else{
             content.bloodProgress.value = myplane.blood
             for(i = 0;i<content.lifeModel.count;i++){
                 content.lifeModel.get(i).visible = true
             }
-
+            //重置boss血量条
+            content.bossbloodProgress1.visible = false
+            content.bossbloodProgress1.value = 1000
         }
+
+        //重置道具生成冷却时长
+        content.itemUpdateCounter = 0
+        items.item.visible = false
+
+        content.gameover_timer.start()
+
+        bullet.isShooted_boss = false
+        bullet.isShooted_enemy = false
+        bullet.enemy_bullet.visible = false
+        bullet.boss_bullet.visible = false
+        enemys.bossAppeared = false
         enemys.destroyEnemy()
         enemys.destroyBoss()
         enemys.gameTime.start()
         enemys.bossTime.start()
+        dialogs.bossAppearTimer.start()
+
         content.timer.start()
     }
 
@@ -257,7 +276,7 @@ Item {
                anchors.horizontalCenter: parent.horizontalCenter
                action: actions.restartAction
                onClicked: {
-                   restartgame()
+                   restartGame()
                    pause.close()
                }
             }
@@ -270,6 +289,8 @@ Item {
                    console.log("继续游戏")
                    myplane.shield_1_Timer.start()
                    myplane.shield_1_FadeAnimation.start()
+                   myplane.shield_2_Timer.start()
+                   myplane.shield_2_FadeAnimation.start()
                    enemys.gameTime.start()
                    enemys.bossTime.start()
                    content.timer.start()
@@ -307,6 +328,7 @@ Item {
             id:victory_Dialog
             width: 410
             height:210
+            closePolicy: Popup.NoAutoClose
             background:Rectangle{               //设置弹窗背景透明
                 opacity: 0
             }
@@ -349,6 +371,7 @@ Item {
             id:defeat_Dialog
             width: 410
             height: 210
+            closePolicy: Popup.NoAutoClose
             background:Rectangle{
                 opacity: 0
             }
@@ -381,10 +404,51 @@ Item {
                     onClicked: {
                         defeat_Dialog.visible = false;
                         _blurRect.visible = false;
-                        restartgame()
+                        restartGame()
+
                     }
                 }
             }
+        }
+    }
+
+    Dialog{
+        id:_boss_appear
+        width: 250
+        height: 50
+        focus: false
+        background:Rectangle{
+            opacity: 0
+        }
+        anchors.centerIn: parent
+        contentItem: Column{
+            width: parent.width
+            height: parent.height
+            Image {
+                source: "images/boss_2.png"
+                width: 240
+                height: 40
+                anchors.centerIn: parent
+            }
+        }
+    }
+
+    Timer{
+        id:_boss_appearTimer
+        interval: 8000
+        running: true
+        onTriggered:{
+            _boss_appear.open()
+            _closeTimer.start()
+        }
+    }
+    Timer{
+        id:_closeTimer
+        interval: 2000
+        running: false
+        onTriggered: {
+            _boss_appear.close()
+            _closeTimer.stop()
         }
     }
 }

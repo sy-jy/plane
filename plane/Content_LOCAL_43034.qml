@@ -14,9 +14,6 @@ Item{
     property alias easy: easy
     property alias boom: boom
 
-    property alias gameover_timer: gameover_timer
-    property alias bullet:bullet
-
     property alias currentIndexWSAD: plane.currentIndexWSAD
     property alias currentIndexArrows: plane.currentIndexArrows
     property bool condition: true
@@ -65,7 +62,7 @@ Item{
     anchors.fill: parent
     //暂停游戏
     function stopGame(){
-
+        dialogs.pause.open()
         timer.stop()//暂停游戏
         myplane.shield_1_Timer.stop()
         myplane.shield_1_FadeAnimation.stop()
@@ -76,7 +73,6 @@ Item{
         movingRight_P1 = false
         movingUp_P1 = false
         movingDown_P1 = false
-        bullet.isShooted_1 = false
         if(isDouble){
             myplane.shield_2_Timer.stop()
             myplane.shield_2_FadeAnimation.stop()
@@ -84,57 +80,10 @@ Item{
             movingRight_P2 = false
             movingUp_P2 = false
             movingDown_P2 = false
-            bullet.isShooted_2 = false
         }
-        shootTimerSwich()
         console.log("暂停建已激活，跳出弹窗")
     }
 
-    //开始游戏
-    function startGame(){
-        bgm.gameMusic.play()
-        console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
-        map.visible = true      //地图显示
-        timer.running = true    //开启计时器
-        enemys.gameTime.start()
-        enemys.bossTime.start()
-        enemys.visible = true
-        planeSet.visible = false
-    }
-
-    function shootTimerSwich(){
-        if(bullet.isShooted_1){
-            bullet.shootTimer_1.start()
-        }else{
-            bullet.shootTimer_1.stop()
-        }
-        if(bullet.isShooted_2){
-            bullet.shootTimer_2.start()
-        }else{
-            bullet.shootTimer_2.stop()
-        }
-    }
-    Map{
-        id:map
-    }
-    Bullet{
-        id:bullet
-    }
-    Myplane{
-        id:myplane
-    }
-    Enemy{
-        id:enemys
-    }
-    Boom{
-        id:boom
-    }
-    Items{
-        id:items
-    }
-    Dialogs{
-        id:dialogs
-    }
     //模式选择
     ColumnLayout{
 
@@ -422,17 +371,11 @@ Item{
         //游戏主页大厅标题
         Text {
             Layout.alignment: Qt.AlignHCenter
-
             text: qsTr("飞机大战")
             font.letterSpacing: 20
             font.pointSize: 40
             color: "black"
         }
-
-        // Image{
-        //     Layout.alignment: Qt.AlignHCenter
-        //     source: "images/"
-        // }
 
         //按钮垂直排序
         Column{
@@ -565,6 +508,23 @@ Item{
           }
       }
     }
+
+    Map{
+        id:map
+    }
+    Myplane{
+        id:myplane
+    }
+    Bullet{
+        id:bullet
+    }
+    Items{
+        id:items
+    }
+    Dialogs{
+        id:dialogs
+    }
+
     //玩家飞机样式选择
     ColumnLayout{
         id: planeSet
@@ -731,6 +691,16 @@ Item{
                     }
                 }
             }
+            function startgame(){
+                bgm.gameMusic.play()
+                console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
+                map.visible = true      //地图显示
+                timer.running = true    //开启计时器
+                enemys.gameTime.start()
+                enemys.bossTime.start()
+                enemys.visible = true
+            }
+
             Keys.onSpacePressed: {
                 console.log("Selected index WSAD: ", plane.currentIndexWSAD)
                 console.log("Selected index Arrows: ", plane.currentIndexArrows)
@@ -740,7 +710,7 @@ Item{
                     myplane_2_path = "./images/"+model.get(plane.currentIndexArrows).imagePath//传递出玩家2选中的战机图片源
                     console.log("Selected P1 source: ",myplane_1_path)
                     console.log("Selected P2 source: ",myplane_2_path)
-                    startGame()
+                    startgame()
                     bloodProgress_1.value = myplane.blood
                     bloodProgress_2.value = myplane.blood
                     myplane.doubleplayer()  //显示双人飞机
@@ -752,7 +722,7 @@ Item{
                 //单人
                 if(!showDualSelection&&plane.currentIndexWSAD!==-1){
                     myplane_1_path = "./images/"+model.get(plane.currentIndexWSAD).imagePath//传递出玩家1选中的战机图片源
-                    startGame()
+                    startgame()
                     bloodProgress.value = myplane.blood
                     myplane.singleplayer()  //显示单人飞机
                     myplane.shield_1.activateShield()//开局护盾
@@ -798,9 +768,7 @@ Item{
             enemys.updateGame()
             // 更新道具位置计数器
             itemUpdateCounter++
-            // console.log(itemUpdateCounter)
             if (itemUpdateCounter >= itemUpdateInterval) {
-                // console.log("道具生成")
                 items.item.setPosition() // 测试获得道具
                 itemUpdateCounter = 0 // 重置计数器
             }
@@ -815,16 +783,11 @@ Item{
 
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
                 // console.log(myplane.isAccelerate_1)//检测是否加速
-                if(bullet.isShooted_1){
+                if(bullet.isShooted){
                     //发射
                     bullet.shoot()
                 }else{
                     //未发射时跟随飞机移动
-                    bullet.updateMybulletPosition1()
-                }
-                if(bullet.isShooted_mid){
-                    bullet.shoot_mid()
-                }else{
                     bullet.updateMybulletPosition1()
                 }
 
@@ -842,15 +805,14 @@ Item{
                     bullet.updateEnemybulletPosition()
                 }
                 //敌方boss子弹发射判定
-                if(enemys.bossAppeared){
-                    if(enemys.boss.y ===0){
-                        // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
-                    }
-                    if(bullet.isShooted_boss === false){
-                        bullet.updateEnemyBossbulletPosition()
-                    }
+                if(enemys.boss.y ===0){
+                    // bullet.iShooted_boss = true
+                    bullet.shoot_boss()
                 }
+                if(bullet.isShooted_boss === false){
+                    bullet.updateEnemyBossbulletPosition()
+                }
+
                 items.item.move()//道具移动
                 items.item.got()//道具获得
             }else{
@@ -862,8 +824,8 @@ Item{
 
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
-                if(bullet.isShooted_1){
-                    //发射
+                if(bullet.isShooted){
+                    //玩家1发射
                     items.item.setPosition()//测试获得道具
                     bullet.shoot()
                 }else{
@@ -873,16 +835,6 @@ Item{
                 //玩家2发射
                 if(bullet.isShooted_2){
                     bullet.shoot2()
-                }else{
-                    bullet.updateMybulletPosition2()
-                }
-                if(bullet.isShooted_mid){
-                    bullet.shoot_mid()
-                }else{
-                    bullet.updateMybulletPosition1()
-                }
-                if(bullet.isShooted_mid2){
-                    bullet.shoot_mid2()
                 }else{
                     bullet.updateMybulletPosition2()
                 }
@@ -897,14 +849,12 @@ Item{
                     bullet.updateEnemybulletPosition()
                 }
                 //敌方boss子弹发射判定
-                if(enemys.bossAppeared){
-                    if(enemys.boss.y ===0){
-                        // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
-                    }
-                    if(bullet.isShooted_boss === false){
-                        bullet.updateEnemyBossbulletPosition()
-                    }
+                if(enemys.boss.y===0){
+                    //bullet.iShooted_boss = true
+                    bullet.shoot_boss()
+                }
+                if(bullet.isShooted_boss === false){
+                    bullet.updateEnemyBossbulletPosition()
                 }
 
                 items.item.move()//道具移动
@@ -931,35 +881,19 @@ Item{
         onTriggered: {
             //单人游戏界面
             if(!isDouble){
-                if(!myplane.isSurvive_1){
-                    stopGame()
+                if(bloodProgress/*bossbloodProgress1*/.value === 0){
                     dialogs.defeat.open();
+                    // dialogs.victory.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
-                    gameover_timer.stop();
-                }
-                if(bossbloodProgress1.value === 0){
-                    // boom.startboom()
-                    stopGame()
-                    dialogs.victory.open();
-                    dialogs.blurRect.visible = true;
-                    bgm.game_victoryMusic.play()
                     gameover_timer.stop();
                 }
             }else{
                 //双人游戏界面
-                if(!myplane.isSurvive_1 && !myplane.isSurvive_2){
-                    stopGame()
+                if(bloodProgress_1.value === 0 &&bloodProgress_2.value === 0){
                     dialogs.defeat.open();
                     dialogs.blurRect.visible = true;
                     bgm.game_defeatMusic.play()
-                    gameover_timer.stop();
-                }
-                if(bossbloodProgress2.value === 0){
-                    stopGame()
-                    dialogs.victory.open();
-                    dialogs.blurRect.visible = true;
-                    bgm.game_victoryMusic.play()
                     gameover_timer.stop();
                 }
             }
@@ -1077,10 +1011,9 @@ Item{
                     onValueChanged:{
                         console.log("BOSS血量：",bossbloodProgress1.value)
                         //爆炸音效和爆炸动画
-                        // if(bossbloodProgress1.value === 0){
-                        //     boom.bossboom.running = true
-                        //     boom.bossboom.visible = true
-                        // }
+                        if(bossbloodProgress1 === 0){
+
+                        }
                     }
                     Text {
                         id: blood
@@ -1089,8 +1022,14 @@ Item{
                         font.pointSize:  15
                         textFormat: Text.StyledText
                     }
+
                 }
+
+
             }
+
+
+
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
                 id: pause1
@@ -1102,7 +1041,6 @@ Item{
                 anchors.right: parent.right
                 onClicked: {
                     stopGame()
-                    dialogs.pause.open()
                 }
             }
         }
@@ -1150,11 +1088,6 @@ Item{
                             bloodProgress.value = myplane.blood
                             myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
                         }
-                        if(bloodProgress.value===0&&remainlife_1===0){
-                            console.log("die")
-                            myplane.isSurvive_1 = false
-                            // myplane.myplane_1.visible = false
-                        }
                     }
                 }
                 Text {
@@ -1173,8 +1106,8 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = true;
             else if (event.key === Qt.Key_S) movingDown_P1 = true;
             else if (event.key === Qt.Key_J){
-                bullet.isShooted_1 = true;//攻击
-                shootTimerSwich()
+                bullet.isShooted = true;//攻击
+                bullet.shootTimer.start()
             }
         }
 
@@ -1184,7 +1117,7 @@ Item{
             else if (event.key === Qt.Key_W) movingUp_P1 = false;
             else if (event.key === Qt.Key_S) movingDown_P1 = false;
             else if (event.key === Qt.Key_J){
-                bullet.shootTimer_1.stop()
+                bullet.shootTimer.stop()
             }
         }
     }
@@ -1337,11 +1270,9 @@ Item{
                     font.bold: true
                     anchors.right: parent.right
                     onClicked:{
-                        stopGame()
-                        dialogs.pause.open()
-
+                            stopGame()
+                        }
                     }
-                }
             }
 
             //P1 P2
@@ -1356,8 +1287,7 @@ Item{
                     anchors.bottom: parent.bottom
                     padding: 5
                     Row{
-                        spacing:2 ;
-                        padding: 2
+                        spacing:2 ;padding: 2
                         ListModel {
                             id: lifeModel_1
                             ListElement { visible: true}
@@ -1418,9 +1348,6 @@ Item{
                                         bloodProgress_1.value = myplane.blood
                                         myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
                                     }
-                                    if(bloodProgress_1.value===0&&remainlife_1===0){
-                                        myplane.isSurvive_1 = false
-                                    }
                                 }
                             }
                         Text {
@@ -1439,8 +1366,7 @@ Item{
                     anchors.bottom: parent.bottom
                     padding: 5
                     Row{
-                        spacing:2 ;
-                        padding:2
+                        spacing:2 ; padding: 2
                         ListModel {
                             id: lifeModel_2
                             ListElement { visible: true}
@@ -1501,9 +1427,6 @@ Item{
                                         bloodProgress_2.value = myplane.blood
                                         myplane.shield_2.activateShield()//失去一条命，护盾无敌时间
                                     }
-                                    if(bloodProgress_2.value===0&&remainlife_2===0){
-                                        myplane.isSurvive_2 = false
-                                    }
                                 }
                             }
                         Text {
@@ -1528,8 +1451,9 @@ Item{
                 else if (event.key === Qt.Key_W) movingUp_P1 = true;
                 else if (event.key === Qt.Key_S) movingDown_P1 = true;
                 else if (event.key === Qt.Key_J) {
-                    bullet.isShooted_1 = true;//攻击
-                    shootTimerSwich()
+                    bullet.isShooted = true;//攻击
+                    bullet.shootTimer.start()
+                    items.item.setPosition()
                 }
 
                 //P2
@@ -1539,7 +1463,7 @@ Item{
                 else if (event.key === Qt.Key_Down) movingDown_P2 = true;
                 else if (event.key === Qt.Key_0){
                     bullet.isShooted_2 = true;
-                    shootTimerSwich()
+                    bullet.shootTimer_2.start()
                 }
             }
             Keys.onReleased:{
@@ -1549,8 +1473,8 @@ Item{
                 else if (event.key === Qt.Key_W) movingUp_P1 = false;
                 else if (event.key === Qt.Key_S) movingDown_P1 = false;
                 else if (event.key === Qt.Key_J){
-                    bullet.isShooted_1 = false;
-                    shootTimerSwich()
+                    //bullet.isShooted = false;
+                    bullet.shootTimer.stop()
                 }
                 //P2
                 if (event.key === Qt.Key_Left) movingLeft_P2 = false;
@@ -1558,10 +1482,17 @@ Item{
                 else if (event.key === Qt.Key_Up) movingUp_P2 = false;
                 else if (event.key === Qt.Key_Down) movingDown_P2 = false;
                 else if (event.key === Qt.Key_0){
-                    bullet.isShooted_2 = false;
-                    shootTimerSwich()
+                    //bullet.isShooted_2 = false;
+                    bullet.shootTimer_2.stop()
                 }
             }
          }
+
+    Enemy{
+        id:enemys
+    }
+    Boom{
+        id:boom
+    }
 }
 
