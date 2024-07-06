@@ -20,6 +20,10 @@ Item {
     property bool isShooted_boss:false               //boss子弹发射情况
     property bool ammo1: false
     property bool ammo2: false
+    property bool isHit_1: false
+    property bool isHit_2: false
+    property bool isBossHit_1: false
+    property bool isBossHit_2: false
 
     property alias enemy_bullet: _enemy_bullet
     property alias boss_bullet: _boss_bullet
@@ -276,11 +280,7 @@ Item {
                 && _enemy_bullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height){
             _enemy_bullet.visible = false
             if(!myplane.isShield_1){
-                if(!isDouble){
-                    bloodProgress.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
-                }else{
-                    bloodProgress_1.value -=10                  //双人模式：普通敌机子弹击中我方玩家1之后，玩家1血量减少
-                }
+                isHit_1 = true
             }
         }
         if(_enemy_bullet.x + _enemy_bullet.width > content.myplane.myplane_2.x
@@ -289,7 +289,7 @@ Item {
                 && _enemy_bullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height){
             _enemy_bullet.visible = false
             if(!myplane.isShield_2){
-                bloodProgress_2.value -=10          //双人模式：普通敌机子弹击中我方玩家2之后，玩家2血量减少
+                isHit_2 = true          //双人模式：普通敌机子弹击中我方玩家2之后，玩家2血量减少
             }
         }
         if(enemys.bossAppeared){
@@ -300,11 +300,7 @@ Item {
                     && _boss_bullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height){
                 _boss_bullet.visible = false
                 if(!myplane.isShield_1){
-                    if(!isDouble){
-                        bloodProgress.value -=50                    //单人模式：boss子弹击中后，我方血量减少
-                    }else{
-                        bloodProgress_1.value -=50                  //双人模式：boss子弹击中我方玩家1之后，玩家1血量减少
-                    }
+                    isBossHit_1 = true
                 }
             }
             if(_boss_bullet.x + _boss_bullet.width > content.myplane.myplane_2.x
@@ -313,7 +309,7 @@ Item {
                     && _boss_bullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height){
                 _boss_bullet.visible = false
                 if(!myplane.isShield_2){
-                    bloodProgress_2.value -=50          //双人模式：boss子弹击中我方玩家2之后，玩家2血量减少
+                    isBossHit_2 = true          //双人模式：boss子弹击中我方玩家2之后，玩家2血量减少
                 }
             }
         }

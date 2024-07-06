@@ -61,7 +61,6 @@ Item{
     //道具生成
     property int itemUpdateInterval: 5 * desiredFramesPerSecond // 5秒更新一次
     property int itemUpdateCounter: 0
-    // property alias blood: bloodSlider
     anchors.fill: parent
     //暂停游戏
     function stopGame(){
@@ -794,6 +793,10 @@ Item{
             Layout.alignment: Qt.AlignHCenter
         }
     }
+    property int hitCooldown_1: 0
+    property int hitBossCooldown_1: 0
+    property int hitCooldown_2: 0
+    property int hitBossCooldown_2: 0
     //刷新画面
     Timer{
         id: timer
@@ -811,9 +814,7 @@ Item{
 
             // 更新道具位置计数器
             itemUpdateCounter++
-            // console.log(itemUpdateCounter)
             if (itemUpdateCounter >= itemUpdateInterval) {
-                // console.log("道具生成")
                 items.item.setPosition() // 测试获得道具
                 itemUpdateCounter = 0 // 重置计数器
             }
@@ -821,10 +822,10 @@ Item{
             if(!isDouble){
                 //单人
                 //敌机血量条测试（时间的判断）
-                if(enemys.boss){
-                    // bossblood.visible =true
-                    bossbloodProgress1.value-=0.4
-                }
+                // if(enemys.boss){
+                //     // bossblood.visible =true
+                //     bossbloodProgress1.value-=0.4
+                // }
 
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
                 // console.log(myplane.isAccelerate_1)//检测是否加速
@@ -840,10 +841,6 @@ Item{
                 // }else{
                 //     bullet.updateMybulletPosition1()
                 // }
-
-                if(!myplane.isShield_1){//测试护盾
-                    bloodProgress.value-=0.3//测试血量条
-                }
                 //遍历敌机数组，判定敌机出场开始射击子弹
                 for(var i = 0;i<enemys.enemys.length;i++){
                     if(enemys.enemys[i].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
@@ -866,6 +863,54 @@ Item{
                 }
                 items.item.move()//道具移动
                 items.item.got()//道具获得
+
+                // 在计时器的每次触发时减少冷却时间
+                if(hitCooldown_1 > 0){
+                    hitCooldown_1--;
+                }
+                if(hitCooldown_1 <= 0 && bullet.isHit_1){
+                    bloodProgress.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
+                    if(bloodProgress.value===0&&remainlife_1!==0){
+                        if(dialogs.musicEnabled){//开启了音效
+                            bgm.life_loseMusic.play()//失去生命的音效
+                        }
+
+                        remainlife_1--;
+                        lifeModel.get(remainlife_1).visible= false
+                        bloodProgress.value = myplane.blood
+                        myplane.startBomb()
+                    }
+                    if(bloodProgress.value===0&&remainlife_1===0){
+                        console.log("die")
+                        myplane.isSurvive_1 = false
+                        // myplane.myplane_1.visible = false
+                    }
+                    bullet.isHit_1 = false
+                    hitCooldown_1 = 10 // 设置冷却时间为10帧
+                }
+                if(hitBossCooldown_1 > 0){
+                    hitBossCooldown_1--;
+                }
+                if(hitBossCooldown_1 <= 0 &&bullet.isBossHit_1){
+                    bloodProgress.value -=50
+                    if(bloodProgress.value===0&&remainlife_1!==0){
+                        if(dialogs.musicEnabled){//开启了音效
+                            bgm.life_loseMusic.play()//失去生命的音效
+                        }
+                        remainlife_1--;
+                        lifeModel.get(remainlife_1).visible= false
+                        bloodProgress.value = myplane.blood
+                        // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                        myplane.startBomb()
+                    }
+                    if(bloodProgress.value===0&&remainlife_1===0){
+                        console.log("die")
+                        myplane.isSurvive_1 = false
+                        // myplane.myplane_1.visible = false
+                    }
+                    bullet.isBossHit_1 = false
+                    hitBossCooldown_1 = 60 // 设置冷却时间为60帧
+                }
             }else{
                 //双人
                 //敌机血量条测试（时间的判断）
@@ -921,14 +966,95 @@ Item{
 
                 items.item.move()//道具移动
                 items.item.got()//道具获得
-                if(!myplane.isShield_1){//测试护盾
-                    bloodProgress_1.value-=0.3//测试血量条
+                // 在计时器的每次触发时减少冷却时间
+                if(hitCooldown_1 > 0){
+                    hitCooldown_1--;
                 }
-                // bloodProgress_1.value-=1//测试血量条
-                if(!myplane.isShield_2){//测试护盾
-                    bloodProgress_2.value-=0.1//测试血量条
+                if(hitCooldown_1 <= 0 && bullet.isHit_1){
+                    bloodProgress_1.value -=10                    //单人模式：普通敌机子弹击中后，我方血量减少
+                    if(bloodProgress_1.value===0&&remainlife_1!==0){
+                        if(dialogs.musicEnabled){//开启了音效
+                            bgm.life_loseMusic.play()//失去生命的音效
+                        }
+
+                        remainlife_1--;
+                        lifeModel.get(remainlife_1).visible= false
+                        bloodProgress_1.value = myplane.blood
+                        myplane.startBomb()
+                    }
+                    if(bloodProgress_1.value===0&&remainlife_1===0){
+                        console.log("die")
+                        myplane.isSurvive_1 = false
+                        // myplane.myplane_1.visible = false
+                    }
+                    bullet.isHit_1 = false
+                    hitCooldown_1 = 10 // 设置冷却时间为10帧
                 }
-                // bloodProgress_2.value-=0.5//测试血量条
+                if(hitBossCooldown_1 > 0){
+                    hitBossCooldown_1--;
+                }
+                if(hitBossCooldown_1 <= 0 &&bullet.isBossHit_1){
+                    bloodProgress_1.value -=50
+                    if(bloodProgress_1.value===0&&remainlife_1!==0){
+                        if(dialogs.musicEnabled){//开启了音效
+                            bgm.life_loseMusic.play()//失去生命的音效
+                        }
+                        remainlife_1--;
+                        lifeModel.get(remainlife_1).visible= false
+                        bloodProgress_1.value = myplane.blood
+                        myplane.startBomb()
+                    }
+                    if(bloodProgress_1.value===0&&remainlife_1===0){
+                        console.log("die")
+                        myplane.isSurvive_1 = false
+                    }
+                    bullet.isBossHit_1 = false
+                    hitBossCooldown_1 = 60 // 设置冷却时间为60帧
+                }
+
+                // 在计时器的每次触发时减少冷却时间
+                if(hitCooldown_2 > 0){
+                    hitCooldown_2--;
+                }
+                if(hitCooldown_2 <= 0 && bullet.isHit_2){
+                    bloodProgress_2.value -=10
+                    if(bloodProgress_2.value===0&&remainlife_2!==0){
+                        if(dialogs.musicEnabled){//开启了音效
+                            bgm.life_loseMusic.play()//失去生命的音效
+                        }
+                        remainlife_2--;
+                        lifeModel.get(remainlife_2).visible= false
+                        bloodProgress_2.value = myplane.blood
+                        myplane.startBomb()
+                    }
+                    if(bloodProgress_2.value===0&&remainlife_2===0){
+                        console.log("die")
+                        myplane.isSurvive_2 = false
+                    }
+                    bullet.isHit_2 = false
+                    hitCooldown_2 = 10 // 设置冷却时间为10帧
+                }
+                if(hitBossCooldown_2 > 0){
+                    hitBossCooldown_2--;
+                }
+                if(hitBossCooldown_2 <= 0 &&bullet.isBossHit_2){
+                    bloodProgress_2.value -=50
+                    if(bloodProgress_2.value===0&&remainlife_2!==0){
+                        if(dialogs.musicEnabled){//开启了音效
+                            bgm.life_loseMusic.play()//失去生命的音效
+                        }
+                        remainlife_2--;
+                        lifeModel.get(remainlife_2).visible= false
+                        bloodProgress_2.value = myplane.blood
+                        myplane.startBomb()
+                    }
+                    if(bloodProgress_2.value===0&&remainlife_2===0){
+                        console.log("die")
+                        myplane.isSurvive_2 = false
+                    }
+                    bullet.isBossHit_2 = false
+                    hitBossCooldown_2 = 60 // 设置冷却时间为60帧
+                }
             }
         }
     }
@@ -1092,7 +1218,7 @@ Item{
                         color: "gray" // 进度条背景的颜色
                     }
                     onValueChanged:{
-                        console.log("BOSS血量：",bossbloodProgress1.value)
+                        // console.log("BOSS血量：",bossbloodProgress1.value)
                         //爆炸音效和爆炸动画
                         if(bossbloodProgress1 === 0){
 
@@ -1157,26 +1283,26 @@ Item{
                         radius: 20
                         color: "gray" // 进度条背景的颜色
                     }
-                    onValueChanged: {
-                        // 添加血量变化的逻辑
-                        console.log("当前血量：", bloodProgress.value)
-                        if(bloodProgress.value===0&&remainlife_1!==0){
-                            if(dialogs.musicEnabled){//开启了音效
-                                bgm.life_loseMusic.play()//失去生命的音效
-                            }
+                    // onValueChanged: {
+                    //     // 添加血量变化的逻辑
+                    //     console.log("当前血量：", bloodProgress.value)
+                    //     if(bloodProgress.value===0&&remainlife_1!==0){
+                    //         if(dialogs.musicEnabled){//开启了音效
+                    //             bgm.life_loseMusic.play()//失去生命的音效
+                    //         }
 
-                            remainlife_1--;
-                            lifeModel.get(remainlife_1).visible= false
-                            bloodProgress.value = myplane.blood
-                            // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
-                            myplane.startBomb()
-                        }
-                        if(bloodProgress.value===0&&remainlife_1===0){
-                            console.log("die")
-                            myplane.isSurvive_1 = false
-                            // myplane.myplane_1.visible = false
-                        }
-                    }
+                    //         remainlife_1--;
+                    //         lifeModel.get(remainlife_1).visible= false
+                    //         bloodProgress.value = myplane.blood
+                    //         // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
+                    //         myplane.startBomb()
+                    //     }
+                    //     if(bloodProgress.value===0&&remainlife_1===0){
+                    //         console.log("die")
+                    //         myplane.isSurvive_1 = false
+                    //         // myplane.myplane_1.visible = false
+                    //     }
+                    // }
                 }
                 Text {
                     id: _player
@@ -1416,7 +1542,7 @@ Item{
                                 }
                                 onValueChanged: {
                                     // 添加血量变化的逻辑
-                                    console.log("当前血量：", bloodProgress_1.value)
+                                    // console.log("当前血量：", bloodProgress_1.value)
                                     if(bloodProgress_1.value===0&&remainlife_1!==0){
                                         if(dialogs.musicEnabled){//开启了音效
                                             bgm.life_loseMusic.play()//失去生命的音效
@@ -1497,22 +1623,22 @@ Item{
                                     radius: 20
                                     color: "gray" // 进度条背景的颜色
                                 }
-                                onValueChanged: {
-                                    // 添加血量变化的逻辑
-                                    console.log("当前血量：", bloodProgress_2.value)
-                                    if(bloodProgress_2.value===0&&remainlife_2!==0){
-                                        if(dialogs.musicEnabled){//开启了音效
-                                            bgm.life_loseMusic.play()//失去生命的音效
-                                        }
-                                        remainlife_2--;
-                                        lifeModel_2.get(remainlife_2).visible= false
-                                        bloodProgress_2.value = myplane.blood
-                                        myplane.startBomb()
-                                    }
-                                    if(bloodProgress_2.value===0&&remainlife_2===0){
-                                        myplane.isSurvive_2 = false
-                                    }
-                                }
+                                // onValueChanged: {
+                                //     // 添加血量变化的逻辑
+                                //     // console.log("当前血量：", bloodProgress_2.value)
+                                //     if(bloodProgress_2.value===0&&remainlife_2!==0){
+                                //         if(dialogs.musicEnabled){//开启了音效
+                                //             bgm.life_loseMusic.play()//失去生命的音效
+                                //         }
+                                //         remainlife_2--;
+                                //         lifeModel_2.get(remainlife_2).visible= false
+                                //         bloodProgress_2.value = myplane.blood
+                                //         myplane.startBomb()
+                                //     }
+                                //     if(bloodProgress_2.value===0&&remainlife_2===0){
+                                //         myplane.isSurvive_2 = false
+                                //     }
+                                // }
                             }
                         Text {
                             id: _player2text
