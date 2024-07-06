@@ -59,7 +59,7 @@ Item{
     property alias lifeModel_2: lifeModel_2
 
     //道具生成
-    property int itemUpdateInterval: 10 * desiredFramesPerSecond // 5秒更新一次
+    property int itemUpdateInterval: 5 * desiredFramesPerSecond // 5秒更新一次
     property int itemUpdateCounter: 0
     // property alias blood: bloodSlider
     anchors.fill: parent
@@ -73,6 +73,7 @@ Item{
         }
         enemys.gameTime.stop()
         enemys.bossTime.stop()
+
         //重置移动状态（如果不重置松开按钮前点暂停会导致下一次点击移动松开前飞机一直移动）
         movingLeft_P1 = false
         movingRight_P1 = false
@@ -101,7 +102,7 @@ Item{
     function startGame(){
         bgm.gameMusic.play()
         console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
-        map.visible = true      //地图显示
+        mapNext.visible = true      //地图显示
         timer.running = true    //开启计时器
         enemys.gameTime.start()
         enemys.bossTime.start()
@@ -122,7 +123,7 @@ Item{
         }
     }
     Map{
-        id:map
+        id:mapNext
     }
     Bullet{
         id:bullet
@@ -232,12 +233,17 @@ Item{
 
             //地图选择
             // 按钮
+
             Rectangle{
                 clip: true
                 width: 200
                 height:40
                 ComboBox {
                     id:control
+                    function mapNext(){
+                        mapmodel.currentIndex = (mapmodel.currentIndex+1)%(model.count-1)
+                        map_path = "./images/"+model.get(mapmodel.currentIndex).mapPath
+                    }
                     background:Rectangle{
                         implicitWidth: 200
                         implicitHeight: 40
@@ -257,7 +263,7 @@ Item{
                     // 定义您的模型，不包括 "随机" 元素
                     model: ListModel{
                         ListElement{
-                            text:" 戈壁"
+                            text:" 公路"
                             mapPath: "map1.png" }
                         ListElement{
                             text:" 雨林"
@@ -796,7 +802,7 @@ Item{
         running: false
         onTriggered:
         {
-            map.updateMap()
+            mapNext.updateMap()
             enemys.updateEnemys()
             enemys.updateGame()
             if(myplane.bomb.y === -400){
@@ -829,11 +835,11 @@ Item{
                     //未发射时跟随飞机移动
                     bullet.updateMybulletPosition1()
                 }
-                if(bullet.isShooted_mid){
-                    bullet.shoot_mid()
-                }else{
-                    bullet.updateMybulletPosition1()
-                }
+                // if(bullet.isShooted_mid){
+                //     bullet.shoot_mid()
+                // }else{
+                //     bullet.updateMybulletPosition1()
+                // }
 
                 if(!myplane.isShield_1){//测试护盾
                     bloodProgress.value-=0.3//测试血量条
@@ -882,16 +888,16 @@ Item{
                 }else{
                     bullet.updateMybulletPosition2()
                 }
-                if(bullet.isShooted_mid){
-                    bullet.shoot_mid()
-                }else{
-                    bullet.updateMybulletPosition1()
-                }
-                if(bullet.isShooted_mid2){
-                    bullet.shoot_mid2()
-                }else{
-                    bullet.updateMybulletPosition2()
-                }
+                // if(bullet.isShooted_mid){
+                //     bullet.shoot_mid()
+                // }else{
+                //     bullet.updateMybulletPosition1()
+                // }
+                // if(bullet.isShooted_mid2){
+                //     bullet.shoot_mid2()
+                // }else{
+                //     bullet.updateMybulletPosition2()
+                // }
                 //遍历敌机数组，判定敌机出场开始射击子弹
                 for(var j = 0;j<enemys.enemys.length;j++){
                     if(enemys.enemys[j].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
@@ -1104,15 +1110,19 @@ Item{
             //暂停图标（会放标签图），点击暂停会弹出对话框
             Button{
                 id: pause1
-                text: " 暂停 "
-                height: 50
-                width: 50
-                font.pointSize:8
-                font.bold: true
+                // text: " 暂停 "
+                icon.name:"media-playback-pause"
+                flat:true
+                height: 35
+                width: 45
+                // font.pointSize:8
+                // font.bold: true
                 anchors.right: parent.right
                 onClicked: {
-                    stopGame()
-                    dialogs.pause.open()
+                    if(dialogs.blurRect.visible === false){
+                        stopGame()
+                        dialogs.pause.open()
+                    }
                 }
             }
         }
@@ -1326,15 +1336,18 @@ Item{
                 //暂停图标（会放标签图），点击暂停会弹出对话框
                 Button{
                     id: pause2
-                    text: qsTr(" 暂停 ")
-                    height: 50; width: 50
-                    font.pointSize:8
-                    font.bold: true
+                    icon.name:"media-playback-pause"
+                    flat:true
+                    height: 35
+                    width: 45
+                    // font.pointSize:8
+                    // font.bold: true
                     anchors.right: parent.right
-                    onClicked:{
-                        stopGame()
-                        dialogs.pause.open()
-
+                    onClicked: {
+                        if(dialogs.blurRect.visible === false){
+                            stopGame()
+                            dialogs.pause.open()
+                        }
                     }
                 }
             }

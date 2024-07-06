@@ -18,6 +18,8 @@ Item {
     property bool isShooted_mid2: false             //玩家2拾取道具后新增子弹样式发射情况
     property bool isShooted_enemy: false            //敌机子弹发射情况
     property bool isShooted_boss:false               //boss子弹发射情况
+    property bool ammo1: false
+    property bool ammo2: false
 
     property alias enemy_bullet: _enemy_bullet
     property alias boss_bullet: _boss_bullet
@@ -53,8 +55,8 @@ Item {
             my_bullet_1.y = content.myplane.myplane_1.y;
             my_bullet_1.visible = false
 
-            my_bullet_mid.x = content.myplane.myplane_1.x + window_Height*2/25;
-            my_bullet_mid.y = content.myplane.myplane_1.y;
+            my_bullet_mid.x = content.myplane.myplane_1.x + content.myplane.myplane_1.width/2 - my_bullet_mid.width/2;//中间子弹位置调整
+            my_bullet_mid.y = content.myplane.myplane_1.y - my_bullet_mid.height/4;
             my_bullet_mid.visible = false
 
             my_bullet1_2.x = content.myplane.myplane_1.x + window_Height*3/25;
@@ -70,8 +72,8 @@ Item {
             my_bullet_2.y = content.myplane.myplane_2.y;
             my_bullet_2.visible = false
 
-            my_bullet_mid2.x = content.myplane.myplane_2.x + window_Height*2/25;
-            my_bullet_mid2.y = content.myplane.myplane_2.y;
+            my_bullet_mid2.x = content.myplane.myplane_2.x + content.myplane.myplane_2.width/2 - my_bullet_mid2.width/2;//中间子弹位置调整
+            my_bullet_mid2.y = content.myplane.myplane_2.y - my_bullet_mid2.height/4;
             my_bullet_mid2.visible = false
 
             my_bullet2_2.x = content.myplane.myplane_2.x + window_Height*3/25;
@@ -105,36 +107,41 @@ Item {
 
         my_bullet1_2.visible = true
         my_bullet1_2.y -=my_bulletSpeed;
-
         isShooted_1 = true; // 设置为true，表示子弹正在飞行中
+
+        if(ammo1){
+            my_bullet_mid.visible = true
+            my_bullet_mid.y -=my_bulletSpeed;
+        }
 
         if(my_bullet_1.y + my_bullet_1.height< 0){
             isShooted_1 = false
         }
     }
 
-    //获取道具后增加的子弹样式1
-    //玩家1
-    function shoot_mid(){
+    // //获取道具后增加的子弹样式1
+    // //玩家1
+    // function shoot_mid(){
 
-        my_bullet_mid.visible = true
-        my_bullet_mid.y -=my_bulletSpeed/2;
+    //     my_bullet_mid.visible = true
+    //     my_bullet_mid.y -=my_bulletSpeed/2;
 
-        isShooted_mid = true
+    //     isShooted_mid = true
 
-        if(my_bullet_mid.y + my_bullet_mid.height< 0)
-            isShooted_mid = false
-    }
-    //玩家2
-    function shoot_mid2(){
-        my_bullet_mid2.visible = true
-        my_bullet_mid2.y -=my_bulletSpeed/2;
+    //     if(my_bullet_mid.y + my_bullet_mid.height< 0){
+    //         isShooted_mid = false
+    //     }
+    // }
+    // //玩家2
+    // function shoot_mid2(){
+    //     my_bullet_mid2.visible = true
+    //     my_bullet_mid2.y -=my_bulletSpeed/2;
 
-        isShooted_mid2 = true
+    //     isShooted_mid2 = true
 
-        if(my_bullet_mid2.y + my_bullet_mid2.height< 0)
-            isShooted_mid2 = false
-    }
+    //     if(my_bullet_mid2.y + my_bullet_mid2.height< 0)
+    //         isShooted_mid2 = false
+    // }
 
     //双人模式
     function shoot2(){
@@ -146,6 +153,10 @@ Item {
         my_bullet2_2.y -=my_bulletSpeed;
 
         isShooted_2 = true; // 设置为true，表示子弹正在飞行中
+        if(ammo2){
+            my_bullet_mid2.visible = true
+            my_bullet_mid2.y -=my_bulletSpeed;
+        }
         if(my_bullet_2.y + my_bullet_2.height < 0){
             isShooted_2 = false
         }
@@ -358,6 +369,9 @@ Item {
         my_bullet_mid.visible = false
         _enemy_bullet.visible = false
         _boss_bullet.visible = false
+        my_bullet_mid.visible = false
+        my_bullet_mid2.visible = false
+
     }
 
     Image {

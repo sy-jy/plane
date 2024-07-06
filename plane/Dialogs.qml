@@ -15,6 +15,7 @@ Item {
     property alias bossAppearTimer:_boss_appearTimer                    //boss出场计时器
 
     property alias setting: setting
+    property int currentLevel: 1
 
     Dialog{
         id:setting
@@ -246,6 +247,11 @@ Item {
         //清除冲击波
         myplane.stopBomb()
 
+        content.gameover_timer.start()
+
+        //暂停boss出现
+        dialogs.bossAppearTimer.stop()
+
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
         bullet.cleanBullt()
@@ -255,7 +261,7 @@ Item {
     }
 
     function returnhome(){
-        map.visible = false      //地图显示
+        mapNext.visible = false      //地图显示
         enemys.visible = false
         myplane.myplane_1.visible = false
         if(content.isDouble){
@@ -282,11 +288,18 @@ Item {
         if(content.isDouble){
             myplane.shield_2_Timer.restart()
         }
-        content.gameover_timer.start()
+
         enemys.gameTime.start()
         enemys.bossTime.start()
         dialogs.bossAppearTimer.start()
         content.timer.start()
+    }
+
+    function nextLevel(){
+        currentLevel++
+        reset()
+        content.mapmodel.mapNext()
+        startGame()
     }
 
     //暂停建点击触发的弹窗（重新开始 继续游戏 退出游戏 音效建）
@@ -355,7 +368,6 @@ Item {
         visible: false                  //遮罩层初始不可见，仅在弹窗时显示
         color:"dimgray"                 //设置为灰色背景
         opacity: 0.9                    //设置透明度
-
         //游戏胜利弹窗
         Dialog{
             id:victory_Dialog
@@ -395,6 +407,7 @@ Item {
                 onClicked: {
                     _blurRect.visible = false;
                     victory_Dialog.visible = false
+                    nextLevel()
                     }
                 }
             }
