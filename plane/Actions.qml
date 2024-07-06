@@ -17,7 +17,7 @@ Item {
         Action{
             id:_continue
             text: qsTr("继续游戏")
-            icon.name: "media-playback-pause"
+            icon.name: "media-playback-start"
         }
         Action{
             id:_exit

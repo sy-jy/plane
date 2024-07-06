@@ -6,14 +6,18 @@ int main(int argc, char *argv[])
     QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
+    const QUrl url(u"qrc:/plane/Window.qml"_qs);
     QObject::connect(
         &engine,
-        &QQmlApplicationEngine::objectCreationFailed,
+        &QQmlApplicationEngine::objectCreated,
         &app,
-        []() { QCoreApplication::exit(-1); },
+        [url](QObject *obj, const QUrl &objUrl) {
+            if (!obj && url == objUrl)
+                QCoreApplication::exit(-1);
+        },
         Qt::QueuedConnection);
-
-    engine.loadFromModule("plane", "Window");
+    engine.load(url);
 
     return app.exec();
 }
+

@@ -123,6 +123,10 @@ qt_add_qml_module(
   RESOURCES
   images/superBomb.png
   RESOURCES
+  images/Bossboom2.png
+  RESOURCES
+  wav/victory.mp3
+  RESOURCES
   images/boss_2.png)
 set_target_properties(
   appplane
