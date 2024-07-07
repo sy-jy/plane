@@ -19,6 +19,7 @@ Item {
     property alias bossTime: bossTime
     property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
     property bool bossAppeared: false
+    property int currentBossIndex: 0
 
     // 敌机图片的ListModel
     ListModel {
@@ -48,45 +49,43 @@ Item {
             }
         }
     }
+    // 敌机图片的ListModel
+    ListModel {
+        id: bossImageModel
+        ListElement { source: "images/boss2.png";name:"boss1"}
+        ListElement { source: "images/boss3.png";name:"boss2"}
+    }
 
     // Boss组件
     Component {
         id: bossComponent
         Rectangle {
-            id: boss1
+            id: boss
             width: 400
             height: 200
             color: "transparent"
-            property alias boss1: boss1
-            // focusPolicy: Qt.NoFocus
+            property string sourcePath
+            property string name // 添加敌机名字属性
+            property alias boss1: boss
             Image {
-                id: _boss1
-                source: "images/boss2.png"
+                id: _boss
+                source: sourcePath
                 anchors.fill: parent
             }
 
             //boss固定上方位置水平移动
             function updateBossPosition() {
-                // boss1.y += bossSpeed
-                if(boss1.y >= 0){
+                if(boss.y >= 0){
                     content.bossbloodProgress1.visible=true
                     content.bossbloodProgress2.visible=true
-                    boss1.x += bossSpeed*bossDirection
-                    if (boss1.x + bossSpeed <= 0 || boss1.x + bossSpeed >= gameArea.width - boss1.width) {
+                    boss.x += bossSpeed*bossDirection
+                    if (boss.x + bossSpeed <= 0 || boss.x + bossSpeed >= gameArea.width - boss.width) {
                         bossDirection *= -1 // 反转移动方向
                     }
                 }else{
-                    boss1.y += bossSpeed
+                    boss.y += bossSpeed
                 }
             }
-            //boss垂直运动直到消失于界面
-            // function updateBossPosition() {
-            //     boss1.y += bossSpeed
-            //     if (boss1.y > gameArea.height) {
-            //         boss1.destroy()
-            //         gameArea.boss = null
-            //     }
-            // }
         }
     }
 
@@ -151,6 +150,8 @@ Item {
             var newBoss = bossComponent.createObject(gameArea)
             newBoss.x = (gameArea.width - newBoss.width) / 2
             newBoss.y = -200
+            newBoss.sourcePath = bossImageModel.get(currentBossIndex).source
+            newBoss.name = bossImageModel.get(currentBossIndex).name
             boss = newBoss
             newBoss.y = -300
             boss = newBoss
@@ -161,6 +162,9 @@ Item {
         if(boss){//防止摧毁空的boss
             boss.destroy()
         }
+    }
+    function bossNext(){
+        currentBossIndex = (currentBossIndex+1)%bossImageModel.count
     }
 
     // 更新boss出现后的游戏界面

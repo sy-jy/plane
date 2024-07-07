@@ -209,10 +209,15 @@ Item {
         }
     }
 
+    function bossDie(){
+        content.enemys.destroyBoss()
+        enemys.bossAppeared = false
+    }
+
     //碰撞检测
     //我方发射子弹与敌机的碰撞检测
     function checkCollision(){
-        for(var i =0; i<content.enemys.enemys.length;i++){
+        for(var i = content.enemys.enemys.length-1; i>=0;i--){
             //我方玩家1击中普通敌机
             if(my_bullet_1.x+my_bullet_1.width >content.enemys.enemys[i].x
                     && my_bullet_1.x<content.enemys.enemys[i].x + 65
@@ -220,7 +225,10 @@ Item {
                     && my_bullet_1.y<content.enemys.enemys[i].y+65){
                 isShooted_1 = false
                 my_bullet_1.visible = false
-                content.enemys.enemys[i].visible = false
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
                 if(!isDouble){
                     score1++
                 }else{
@@ -241,7 +249,10 @@ Item {
                     && my_bullet1_2.y<content.enemys.enemys[i].y+65){
 
                 my_bullet1_2.visible = false
-                content.enemys.enemys[i].visible = false
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
                 if(!isDouble){
                     score1++
                 }else{
@@ -263,7 +274,10 @@ Item {
                     && my_bullet_2.y<content.enemys.enemys[i].y+65){
 
                 my_bullet_2.visible = false
-                content.enemys.enemys[i].visible = false
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
                 if(!isDouble){
                     score1++
                 }else{
@@ -284,7 +298,10 @@ Item {
                     && my_bullet2_2.y<content.enemys.enemys[i].y+65){
 
                 my_bullet2_2.visible = false
-                content.enemys.enemys[i].visible = false
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
                 if(!isDouble){
                     score1++
                 }else{
@@ -307,6 +324,7 @@ Item {
                     && my_bullet_1.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet_1.visible = false
+<<<<<<< Updated upstream
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
@@ -332,6 +350,14 @@ Item {
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
+=======
+                bossbloodProgress1.value -=50                 //击中boss后boss血量减少
+                if(bossbloodProgress1.value === 0){
+                    bossDie()
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+>>>>>>> Stashed changes
                     break;
                 }
             }
@@ -341,6 +367,7 @@ Item {
                     && my_bullet1_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet1_2.visible = false
+<<<<<<< Updated upstream
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
@@ -366,6 +393,14 @@ Item {
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
+=======
+                bossbloodProgress1.value -=50
+                if(bossbloodProgress1.value === 0){
+                    bossDie()
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+>>>>>>> Stashed changes
                     break;
                 }
             }
@@ -375,6 +410,7 @@ Item {
                     && my_bullet_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet_2.visible = false
+<<<<<<< Updated upstream
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
@@ -400,6 +436,14 @@ Item {
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
+=======
+                bossbloodProgress1.value -=50
+                if(bossbloodProgress1.value === 0){
+                    bossDie()
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+>>>>>>> Stashed changes
                     break;
                 }
             }
@@ -409,6 +453,7 @@ Item {
                     && my_bullet2_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet2_2.visible = false
+<<<<<<< Updated upstream
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
@@ -434,6 +479,14 @@ Item {
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
+=======
+                bossbloodProgress1.value -=50
+                if(bossbloodProgress1.value === 0){
+                    bossDie()
+                    console.log("爆炸")
+                    content.boom.bossboom.visible = true
+                    content.boom.bossboom.running = true
+>>>>>>> Stashed changes
                     break;
                 }
             }

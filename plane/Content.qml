@@ -946,21 +946,19 @@ Item{
                 }else{
                     bullet.updateMybulletPosition2()
                 }
-                // if(bullet.isShooted_mid){
-                //     bullet.shoot_mid()
-                // }else{
-                //     bullet.updateMybulletPosition1()
-                // }
-                // if(bullet.isShooted_mid2){
-                //     bullet.shoot_mid2()
-                // }else{
-                //     bullet.updateMybulletPosition2()
-                // }
                 //遍历敌机数组，判定敌机出场开始射击子弹
-                for(var j = 0;j<enemys.enemys.length;j++){
-                    if(enemys.enemys[j].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
-                        bullet.isShooted_enemy = true
-                        bullet.shoot_enemy()
+                for(i = 0; i < enemys.enemys.length; i++) {
+                    enemys.enemys[i].shootCooldown--
+                    if(enemys.enemys[i].y > 0) {
+                        if(enemys.enemys[i].name === "meatshield") {
+                            // 检查当前敌机的shootCooldown属性
+                            if(enemys.enemys[i].shootCooldown <= 0) {
+                                bullet.shoot_meatshield(enemys.enemys[i]) // 发射子弹
+                                enemys.enemys[i].shootCooldown = 60 // 设置当前敌机的射击冷却时间
+                            }
+                        } else {
+                            bullet.shoot_enemy()
+                        }
                     }
                 }
                 if(bullet.isShooted_enemy === false){

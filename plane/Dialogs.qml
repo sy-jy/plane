@@ -253,7 +253,12 @@ Item {
         content.gameover_timer.start()
 
         //暂停boss出现
+<<<<<<< Updated upstream
         //dialogs.bossAppearTimer.stop()
+=======
+        dialogs.bossAppearTimer.stop()
+        dialogs.bossAppearTimer.start()
+>>>>>>> Stashed changes
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
@@ -293,8 +298,6 @@ Item {
         }
 
         enemys.gameTime.start()
-        //enemys.bossTime.start()
-        //dialogs.bossAppearTimer.start()
         content.timer.start()
         content.score1 =0               //重新开始游戏后积分值清零
         content.score2 =0
@@ -304,6 +307,7 @@ Item {
 
     function nextLevel(){
         currentLevel++
+        content.enemys.bossNext()
         reset()
         content.mapmodel.mapNext()
         startGame()
