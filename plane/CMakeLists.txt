@@ -128,7 +128,11 @@ qt_add_qml_module(
   wav/victory.mp3
   RESOURCES
   images/boss_2.png
-  RESOURCES images/logo2.png)
+  RESOURCES
+  images/logo2.png
+  RESOURCES
+  images/enemy_bullet2.png)
+
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE

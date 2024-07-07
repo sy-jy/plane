@@ -1,6 +1,7 @@
 import QtQuick
 
 Item {
+    id:gameBullets
     property int my_bulletSpeed: 25         //我方子弹的移动速度
     property int enemy_bulletSpeed:5       //敌方子弹的移动速度
 
@@ -12,6 +13,7 @@ Item {
 
     property int maxBullets:window_Height/bullet_Height
     //property var bullets:[]                 //存储子弹的数组
+    property var enemyBullets: []
     property bool isShooted_1: false                  //玩家一子弹发射情况
     property bool isShooted_2: false                //玩家二子弹发射情况
     property bool isShooted_mid: false              //玩家1拾取道具后新增子弹样式发射情况
@@ -123,30 +125,6 @@ Item {
         }
     }
 
-    // //获取道具后增加的子弹样式1
-    // //玩家1
-    // function shoot_mid(){
-
-    //     my_bullet_mid.visible = true
-    //     my_bullet_mid.y -=my_bulletSpeed/2;
-
-    //     isShooted_mid = true
-
-    //     if(my_bullet_mid.y + my_bullet_mid.height< 0){
-    //         isShooted_mid = false
-    //     }
-    // }
-    // //玩家2
-    // function shoot_mid2(){
-    //     my_bullet_mid2.visible = true
-    //     my_bullet_mid2.y -=my_bulletSpeed/2;
-
-    //     isShooted_mid2 = true
-
-    //     if(my_bullet_mid2.y + my_bullet_mid2.height< 0)
-    //         isShooted_mid2 = false
-    // }
-
     //双人模式
     function shoot2(){
         bgm.shoot_2_Music.play()
@@ -174,6 +152,49 @@ Item {
 
         if(_enemy_bullet.y > window_Height){
             isShooted_enemy = false
+        }
+    }
+    Component {
+        id: meatshieldBulletComponent
+        Image {
+            source: "images/enemy_bullet2.png"
+            property int angle: 0 // 子弹发射角度
+            property int speed: 5 // 子弹速度
+
+            // 更新子弹位置
+            function updatePosition() {
+                x += speed * Math.cos(angle)
+                y += speed * Math.sin(angle)
+            }
+        }
+    }
+    // 肉盾敌机发射子弹
+    function shoot_meatshield(enemy) {
+        var angleIncrement = (Math.PI * 2) / 8 // 360度(2π弧度)除以8个点
+        var radius = Math.max(enemy.width, enemy.height) / 2 // 子弹应该从enemy的边缘发射
+        for (var j = 0; j < 8; j++) {
+            var bullet = meatshieldBulletComponent.createObject(gameBullets)
+            // 计算子弹的x和y位置，使其围绕enemy中心点均匀分布
+            bullet.x = enemy.x + enemy.width / 2 - bullet.width / 2 + radius * Math.cos(angleIncrement * j)
+            bullet.y = enemy.y + enemy.height / 2 - bullet.height / 2 + radius * Math.sin(angleIncrement * j)
+            bullet.angle = angleIncrement * j // 设置不同的发射角度
+            enemyBullets.push(bullet)
+        }
+    }
+
+    function updateMeatshieldBullets() {
+        // 遍历所有子弹并更新位置
+        for (var i = gameBullets.children.length - 1; i >= 0; i--) {
+            var bullet = gameBullets.children[i];
+            if (bullet.objectType === meatshieldBulletComponent.objectType) {
+                if(bullet&&bullet.updatePosition){
+                    bullet.updatePosition()
+                }
+                // 如果子弹超出屏幕，则销毁
+                if (bullet.y > gameBullets.height || bullet.x < 0 || bullet.x > gameBullets.width) {
+                    bullet.destroy();
+                }
+            }
         }
     }
 
@@ -392,6 +413,36 @@ Item {
                 isHit_2 = true          //双人模式：普通敌机子弹击中我方玩家2之后，玩家2血量减少
             }
         }
+        for (var j = enemyBullets.length - 1; j >= 0; j--) {
+            var bullet = enemyBullets[j]
+            // 检查子弹是否与玩家飞机1发生碰撞
+            if (bullet.x < content.myplane.myplane_1.x + content.myplane.myplane_1.width &&
+                bullet.x + bullet.width > content.myplane.myplane_1.x &&
+                bullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height &&
+                bullet.y + bullet.height > content.myplane.myplane_1.y) {
+                console.log("attcked")
+                // 碰撞发生，处理碰撞
+                if(!myplane.isShield_1){
+                    isHit_1 = true
+                }
+                bullet.destroy()
+                enemyBullets.splice(enemyBullets.indexOf(bullet), 1)
+            }
+            // 检查子弹是否与玩家飞机2发生碰撞（如果存在）
+            if (content.myplane.myplane_2 && // 确保玩家飞机2存在
+                bullet.x < content.myplane.myplane_2.x + content.myplane.myplane_2.width &&
+                bullet.x + bullet.width > content.myplane.myplane_2.x &&
+                bullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height &&
+                bullet.y + bullet.height > content.myplane.myplane_2.y) {
+                // 碰撞发生，处理碰撞
+                if(!myplane.isShield_2){
+                    isHit_2 = true
+                }
+                bullet.destroy()
+                enemyBullets.splice(enemyBullets.indexOf(bullet), 1)
+            }
+        }
+
         if(enemys.bossAppeared){
             //boss发射子弹碰撞检测
             if(_boss_bullet.x + _boss_bullet.width > content.myplane.myplane_1.x
@@ -448,8 +499,7 @@ Item {
                     // 从数组中移除敌机
                     content.enemys.enemys.splice(i, 1);
                     //消除所有子弹
-                    _enemy_bullet.visible = false
-                    _boss_bullet.visible = false
+                    cleanEnemyBullet()
                     break;
                 }
             }
@@ -457,17 +507,125 @@ Item {
     }
 
 
-    function cleanBullt(){
+    function checkCollisionPlane(){
+        var myPlane_1 = content.myplane.myplane_1
+        var myPlaneWidth = myPlane_1.width
+        var myPlaneHeight = myPlane_1.height
+        // 计算我方飞机的边界框
+        var myPlaneLeft_1 = myPlane_1.x - myPlaneWidth / 2;
+        var myPlaneRight_1 = myPlane_1.x + myPlaneWidth / 2;
+        var myPlaneTop_1 = myPlane_1.y - myPlaneHeight / 2;
+        var myPlaneBottom_1 = myPlane_1.y + myPlaneHeight / 2;
+        if(isDouble){
+            var myPlane_2 = content.myplane.myplane_2
+            // 计算我方飞机的边界框
+            var myPlaneLeft_2 = myPlane_2.x - myPlaneWidth / 2;
+            var myPlaneRight_2 = myPlane_2.x + myPlaneWidth / 2;
+            var myPlaneTop_2 = myPlane_2.y - myPlaneHeight / 2;
+            var myPlaneBottom_2 = myPlane_2.y + myPlaneHeight / 2;
+        }
+
+        // 遍历所有敌机
+        for (var i = content.enemys.enemys.length - 1; i >= 0; i--) {
+            var enemy = content.enemys.enemys[i];
+            var enemyWidth = enemy.width;
+            var enemyHeight = enemy.height;
+
+            // 计算敌机的边界框
+            var enemyLeft = enemy.x - enemyWidth / 2;
+            var enemyRight = enemy.x + enemyWidth / 2;
+            var enemyTop = enemy.y - enemyHeight / 2;
+            var enemyBottom = enemy.y + enemyHeight / 2;
+
+            // 检测两个边界框是否有交集
+            if (myPlaneRight_1 >= enemyLeft && myPlaneLeft_1 <= enemyRight && myPlaneBottom_1 >= enemyTop && myPlaneTop_1 <= enemyBottom) {
+                // 处理碰撞，例如减少生命值或游戏结束
+                if(!content.myplane.isShield_1){
+                    if(!isDouble){
+                        content.bloodProgress.value -=20
+                        if(content.bloodProgress.value===0&&content.remainlife_1!==0){
+                            if(content.dialogs.musicEnabled){//开启了音效
+                                bgm.life_loseMusic.play()//失去生命的音效
+                            }
+
+                            content.remainlife_1--;
+                            content.lifeModel.get(content.remainlife_1).visible= false
+                            content.bloodProgress.value = myplane.blood
+                            content.myplane.startBomb()
+                        }
+                        if(content.bloodProgress.value===0&&content.remainlife_1===0){
+                            content.myplane.isSurvive_1 = false
+                        }
+                    }else{
+                        content.bloodProgress_1.value -= 20
+                        if(content.bloodProgress_1.value===0&&content.remainlife_1!==0){
+                            if(content.dialogs.musicEnabled){//开启了音效
+                                bgm.life_loseMusic.play()//失去生命的音效
+                            }
+
+                            content.remainlife_1--;
+                            content.lifeModel.get(content.remainlife_1).visible= false
+                            content.bloodProgress_1.value = content.myplane.blood
+                            content.myplane.startBomb()
+                        }
+                        if(content.bloodProgress_1.value===0&&content.remainlife_1===0){
+                            content.myplane.isSurvive_1 = false
+                        }
+                    }
+                }
+                enemy.destroy(); // 销毁敌机
+                content.enemys.enemys.splice(i, 1); // 从数组中移除敌机
+                break; // 如果需要，可以在这里结束循环
+            }
+            if(isDouble){
+                if (myPlaneRight_2 >= enemyLeft && myPlaneLeft_2 <= enemyRight && myPlaneBottom_2 >= enemyTop && myPlaneTop_2 <= enemyBottom) {
+                    // 处理碰撞，例如减少生命值或游戏结束
+                    if(!content.myplane.isShield_2){
+                        content.bloodProgress_2.value -=10
+                        if(content.bloodProgress_2.value===0&&content.remainlife_2!==0){
+                            if(content.dialogs.musicEnabled){//开启了音效
+                                bgm.life_loseMusic.play()//失去生命的音效
+                            }
+                            content.remainlife_2--;
+                            content.lifeModel.get(remainlife_2).visible= false
+                            content.bloodProgress_2.value = myplane.blood
+                            content.myplane.startBomb()
+                        }
+                        if(content.bloodProgress_2.value===0&&content.remainlife_2===0){
+                            content.myplane.isSurvive_2 = false
+                        }
+                    }
+                    enemy.destroy(); // 销毁敌机
+                    content.enemys.enemys.splice(i, 1); // 从数组中移除敌机
+                    break; // 如果需要，可以在这里结束循环
+                }
+            }
+        }
+    }
+
+    function cleanEnemyBullet(){
+        _enemy_bullet.visible = false
+        _boss_bullet.visible = false
+        // 遍历数组，销毁每个子弹对象
+        for (var i = enemyBullets.length - 1; i >= 0; i--) {
+            var bullet = enemyBullets[i];
+            if (bullet.destroy) {
+                bullet.destroy(); // 假设每个子弹都有一个destroy方法
+            }
+        }
+        // 清空数组
+        enemyBullets.length = 0;
+    }
+
+    function cleanBullet(){
         my_bullet_1.visible = false
         my_bullet_2.visible = false
         my_bullet1_2.visible = false
         my_bullet2_2.visible = false
         my_bullet_mid.visible = false
-        _enemy_bullet.visible = false
-        _boss_bullet.visible = false
         my_bullet_mid.visible = false
         my_bullet_mid2.visible = false
-
+        cleanEnemyBullet()
     }
 
     Image {

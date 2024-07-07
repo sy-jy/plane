@@ -23,10 +23,10 @@ Item {
     // 敌机图片的ListModel
     ListModel {
         id: enemyImageModel
-        ListElement { source: "images/enemy1.png" }
-        ListElement { source: "images/enemy2.png" }
-        ListElement { source: "images/enemy3.png" }
-        ListElement { source: "images/enemy4.png" }
+        ListElement { source: "images/enemy1.png";name:"normal";shootCooldown:0 }
+        ListElement { source: "images/enemy2.png";name:"fast";shootCooldown:0}
+        ListElement { source: "images/enemy3.png";name:"track";shootCooldown:0}
+        ListElement { source: "images/enemy4.png";name:"meatshield";shootCooldown:0}
     }
 
     // 敌机组件
@@ -37,6 +37,8 @@ Item {
             height: 65
             color: "transparent"
             property string sourcePath
+            property string name // 添加敌机名字属性
+            property int shootCooldown
 
             Image {
                 id: _enemys
@@ -95,6 +97,8 @@ Item {
         newEnemy.y = -newEnemy.height
         var randomIndex = Math.floor(Math.random() * enemyImageModel.count)
         newEnemy.sourcePath = enemyImageModel.get(randomIndex).source
+        newEnemy.name = enemyImageModel.get(randomIndex).name // 设置敌机名字
+        newEnemy.shootCooldown = enemyImageModel.get(randomIndex).shootCooldown
         enemys.push(newEnemy)
     }
 
@@ -110,7 +114,30 @@ Item {
     function updateEnemys() {
         for (var i = enemys.length - 1; i >= 0; i--) {
             var enemy = enemys[i]
-            enemy.y += enemySpeed
+            switch (enemy.name) {
+                case "normal":
+                    // 普通敌机
+                    enemy.y += enemySpeed
+                    break
+                case "fast":
+                    // 快速敌机
+                    enemy.y += enemySpeed * 2
+                    break
+                case "track":
+                    // 跟踪敌机
+                    // 计算敌机与我方战机的相对位置
+                    var dx = content.myplane.myplane_1.x - enemy.x;
+                    var dy = content.myplane.myplane_1.y - enemy.y;
+                    // 计算移动方向
+                    var angle = Math.atan2(dy, dx);
+                    // 根据恒定合速度更新敌机位置
+                    enemy.x += enemySpeed * Math.cos(angle);
+                    enemy.y += enemySpeed * Math.sin(angle);
+                    break
+                case "meatshield":
+                    enemy.y += enemySpeed
+                    break
+                }
             if (enemy.y >= gameArea.height) {
                 enemy.destroy()
                 enemys.splice(i, 1)
