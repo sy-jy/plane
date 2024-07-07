@@ -35,6 +35,11 @@ Item {
     property alias focusSound: focusSound
     property string focusVolumePath: "./wav/focus.mp3"
     property alias focusSoundVolume: focusSoundVolume
+
+    property alias boomMusic: boommusic
+    property string boomMusicPath: "./wav/boom.wav"
+    property alias boomVolume: boomVolume
+
     MediaPlayer {
         id:gameMusic
         source: gameMusicPath
@@ -127,6 +132,16 @@ Item {
         // 设置音频输出
         audioOutput: AudioOutput {
             id:focusSoundVolume
+            volume: 1
+        }
+    }
+
+    MediaPlayer {
+        id:boommusic
+        source: boomMusicPath
+        // 设置音频输出
+        audioOutput: AudioOutput {
+            id:boomVolume
             volume: 1
         }
     }

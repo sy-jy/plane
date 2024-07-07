@@ -226,14 +226,14 @@ Item {
                 }else{
                     score2++
                 }
+                bgm.boomMusic.play()
+                console.log("子弹爆炸")/*
+                content.boom.enemyboom.visible = true
+                content.boom.enemyboom.running = true*/
+                content.boom.enemyExplosion()
+                content.boom.enemyboom.x = content.enemys.enemys[i].x
+                content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
-                if(content.enemys.enemys[i].visible === false){
-                    console.log("子弹爆炸")
-                    content.boom.enemyboom.visible = true
-                    content.boom.enemyboom.running = true
-                    break;
-                }
-                // break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.enemys[i].x
                     && my_bullet1_2.x<content.enemys.enemys[i].x + 65
@@ -247,14 +247,14 @@ Item {
                 }else{
                     score2++
                 }
+                bgm.boomMusic.play()
+                console.log("子弹爆炸")
+                // content.boom.enemyboom.visible = true
+                // content.boom.enemyboom.running = true
+                content.boom.enemyExplosion()
+                content.boom.enemyboom.x = content.enemys.enemys[i].x
+                content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
-                if(content.enemys.enemys[i].visible === false){
-                    console.log("子弹爆炸")
-                    content.boom.enemyboom.visible = true
-                    content.boom.enemyboom.running = true
-                    break;
-                }
-                // break;
             }
             //我方玩家2击中普通敌机
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.enemys[i].x
@@ -269,13 +269,13 @@ Item {
                 }else{
                     score2++
                 }
+                bgm.boomMusic.play()
+                console.log("子弹爆炸")
+                content.boom.enemyboom.visible = true
+                content.boom.enemyboom.running = true
+                content.boom.enemyboom.x = content.enemys.enemys[i].x
+                content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
-                if(content.enemys.enemys[i].visible === false){
-                    console.log("子弹爆炸")
-                    content.boom.enemyboom.visible = true
-                    content.boom.enemyboom.running = true
-                    break;
-                }
                 // break;
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.enemys[i].x
@@ -290,13 +290,13 @@ Item {
                 }else{
                     score2++
                 }
+                bgm.boomMusic.play()
+                console.log("子弹爆炸")
+                content.boom.enemyboom.visible = true
+                content.boom.enemyboom.running = true
+                content.boom.enemyboom.x = content.enemys.enemys[i].x
+                content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
-                if(content.enemys.enemys[i].visible === false){
-                    console.log("子弹爆炸")
-                    content.boom.enemyboom.visible = true
-                    content.boom.enemyboom.running = true
-                    break;
-                }
                 // break;
             }
             //击中boss碰撞检测
@@ -309,19 +309,31 @@ Item {
                 my_bullet_1.visible = false
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    if(bossbloodProgress1.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }else{
                     bossbloodProgress2.value -=5
+                    if(bossbloodProgress2.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }
-                if(bossbloodProgress1.value === 0 || bossbloodProgress2.value === 0){
-                    content.enemys.boss.visible = false
-                    console.log("爆炸")
-                    content.boom.bossboom.visible = true
-                    content.boom.bossboom.running = true
-                    break;
-                }
-                // break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.boss.x
                     && my_bullet1_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -331,19 +343,31 @@ Item {
                 my_bullet1_2.visible = false
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    if(bossbloodProgress1.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }else{
                     bossbloodProgress2.value -=5
+                    if(bossbloodProgress2.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }
-                if(bossbloodProgress1.value === 0|| bossbloodProgress2.value === 0){
-                    content.enemys.boss.visible = false
-                    console.log("爆炸")
-                    content.boom.bossboom.visible = true
-                    content.boom.bossboom.running = true
-                    break;
-                }
-                // break;
             }
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.boss.x
                     && my_bullet_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -353,19 +377,31 @@ Item {
                 my_bullet_2.visible = false
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    if(bossbloodProgress1.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }else{
                     bossbloodProgress2.value -=5
+                    if(bossbloodProgress2.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }
-                if(bossbloodProgress1.value === 0|| bossbloodProgress2.value === 0){
-                    content.enemys.boss.visible = false
-                    console.log("爆炸")
-                    content.boom.bossboom.visible = true
-                    content.boom.bossboom.running = true
-                    break;
-                }
-                // break;
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.boss.x
                     && my_bullet2_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -375,19 +411,31 @@ Item {
                 my_bullet2_2.visible = false
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    if(bossbloodProgress1.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }else{
                     bossbloodProgress2.value -=5
+                    if(bossbloodProgress2.value === 0){
+                        content.enemys.boss.visible = false
+                        bossbloodProgress1.visible = false
+                        console.log("爆炸")
+                        content.boom.bossboom.visible = true
+                        content.boom.bossboom.running = true
+                        content.boom.bossboom.x = content.enemys.boss.x
+                        content.boom.bossboom.y = content.enemys.boss.y
+                        break;
+                    }
                     break;
                 }
-                if(bossbloodProgress1.value === 0|| bossbloodProgress2.value === 0){
-                    content.enemys.boss.visible = false
-                    console.log("爆炸")
-                    content.boom.bossboom.visible = true
-                    content.boom.bossboom.running = true
-                    break;
-                }
-                // break;
             }
         }
     }

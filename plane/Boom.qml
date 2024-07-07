@@ -5,6 +5,23 @@ Item {
     property alias enemyboom: enemyboom
     property alias bossboom: bossboom
 
+    // 触发爆炸动画的函数
+    function enemyExplosion() {
+      if (!enemyboom.running) {
+          enemyboom.running = true
+          enemyboom.visible = true
+          enemyboom.start()
+      }
+    }
+
+    function bossExplosion() {
+      if (!bossboom.running) {
+          bossboom.running = true
+          bossboom.visible = true
+          bossboom.start()
+      }
+    }
+
     SpriteSequence {
         running :false
         visible: false
@@ -39,7 +56,7 @@ Item {
     SpriteSequence {
         running: false
         visible: false
-        id: bossboom; width: 205; height: 260; goalSprite: "boom1"
+        id: bossboom; width: 305; height: 360; goalSprite: "boom1"
         Sprite{
             name: "boom1"; source: "images/Bossboom.png"
             frameCount:5;frameWidth: 190; frameHeight: 220; frameDuration: 300
