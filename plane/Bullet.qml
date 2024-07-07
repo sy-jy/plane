@@ -25,13 +25,13 @@ Item {
     property bool isBossHit_1: false
     property bool isBossHit_2: false
 
-    property alias enemy_bullet: _enemy_bullet
-    property alias boss_bullet: _boss_bullet
+    property alias enemy_bullet: _enemy_bullet          //普通敌机子弹
+    property alias boss_bullet: _boss_bullet            //boss子弹
 
     anchors.fill: parent
 
-    property alias shootTimer_1: _shootTimer
-    property alias shootTimer_2: _shootTimer_2
+    property alias shootTimer_1: _shootTimer            //单人模式发射子弹计时器
+    property alias shootTimer_2: _shootTimer_2          //玩家2子弹发射计时器
     Timer{
         id:_shootTimer
         interval: 1
@@ -278,7 +278,7 @@ Item {
                 }
                 // break;
             }
-            //击中boss
+            //击中boss碰撞检测
             if(!enemys.bossAppeared){continue}
             if(my_bullet_1.x+my_bullet_1.width >content.enemys.boss.x
                     && my_bullet_1.x<content.enemys.boss.x + content.enemys.boss.width
@@ -286,8 +286,14 @@ Item {
                     && my_bullet_1.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet_1.visible = false
-                bossbloodProgress1.value -=50                 //击中boss后boss血量减少
-                if(bossbloodProgress1.value === 0){
+                if(!isDouble){
+                    bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    break;
+                }else{
+                    bossbloodProgress2.value -=5
+                    break;
+                }
+                if(bossbloodProgress1.value === 0 || bossbloodProgress2.value === 0){
                     content.enemys.boss.visible = false
                     console.log("爆炸")
                     content.boom.bossboom.visible = true
@@ -302,8 +308,14 @@ Item {
                     && my_bullet1_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet1_2.visible = false
-                bossbloodProgress1.value -=50
-                if(bossbloodProgress1.value === 0){
+                if(!isDouble){
+                    bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    break;
+                }else{
+                    bossbloodProgress2.value -=5
+                    break;
+                }
+                if(bossbloodProgress1.value === 0|| bossbloodProgress2.value === 0){
                     content.enemys.boss.visible = false
                     console.log("爆炸")
                     content.boom.bossboom.visible = true
@@ -318,8 +330,14 @@ Item {
                     && my_bullet_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet_2.visible = false
-                bossbloodProgress1.value -=50
-                if(bossbloodProgress1.value === 0){
+                if(!isDouble){
+                    bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    break;
+                }else{
+                    bossbloodProgress2.value -=5
+                    break;
+                }
+                if(bossbloodProgress1.value === 0|| bossbloodProgress2.value === 0){
                     content.enemys.boss.visible = false
                     console.log("爆炸")
                     content.boom.bossboom.visible = true
@@ -334,8 +352,14 @@ Item {
                     && my_bullet2_2.y<content.enemys.boss.y+content.enemys.boss.height){
 
                 my_bullet2_2.visible = false
-                bossbloodProgress1.value -=50
-                if(bossbloodProgress1.value === 0){
+                if(!isDouble){
+                    bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
+                    break;
+                }else{
+                    bossbloodProgress2.value -=5
+                    break;
+                }
+                if(bossbloodProgress1.value === 0|| bossbloodProgress2.value === 0){
                     content.enemys.boss.visible = false
                     console.log("爆炸")
                     content.boom.bossboom.visible = true

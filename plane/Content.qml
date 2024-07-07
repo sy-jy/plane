@@ -66,8 +66,8 @@ Item{
     // property alias blood: bloodSlider
 
     //局内积分
-    property int score1: 0
-    property int score2: 0
+    property int score1: 0                  //单人模式积分
+    property int score2: 0                  //双人模式积分
 
     anchors.fill: parent
     //暂停游戏
@@ -449,12 +449,18 @@ Item{
             anchors.fill: parent
             visible: true
             //游戏主页大厅标题
-            Text {
+            // Text {
+            //     Layout.alignment: Qt.AlignHCenter
+            //     text: qsTr("飞机大战")
+            //     font.letterSpacing: 20
+            //     font.pointSize: 40
+            //     color: "black"
+            // }
+
+            //游戏logo
+            Image{
                 Layout.alignment: Qt.AlignHCenter
-                text: qsTr("飞机大战")
-                font.letterSpacing: 20
-                font.pointSize: 40
-                color: "black"
+                source: "images/logo2.png"
             }
 
             //按钮垂直排序

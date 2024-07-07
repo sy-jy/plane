@@ -253,7 +253,7 @@ Item {
         content.gameover_timer.start()
 
         //暂停boss出现
-        dialogs.bossAppearTimer.stop()
+        //dialogs.bossAppearTimer.stop()
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
@@ -296,8 +296,10 @@ Item {
         //enemys.bossTime.start()
         //dialogs.bossAppearTimer.start()
         content.timer.start()
-        content.score1 =0
+        content.score1 =0               //重新开始游戏后积分值清零
         content.score2 =0
+        content.bullet.ammo1 = false                    //重新开始游戏后清除获取子弹增加道具的效果
+        content.bullet.ammo2 = false
     }
 
     function nextLevel(){
@@ -500,6 +502,7 @@ Item {
         }
     }
 
+    //boss出场前提示弹窗：强敌来袭
     Dialog{
         id:_boss_appear
         width: 250
@@ -521,22 +524,26 @@ Item {
         }
     }
 
+    //条件判定：积分值达到规定时boss出场
     Timer{
         id:_boss_appearTimer
         interval: 16
         running: true
         repeat: true
         onTriggered:{
-            if(score1 === 20){
+            //单人模式积分目标
+            if(score1 === 50){
                 _boss_appear.open()
                 _closeTimer.start()
             }
-            if(score2 === 20){
+            //双人模式积分目标
+            if(score2 === 100){
                 _boss_appear.open()
                 _closeTimer.start()
             }
         }
     }
+    //boss出场计时器：“强敌来袭”提示弹出2秒后boss出场
     Timer{
         id:_closeTimer
         interval: 2000
