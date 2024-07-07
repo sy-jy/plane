@@ -818,6 +818,7 @@ Item{
             mapNext.updateMap()
             enemys.updateEnemys()
             enemys.updateGame()
+            bullet.updateMeatshieldBullets()
             if(myplane.bomb.y === -400){
                 myplane.stopBomb()
             }
@@ -831,14 +832,7 @@ Item{
             //飞机移动重绘
             if(!isDouble){
                 //单人
-                //敌机血量条测试（时间的判断）
-                // if(enemys.boss){
-                //     // bossblood.visible =true
-                //     bossbloodProgress1.value-=0.4
-                // }
-
                 myplane.updateMyplanePosition(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1)
-                // console.log(myplane.isAccelerate_1)//检测是否加速
                 if(bullet.isShooted_1){
                     //发射
                     bullet.shoot()
@@ -846,16 +840,19 @@ Item{
                     //未发射时跟随飞机移动
                     bullet.updateMybulletPosition1()
                 }
-                // if(bullet.isShooted_mid){
-                //     bullet.shoot_mid()
-                // }else{
-                //     bullet.updateMybulletPosition1()
-                // }
                 //遍历敌机数组，判定敌机出场开始射击子弹
-                for(var i = 0;i<enemys.enemys.length;i++){
-                    if(enemys.enemys[i].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
-                        //bullet.isShooted_enemy = true
-                        bullet.shoot_enemy()
+                for(var i = 0; i < enemys.enemys.length; i++) {
+                    enemys.enemys[i].shootCooldown--
+                    if(enemys.enemys[i].y > 0) {
+                        if(enemys.enemys[i].name === "meatshield") {
+                            // 检查当前敌机的shootCooldown属性
+                            if(enemys.enemys[i].shootCooldown <= 0) {
+                                bullet.shoot_meatshield(enemys.enemys[i]) // 发射子弹
+                                enemys.enemys[i].shootCooldown = 60 // 设置当前敌机的射击冷却时间
+                            }
+                        } else {
+                            bullet.shoot_enemy()
+                        }
                     }
                 }
                 if(bullet.isShooted_enemy === false){
@@ -1128,6 +1125,7 @@ Item{
             bullet.checkCollision()
             bullet.checkCollision2()
             bullet.checkCollisionBomb()
+            bullet.checkCollisionPlane()
         }
     }
 
@@ -1295,26 +1293,6 @@ Item{
                         radius: 20
                         color: "gray" // 进度条背景的颜色
                     }
-                    // onValueChanged: {
-                    //     // 添加血量变化的逻辑
-                    //     console.log("当前血量：", bloodProgress.value)
-                    //     if(bloodProgress.value===0&&remainlife_1!==0){
-                    //         if(dialogs.musicEnabled){//开启了音效
-                    //             bgm.life_loseMusic.play()//失去生命的音效
-                    //         }
-
-                    //         remainlife_1--;
-                    //         lifeModel.get(remainlife_1).visible= false
-                    //         bloodProgress.value = myplane.blood
-                    //         // myplane.shield_1.activateShield()//失去一条命，护盾无敌时间
-                    //         myplane.startBomb()
-                    //     }
-                    //     if(bloodProgress.value===0&&remainlife_1===0){
-                    //         console.log("die")
-                    //         myplane.isSurvive_1 = false
-                    //         // myplane.myplane_1.visible = false
-                    //     }
-                    // }
                 }
                 Text {
                     id: _player
@@ -1552,22 +1530,6 @@ Item{
                                     radius: 20
                                     color: "gray" // 进度条背景的颜色
                                 }
-                                // onValueChanged: {
-                                //     // 添加血量变化的逻辑
-                                //     // console.log("当前血量：", bloodProgress_1.value)
-                                //     if(bloodProgress_1.value===0&&remainlife_1!==0){
-                                //         if(dialogs.musicEnabled){//开启了音效
-                                //             bgm.life_loseMusic.play()//失去生命的音效
-                                //         }
-                                //         remainlife_1--;
-                                //         lifeModel_1.get(remainlife_1).visible= false
-                                //         bloodProgress_1.value = myplane.blood
-                                //         myplane.startBomb()
-                                //     }
-                                //     if(bloodProgress_1.value===0&&remainlife_1===0){
-                                //         myplane.isSurvive_1 = false
-                                //     }
-                                // }
                             }
                         Text {
                             id: _player1text
@@ -1635,22 +1597,6 @@ Item{
                                     radius: 20
                                     color: "gray" // 进度条背景的颜色
                                 }
-                                // onValueChanged: {
-                                //     // 添加血量变化的逻辑
-                                //     // console.log("当前血量：", bloodProgress_2.value)
-                                //     if(bloodProgress_2.value===0&&remainlife_2!==0){
-                                //         if(dialogs.musicEnabled){//开启了音效
-                                //             bgm.life_loseMusic.play()//失去生命的音效
-                                //         }
-                                //         remainlife_2--;
-                                //         lifeModel_2.get(remainlife_2).visible= false
-                                //         bloodProgress_2.value = myplane.blood
-                                //         myplane.startBomb()
-                                //     }
-                                //     if(bloodProgress_2.value===0&&remainlife_2===0){
-                                //         myplane.isSurvive_2 = false
-                                //     }
-                                // }
                             }
                         Text {
                             id: _player2text

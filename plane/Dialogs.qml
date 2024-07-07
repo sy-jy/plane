@@ -257,7 +257,7 @@ Item {
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
-        bullet.cleanBullt()
+        bullet.cleanBullet()
         enemys.bossAppeared = false
         enemys.destroyEnemy()
         enemys.destroyBoss()
