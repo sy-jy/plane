@@ -40,6 +40,7 @@ Item {
             property string sourcePath
             property string name // 添加敌机名字属性
             property int shootCooldown
+            property Item targetPlane
 
             Image {
                 id: _enemys
@@ -52,7 +53,7 @@ Item {
     // 敌机图片的ListModel
     ListModel {
         id: bossImageModel
-        ListElement { source: "images/boss2.png";name:"boss1"}
+        ListElement { source: "images/boss2.png";name:"boss2"}
         ListElement { source: "images/boss3.png";name:"boss2"}
     }
 
@@ -66,7 +67,6 @@ Item {
             color: "transparent"
             property string sourcePath
             property string name // 添加敌机名字属性
-            property alias boss1: boss
             Image {
                 id: _boss
                 source: sourcePath
@@ -98,6 +98,8 @@ Item {
         newEnemy.sourcePath = enemyImageModel.get(randomIndex).source
         newEnemy.name = enemyImageModel.get(randomIndex).name // 设置敌机名字
         newEnemy.shootCooldown = enemyImageModel.get(randomIndex).shootCooldown
+        newEnemy.targetPlane = content.isDouble ? Math.random() > 0.5 ? content.myplane.myplane_1 : content.myplane.myplane_2
+                                                : content.myplane.myplane_1// 随机选择追踪的战机
         enemys.push(newEnemy)
     }
 
@@ -124,14 +126,14 @@ Item {
                     break
                 case "track":
                     // 跟踪敌机
-                    // 计算敌机与我方战机的相对位置
-                    var dx = content.myplane.myplane_1.x - enemy.x;
-                    var dy = content.myplane.myplane_1.y - enemy.y;
+                    // 计算敌机与选定战机的相对位置
+                    var dx = enemy.targetPlane.x - enemy.x
+                    var dy = enemy.targetPlane.y - enemy.y
                     // 计算移动方向
-                    var angle = Math.atan2(dy, dx);
+                    var angle = Math.atan2(dy, dx)
                     // 根据恒定合速度更新敌机位置
-                    enemy.x += enemySpeed * Math.cos(angle);
-                    enemy.y += enemySpeed * Math.sin(angle);
+                    enemy.x += enemySpeed * Math.cos(angle)
+                    enemy.y += enemySpeed * Math.sin(angle)
                     break
                 case "meatshield":
                     enemy.y += enemySpeed

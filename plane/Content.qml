@@ -868,11 +868,18 @@ Item{
                 if(enemys.bossAppeared){
                     if(enemys.boss.y ===0){
                         // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
+                        bullet.shoot_boss(enemys.boss)
                     }
                     if(bullet.isShooted_boss === false){
                         bullet.updateEnemyBossbulletPosition()
                     }
+                }
+                if(myplane.target1&&myplane.targetFadeAnimation1.running === false){
+                    bullet.shootSpecialBullet()
+                }
+                if(myplane.myplane_1.methysis&&myplane.myplane_1.lossBlood){
+                    bloodProgress.value-=0.5
+                    myplane.myplane_1.lossBlood--
                 }
                 items.item.move()//道具移动
                 items.item.got()//道具获得
@@ -926,11 +933,6 @@ Item{
                 }
             }else{
                 //双人
-                //敌机血量条测试（时间的判断）
-                if(enemys.boss){
-                    bossbloodProgress2.value-=0.4
-                }
-
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
                 if(bullet.isShooted_1){
@@ -968,13 +970,25 @@ Item{
                 if(enemys.bossAppeared){
                     if(enemys.boss.y ===0){
                         // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
+                        bullet.shoot_boss(enemys.boss)
                     }
                     if(bullet.isShooted_boss === false){
                         bullet.updateEnemyBossbulletPosition()
                     }
                 }
-
+                if((myplane.target1||myplane.target2)&&
+                    (myplane.targetFadeAnimation1.running === false
+                     &&myplane.targetFadeAnimation2.running === false)){
+                    bullet.shootSpecialBullet()
+                }
+                if(myplane.myplane_1.methysis&&myplane.myplane_1.lossBlood){
+                    bloodProgress_1.value-=0.5
+                    myplane.myplane_1.lossBlood--
+                }
+                if(myplane.myplane_2.methysis&&myplane.myplane_2.lossBlood){
+                    bloodProgress_2.value-=0.5
+                    myplane.myplane_2.lossBlood--
+                }
                 items.item.move()//道具移动
                 items.item.got()//道具获得
                 // 在计时器的每次触发时减少冷却时间
@@ -989,7 +1003,7 @@ Item{
                         }
 
                         remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
+                        lifeModel_1.get(remainlife_1).visible= false
                         bloodProgress_1.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1011,7 +1025,7 @@ Item{
                             bgm.life_loseMusic.play()//失去生命的音效
                         }
                         remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
+                        lifeModel_1.get(remainlife_1).visible= false
                         bloodProgress_1.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1034,7 +1048,7 @@ Item{
                             bgm.life_loseMusic.play()//失去生命的音效
                         }
                         remainlife_2--;
-                        lifeModel.get(remainlife_2).visible= false
+                        lifeModel_2.get(remainlife_2).visible= false
                         bloodProgress_2.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1055,7 +1069,7 @@ Item{
                             bgm.life_loseMusic.play()//失去生命的音效
                         }
                         remainlife_2--;
-                        lifeModel.get(remainlife_2).visible= false
+                        lifeModel_2.get(remainlife_2).visible= false
                         bloodProgress_2.value = myplane.blood
                         myplane.startBomb()
                     }

@@ -253,12 +253,9 @@ Item {
         content.gameover_timer.start()
 
         //暂停boss出现
-<<<<<<< Updated upstream
-        //dialogs.bossAppearTimer.stop()
-=======
         dialogs.bossAppearTimer.stop()
         dialogs.bossAppearTimer.start()
->>>>>>> Stashed changes
+
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
