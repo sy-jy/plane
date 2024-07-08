@@ -18,6 +18,7 @@ ApplicationWindow {
     Bgm{
         id:bgm
     }
+
     Actions {
         id: actions
         musicAction.onTriggered: {

@@ -107,6 +107,7 @@ Item{
 
     //开始游戏
     function startGame(){
+        bgm.backgroundMusic.stop()
         bgm.gameMusic.play()
         console.log("音效开启,gameMusic.playing:",bgm.gameMusic.playing)
         mapNext.visible = true      //地图显示
@@ -117,6 +118,10 @@ Item{
         planeSet.visible = false
         content.score1 = 0
         content.score2 = 0
+    }
+
+    function startbackgroundmusic(){
+        bgm.backgroundMusic.play()
     }
 
     function shootTimerSwich(){
@@ -152,6 +157,9 @@ Item{
     Dialogs{
         id:dialogs
     }
+
+    Component.onCompleted: bgm.backgroundMusic.play()
+
     //模式选择
     ColumnLayout{
         visible: false
@@ -1449,7 +1457,7 @@ Item{
                             console.log("BOSS血量：",bossbloodProgress2.value)
                             //爆炸音效和爆炸动画
                             if(bossbloodProgress2 === 0){
-
+                                bgm.boomMusic.play()
                             }
                         }
                     }

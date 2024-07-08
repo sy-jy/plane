@@ -131,7 +131,8 @@ qt_add_qml_module(
   RESOURCES
   images/logo2.png
   RESOURCES
-  images/enemy_bullet2.png)
+  images/enemy_bullet2.png
+  RESOURCES wav/backgroundmusic.mp3)
 
 set_target_properties(
   appplane

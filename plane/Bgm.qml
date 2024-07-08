@@ -40,6 +40,10 @@ Item {
     property string boomMusicPath: "./wav/boom.wav"
     property alias boomVolume: boomVolume
 
+    property alias backgroundMusic: backgroundmusic
+    property string backgroundMusicPath: "./wav/backgroundmusic.mp3"
+    property alias backgroundmusicVolume: backgroundmusicVolume
+
     MediaPlayer {
         id:gameMusic
         source: gameMusicPath
@@ -142,7 +146,18 @@ Item {
         // 设置音频输出
         audioOutput: AudioOutput {
             id:boomVolume
+            volume: 0.3
+        }
+    }
+
+    MediaPlayer {
+        id:backgroundmusic
+        source: backgroundMusicPath
+        // 设置音频输出
+        audioOutput: AudioOutput {
+            id:backgroundmusicVolume
             volume: 1
         }
+        loops: MediaPlayer.Infinite
     }
 }

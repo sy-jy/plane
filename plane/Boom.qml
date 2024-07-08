@@ -4,13 +4,15 @@ import QtQuick.Controls
 Item {
     property alias enemyboom: enemyboom
     property alias bossboom: bossboom
+    // property alias enemyboomTime: _enemyboom
 
     // 触发爆炸动画的函数
     function enemyExplosion() {
       if (!enemyboom.running) {
           enemyboom.running = true
           enemyboom.visible = true
-          enemyboom.start()
+          // enemyboom.start();
+          // return enemyboom.visible
       }
     }
 
@@ -27,7 +29,6 @@ Item {
         visible: false
         id: enemyboom
         width: 90; height: 85; goalSprite: "boom1"
-
         Sprite{
             name: "boom1"; source: "images/enemyboom.png"
              frameX:35 ;frameY: 60; frameWidth: 85; frameHeight: 85; frameDuration: 115
@@ -45,12 +46,8 @@ Item {
         }
         Sprite{
             name: "boom4"; source: "images/enemyboom.png"
-             frameX: 600; frameY: 50; frameWidth: 85; frameHeight: 85; frameDuration: 115
-            to: {"boom5":1}
-        }
-        Sprite{
-            name: "boom5"; source: "images/enemyboom.png"
-             frameX: 500; frameY: 50; frameWidth: 85; frameHeight: 85; frameDuration: 115
+            frameCount:2; frameX: 600; frameY: 50; frameWidth: 85; frameHeight: 85; frameDuration: 115
+            // to: {"boom5":1}
         }
     }
     SpriteSequence {
@@ -72,5 +69,14 @@ Item {
             frameCount:1; frameX:1000
         }
     }
+
+    // Timer{
+    //     id: _enemyboom
+    //     // interval: 580
+    //     running: false
+    //     onTriggered: {
+    //         enemyExplosion()
+    //     }
+    // }
 
 }

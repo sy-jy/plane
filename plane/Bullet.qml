@@ -26,6 +26,7 @@ Item {
     property bool isHit_2: false
     property bool isBossHit_1: false
     property bool isBossHit_2: false
+    property bool isHit: false  // 判定敌机是否被击中
 
     property alias enemy_bullet: _enemy_bullet          //普通敌机子弹
     property alias boss_bullet: _boss_bullet            //boss子弹
@@ -227,10 +228,11 @@ Item {
                     score2++
                 }
                 bgm.boomMusic.play()
-                console.log("子弹爆炸")/*
-                content.boom.enemyboom.visible = true
-                content.boom.enemyboom.running = true*/
+                console.log("子弹爆炸")
+                // content.boom.enemyboom.visible = true
+                // content.boom.enemyboom.running = true
                 content.boom.enemyExplosion()
+                // content.boom.enemyboomTime.start()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
@@ -304,7 +306,8 @@ Item {
             if(my_bullet_1.x+my_bullet_1.width >content.enemys.boss.x
                     && my_bullet_1.x<content.enemys.boss.x + content.enemys.boss.width
                     && my_bullet_1.y+my_bullet_1.height>content.enemys.boss.y
-                    && my_bullet_1.y<content.enemys.boss.y+content.enemys.boss.height){
+                    && my_bullet_1.y<content.enemys.boss.y+content.enemys.boss.height
+                    && bossbloodProgress1.visible === true || bossbloodProgress2.visible ===true){
 
                 my_bullet_1.visible = false
                 if(!isDouble){
@@ -312,6 +315,7 @@ Item {
                     if(bossbloodProgress1.value === 0){
                         content.enemys.boss.visible = false
                         bossbloodProgress1.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -324,7 +328,8 @@ Item {
                     bossbloodProgress2.value -=5
                     if(bossbloodProgress2.value === 0){
                         content.enemys.boss.visible = false
-                        bossbloodProgress1.visible = false
+                        bossbloodProgress2.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -338,7 +343,8 @@ Item {
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.boss.x
                     && my_bullet1_2.x<content.enemys.boss.x + content.enemys.boss.width
                     && my_bullet1_2.y+my_bullet1_2.height>content.enemys.boss.y
-                    && my_bullet1_2.y<content.enemys.boss.y+content.enemys.boss.height){
+                    && my_bullet1_2.y<content.enemys.boss.y+content.enemys.boss.height
+                    && bossbloodProgress1.visible ===true || bossbloodProgress2 ===true){
 
                 my_bullet1_2.visible = false
                 if(!isDouble){
@@ -346,6 +352,7 @@ Item {
                     if(bossbloodProgress1.value === 0){
                         content.enemys.boss.visible = false
                         bossbloodProgress1.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -356,9 +363,10 @@ Item {
                     break;
                 }else{
                     bossbloodProgress2.value -=5
-                    if(bossbloodProgress2.value === 0){
+                    if(bossblood.value === 0){
                         content.enemys.boss.visible = false
-                        bossbloodProgress1.visible = false
+                        bossbloodProgress2.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -372,7 +380,8 @@ Item {
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.boss.x
                     && my_bullet_2.x<content.enemys.boss.x + content.enemys.boss.width
                     && my_bullet_2.y+my_bullet_2.height>content.enemys.boss.y
-                    && my_bullet_2.y<content.enemys.boss.y+content.enemys.boss.height){
+                    && my_bullet_2.y<content.enemys.boss.y+content.enemys.boss.height
+                    && bossbloodProgress1.visible ===true || bossbloodProgress2 ===true){
 
                 my_bullet_2.visible = false
                 if(!isDouble){
@@ -380,6 +389,7 @@ Item {
                     if(bossbloodProgress1.value === 0){
                         content.enemys.boss.visible = false
                         bossbloodProgress1.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -392,7 +402,8 @@ Item {
                     bossbloodProgress2.value -=5
                     if(bossbloodProgress2.value === 0){
                         content.enemys.boss.visible = false
-                        bossbloodProgress1.visible = false
+                        bossbloodProgress2.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -406,7 +417,8 @@ Item {
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.boss.x
                     && my_bullet2_2.x<content.enemys.boss.x + content.enemys.boss.width
                     && my_bullet2_2.y+my_bullet2_2.height>content.enemys.boss.y
-                    && my_bullet2_2.y<content.enemys.boss.y+content.enemys.boss.height){
+                    && my_bullet2_2.y<content.enemys.boss.y+content.enemys.boss.height
+                    && bossbloodProgress1.visible ===true || bossbloodProgress2 ===true){
 
                 my_bullet2_2.visible = false
                 if(!isDouble){
@@ -414,6 +426,7 @@ Item {
                     if(bossbloodProgress1.value === 0){
                         content.enemys.boss.visible = false
                         bossbloodProgress1.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true
@@ -426,7 +439,8 @@ Item {
                     bossbloodProgress2.value -=5
                     if(bossbloodProgress2.value === 0){
                         content.enemys.boss.visible = false
-                        bossbloodProgress1.visible = false
+                        bossbloodProgress2.visible = false
+                        bgm.boomMusic.play()
                         console.log("爆炸")
                         content.boom.bossboom.visible = true
                         content.boom.bossboom.running = true

@@ -71,6 +71,7 @@ Item {
                             // 当滑块值变化时，更新音频播放器的音量
                             bgm.gameVolume.volume = musicSlider.value/100
                             bgm.testMusicVolume.volume = musicSlider.value/100
+                            bgm.backgroundmusicVolume.volume = musicSlider.value/100
                             bgm.testMusic.play()
                             console.log(bgm.gameVolume.volume)
                             // audioPlayer.volume = volumeSlider.value
@@ -155,7 +156,7 @@ Item {
                             bgm.shoot_1_MusicVolume.volume = soundSlider.value/100
                             bgm.shoot_2_MusicVolume.volume = soundSlider.value/100
                             bgm.focusSoundVolume.volume = soundSlider.value/100
-
+                            bgm.boomVolume.volume = soundSlider.value/100
                         }
 
                         contentItem: Rectangle {
