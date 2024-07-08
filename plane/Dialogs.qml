@@ -253,12 +253,9 @@ Item {
         content.gameover_timer.start()
 
         //暂停boss出现
-<<<<<<< Updated upstream
         //dialogs.bossAppearTimer.stop()
-=======
         dialogs.bossAppearTimer.stop()
         dialogs.bossAppearTimer.start()
->>>>>>> Stashed changes
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
@@ -303,6 +300,8 @@ Item {
         content.score2 =0
         content.bullet.ammo1 = false                    //重新开始游戏后清除获取子弹增加道具的效果
         content.bullet.ammo2 = false
+        content.money_number1 = 0                   //重新开始游戏后金币值清零
+        content.money_number2 = 0
     }
 
     function nextLevel(){
@@ -536,12 +535,12 @@ Item {
         repeat: true
         onTriggered:{
             //单人模式积分目标
-            if(score1 === 50){
+            if(score1 === 10){
                 _boss_appear.open()
                 _closeTimer.start()
             }
             //双人模式积分目标
-            if(score2 === 100){
+            if(score2 === 20){
                 _boss_appear.open()
                 _closeTimer.start()
             }
