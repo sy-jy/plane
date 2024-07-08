@@ -36,7 +36,6 @@ Item {
 
     property alias shootTimer_1: _shootTimer            //单人模式发射子弹计时器
     property alias shootTimer_2: _shootTimer_2          //玩家2子弹发射计时器
-    // property alias shootTimer_enemy:_shootTimer_enemy
     Timer{
         id:_shootTimer
         interval: 1
@@ -94,17 +93,6 @@ Item {
     //普通敌机子弹位置更新
     function updateEnemybulletPosition(){
         for(var i = 0;i<content.enemys.enemys.length;i++){
-            // if(enemys.enemys[i].name === "track"){
-            //     _enemy3_bullet.x = content.enemys.enemys[i].x + 15
-            //     _enemy3_bullet.y = content.enemys.enemys[i].y +60
-            //     _enemy3_bullet.visible = false
-            // }else{
-            //     _enemy_bullet.x = content.enemys.enemys[i].x + 12
-            //      _enemy_bullet.y = content.enemys.enemys[i].y
-            //     _enemy_bullet.visible = false
-            //     }
-            // }
-
             _enemy_bullet.x = content.enemys.enemys[i].x + 12
             _enemy_bullet.y = content.enemys.enemys[i].y
             _enemy_bullet.visible = false
@@ -168,29 +156,6 @@ Item {
             isShooted_enemy = false
         }
     }
-
-    // function shoot_enemy3(){
-    //     isShooted_enemy = true
-    //     _enemy3_bullet.visible = true
-    //     _enemy3_bullet.y +=enemy_bulletSpeed;
-
-    //     if(_enemy3_bullet.y > window_Height){
-    //         isShooted_enemy = false
-    //     }
-    // }
-
-    // Timer{
-    //     id:_shootTimer_enemy
-    //     interval: 1000
-    //     repeat: true
-    //     running: false
-    //     onTriggered: {
-    //         shoot_enemy()
-    //     }
-    // }
-
-
-
     Component {
         id: meatshieldBulletComponent
         Image {
@@ -278,6 +243,19 @@ Item {
             }
         }
     }
+    function pauseSpecialBullet(){
+        if(myplane.target_1.visible === true){
+            myplane.targetFadeAnimation1.pause()
+        }else{
+            specialBulletTimer.stop()
+        }
+        if(myplane.target_2.visible === true){
+            myplane.targetFadeAnimation2.pause()
+        }else{
+            specialBulletTimer.stop()
+        }
+    }
+
     Timer{
         id:specialBulletTimer
         interval: 2000
@@ -459,14 +437,6 @@ Item {
                         break;
                     }
                 }
-                // bossbloodProgress1.value -=50                 //击中boss后boss血量减少
-                // if(bossbloodProgress1.value === 0){
-                //     bossDie()
-                //     console.log("爆炸")
-                //     content.boom.bossboom.visible = true
-                //     content.boom.bossboom.running = true
-                //     break;
-                // }
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.boss.x
                     && my_bullet1_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -500,14 +470,6 @@ Item {
                         break;
                     }
                 }
-                // bossbloodProgress1.value -=50
-                // if(bossbloodProgress1.value === 0){
-                //     bossDie()
-                //     console.log("爆炸")
-                //     content.boom.bossboom.visible = true
-                //     content.boom.bossboom.running = true
-                //     break;
-                // }
             }
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.boss.x
                     && my_bullet_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -541,14 +503,6 @@ Item {
                         break;
                     }
                 }
-                // bossbloodProgress1.value -=50
-                // if(bossbloodProgress1.value === 0){
-                //     bossDie()
-                //     console.log("爆炸")
-                //     content.boom.bossboom.visible = true
-                //     content.boom.bossboom.running = true
-                //     break;
-                // }
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.boss.x
                     && my_bullet2_2.x<content.enemys.boss.x + content.enemys.boss.width
@@ -582,14 +536,6 @@ Item {
                         break;
                     }
                 }
-                // bossbloodProgress1.value -=50
-                // if(bossbloodProgress1.value === 0){
-                //     bossDie()
-                //     console.log("爆炸")
-                //     content.boom.bossboom.visible = true
-                //     content.boom.bossboom.running = true
-                //     break;
-                // }
             }
         }
     }
@@ -875,7 +821,6 @@ Item {
         // 清空数组
         enemyBullets.length = 0;
         boss2Bullets.length = 0
-        resetSpecialBullet()
     }
 
     function cleanBullet(){
@@ -953,16 +898,6 @@ Item {
         width: bullet_Width*2
         height: bullet_Height*5
     }
-    // Image{
-    //     id:_enemy3_bullet
-    //     visible: false
-    //     source: "images/track_bullet.png"
-    //     fillMode: Image.PreserveAspectFit
-    //     x:window_Width/2
-    //     y:0
-    //     width: bullet_Width*2
-    //     height: bullet_Height
-    // }
     Image{
         id:_boss_bullet
         visible:false

@@ -260,9 +260,23 @@ Item {
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
         bullet.cleanBullet()
+        bullet.resetSpecialBullet()
         enemys.bossAppeared = false
         enemys.destroyEnemy()
         enemys.destroyBoss()
+        //重置锁定标记
+        if(myplane.target_1.visible === true){
+            myplane.targetFadeAnimation1.stop()
+            myplane.target_1.visible = false
+            myplane.target1 = false
+        }
+        if(myplane.target_2.visible === true){
+            myplane.targetFadeAnimation2.stop()
+            myplane.target_2.visible = false
+            myplane.target2 = false
+        }
+        //重置子弹
+        content.myplane.resetAmmo()
     }
 
     function returnhome(){
@@ -346,7 +360,7 @@ Item {
                    myplane.shield_2_FadeAnimation.resume()
                    myplane.resumeBomb()
                    enemys.gameTime.start()
-                   enemys.bossTime.start()
+                   // enemys.bossTime.start()
                    content.timer.start()
                    if(myplane.target_1.visible === true){
                        myplane.targetFadeAnimation1.resume()

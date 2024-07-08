@@ -114,6 +114,13 @@ Item {
         bombMove.resume()
     }
 
+    function resetAmmo(){
+        content.bullet.ammo1 = false
+        content.bullet.ammo2 = false
+        ammo_Timer1.stop()
+        ammo_Timer2.stop()
+    }
+
     //飞机操控
     Image {
         id: myplane_1
@@ -221,6 +228,8 @@ Item {
             ammo_Timer1.start()  //子弹增加道具效果计时
             content.bullet.ammo1 = true
         }
+
+
         Timer{
             id:ammo_Timer1
             interval: 8000      //持续8秒

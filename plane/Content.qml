@@ -106,13 +106,7 @@ Item{
             bullet.isShooted_2 = false
         }
         shootTimerSwich()
-        if(myplane.target_1.visible === true){
-            myplane.targetFadeAnimation1.pause()
-        }
-        if(myplane.target_2.visible === true){
-            myplane.targetFadeAnimation2.pause()
-        }
-
+        content.bullet.pauseSpecialBullet()
         console.log("暂停建已激活，跳出弹窗")
     }
 
