@@ -48,7 +48,7 @@ Item{
     property string mapView: "./images/map1.png"
 
     property int remainlife_1:myplane.lives-1
-    property int remainlife_2:myplane.lives-1
+    property int remainlife_2:myplane.lives_2-1
     property alias bloodProgress: bloodProgress
     property alias bloodProgress_1: bloodProgress_1
     property alias bloodProgress_2: bloodProgress_2
@@ -68,6 +68,10 @@ Item{
     //局内积分
     property int score1: 0                  //单人模式积分
     property int score2: 0                  //双人模式积分
+
+    //局内金币
+    property int money_number1: money_number1                   //单人模式金币
+    property int money_number2:money_number2                    //双人模式金币
 
     anchors.fill: parent
     //暂停游戏
@@ -102,6 +106,13 @@ Item{
             bullet.isShooted_2 = false
         }
         shootTimerSwich()
+        if(myplane.target_1.visible === true){
+            myplane.targetFadeAnimation1.pause()
+        }
+        if(myplane.target_2.visible === true){
+            myplane.targetFadeAnimation2.pause()
+        }
+
         console.log("暂停建已激活，跳出弹窗")
     }
 
@@ -117,6 +128,8 @@ Item{
         planeSet.visible = false
         content.score1 = 0
         content.score2 = 0
+        money_number1 = 0
+        money_number2 =0
     }
 
     function shootTimerSwich(){
@@ -548,7 +561,7 @@ Item{
                 }
                 Button{
                     id:storeButton
-                    text: qsTr("商店")
+                    text: qsTr("道具")
                     background:Rectangle{
                         implicitHeight:60
                         implicitWidth: 60
@@ -856,7 +869,10 @@ Item{
                                 bullet.shoot_meatshield(enemys.enemys[i]) // 发射子弹
                                 enemys.enemys[i].shootCooldown = 60 // 设置当前敌机的射击冷却时间
                             }
-                        } else {
+                        } /*else if(enemys.enemys[i].name === "track"){
+                            bullet.shoot_enemy3()
+                        }*/ else{
+                            // bullet.shootTimer_enemy.start()
                             bullet.shoot_enemy()
                         }
                     }
@@ -959,6 +975,7 @@ Item{
                                 enemys.enemys[i].shootCooldown = 60 // 设置当前敌机的射击冷却时间
                             }
                         } else {
+                            //bullet.shootTimer_enemy.start()
                             bullet.shoot_enemy()
                         }
                     }
@@ -1173,11 +1190,18 @@ Item{
                     }
                     Repeater {
                         model: lifeModel
-                        Rectangle {
+                        // Rectangle {
+                        //     id: lifeItem
+                        //     height: 20
+                        //     width: 20
+                        //     color: "red"
+                        //     visible: model.visible
+                        // }
+                        Image{
                             id: lifeItem
                             height: 20
                             width: 20
-                            color: "red"
+                            source: "images/life.png"
                             visible: model.visible
                         }
                     }
@@ -1196,7 +1220,7 @@ Item{
                         width: 70
                         color: "#00F215"
                         Text{
-                            text: qsTr("积分值") + score1
+                            text: qsTr("积分：") + score1
                             anchors.centerIn: parent  //居中
                         }
                     }
@@ -1204,15 +1228,22 @@ Item{
                 // 金币栏 金币图+游戏获得的金币数值
                 Row{
                     //金币图
-                    Rectangle {
-                    id: money
-                    height: 20
-                    width: 20
-                    color: "#FA7E23"
+                    // Rectangle {
+                    // id: money
+                    // height: 20
+                    // width: 20
+                    // color: "#FA7E23"
+                    // }
+                    Image{
+                        id: money
+                        height: 20
+                        width: 20
+                        source: "images/money.png"
                     }
+
                     Text {
                         id: moneytext
-                        text:"金币值"
+                        text:"金币：" + money_number1
                         font.pointSize:  11
                     }
                 }
@@ -1344,13 +1375,13 @@ Item{
         }
     }
 
-    //游戏商店装备购买界面
+    //游戏装备展示界面
     ColumnLayout{
         id:store
         visible: false
         anchors.fill: parent
         Text {
-            text: qsTr("商店")
+            text: qsTr("局内道具")
             font.pointSize: 20
             Layout.alignment: Qt.AlignHCenter
         }
@@ -1364,16 +1395,45 @@ Item{
         GridView{
             id:equipment
             visible: true
-            width: 400
+            width: 600
             height: 700
             Layout.alignment: Qt.AlignHCenter
-            cellWidth: 200
+            model: ListModel{
+                ListElement{ source:"images/powerUpShield.png";description:"增加护盾，免疫所有伤害"}
+                ListElement{ source:"images/powerUpAmmo.png";description:"增加子弹，子弹样式改变"}
+                ListElement{ source:"images/powerUpSpeed.png";description:"增加移速，短时间内提高移动速度"}
+                ListElement{ source:"images/increaseHp.png";description:"增加生命，迅速恢复部分生命"}
+            }
+            cellWidth: 400
             cellHeight: 100
-            model:10
-            delegate: Rectangle{
-                width: 90
-                height: 70
-                color: "pink"
+            // delegate: Rectangle{
+            //     width: 90
+            //     height: 70
+            //     color: "pink"
+            // }
+            delegate: Item{
+                width:equipment.cellWidth
+                height:equipment.cellHeight
+                Row{
+                    Image{
+                        source: model.source
+                        width: 80
+                        height:80
+                        // anchors.fill: parent
+                        anchors.verticalCenter: parent.verticalCenter
+                        fillMode: Image.PreserveAspectFit
+                    }
+                    Text{
+                        text:model.description
+                        font.pixelSize: 18
+                        width: equipment.cellWidth - 100
+                        height:equipment.cellHeight +40
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                    }
+                }
+
+
             }
         }
     }
@@ -1399,7 +1459,7 @@ Item{
                             width: 70
                             color: "#00F215"
                             Text{
-                                text: qsTr("积分值")+ score2
+                                text: qsTr("积分：")+ score2
                                 anchors.centerIn: parent
                             }
                         }
@@ -1408,15 +1468,22 @@ Item{
                         // 金币栏 金币图+游戏获得的金币数值
                         Row{
                             //金币图
-                            Rectangle {
-                            id: money2
-                            height: 20
-                            width: 20
-                            color: "#FA7E23"
+                            // Rectangle {
+                            // id: money2
+                            // height: 20
+                            // width: 20
+                            // color: "#FA7E23"
+                            // }
+                            Image{
+                                id: money2
+                                height: 20
+                                width: 20
+                                source: "images/money.png"
                             }
+
                             Text {
                                 id: moneytext2
-                                text:"金币值"
+                                text:"金币：" + money_number2
                                 font.pointSize:  11
                             }
                         }
@@ -1508,11 +1575,18 @@ Item{
                         }
                         Repeater {
                             model: lifeModel_1
-                            Rectangle {
+                            // Rectangle {
+                            //     id: lifeItem_1
+                            //     height: 20
+                            //     width: 20
+                            //     color: "red"
+                            //     visible: model.visible
+                            // }
+                            Image{
                                 id: lifeItem_1
                                 height: 20
                                 width: 20
-                                color: "red"
+                                source: "images/life.png"
                                 visible: model.visible
                             }
                         }
@@ -1575,11 +1649,18 @@ Item{
                         }
                         Repeater {
                             model: lifeModel_2
-                            Rectangle {
+                            // Rectangle {
+                            //     id: lifeItem_2
+                            //     height: 20
+                            //     width: 20
+                            //     color: "red"
+                            //     visible: model.visible
+                            // }
+                            Image{
                                 id: lifeItem_2
                                 height: 20
                                 width: 20
-                                color: "red"
+                                source: "images/life.png"
                                 visible: model.visible
                             }
                         }

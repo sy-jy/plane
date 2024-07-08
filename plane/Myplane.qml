@@ -16,6 +16,7 @@ Item {
     property int plane_2_Y: window_Height-myplane_Height
     property int blood:  easy.checked?1000:100//每条命的血量(简单1000，困难100)
     property int lives: 4   //拥有总生命数
+    property int lives_2:4
     property bool isSurvive_1: true//玩家1是否存活
     property bool isSurvive_2: true//玩家2是否存活
     //护盾

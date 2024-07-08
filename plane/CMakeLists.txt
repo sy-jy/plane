@@ -138,7 +138,14 @@ qt_add_qml_module(
   images/boss3.png
   images/bossAmmo.png
   images/bossAmmoNormal.png
-  RESOURCES images/target.png)
+  RESOURCES
+  images/target.png
+  RESOURCES
+  images/track_bullet.png
+  RESOURCES
+  images/money.png
+  RESOURCES
+  images/life.png)
 set_target_properties(
   appplane
   PROPERTIES AUTORCC TRUE
