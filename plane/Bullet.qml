@@ -232,9 +232,9 @@ Item {
                 // content.boom.enemyboom.visible = true
                 // content.boom.enemyboom.running = true
                 content.boom.enemyExplosion()
-                // content.boom.enemyboomTime.start()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
+                enemys[i].bullet.destroy()
                 break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.enemys[i].x
@@ -256,6 +256,7 @@ Item {
                 content.boom.enemyExplosion()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
+                enemys[i].bullet.destroy()
                 break;
             }
             //我方玩家2击中普通敌机
@@ -273,8 +274,9 @@ Item {
                 }
                 bgm.boomMusic.play()
                 console.log("子弹爆炸")
-                content.boom.enemyboom.visible = true
-                content.boom.enemyboom.running = true
+                // content.boom.enemyboom.visible = true
+                // content.boom.enemyboom.running = true
+                content.boom.enemyExplosion()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
@@ -294,8 +296,9 @@ Item {
                 }
                 bgm.boomMusic.play()
                 console.log("子弹爆炸")
-                content.boom.enemyboom.visible = true
-                content.boom.enemyboom.running = true
+                // content.boom.enemyboom.visible = true
+                // content.boom.enemyboom.running = true
+                content.boom.enemyExplosion()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
                 break;
@@ -317,8 +320,9 @@ Item {
                         bossbloodProgress1.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        // content.boom.bossboom.visible = true
+                        // content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -331,8 +335,9 @@ Item {
                         bossbloodProgress2.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        // content.boom.bossboom.visible = true
+                        // content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -354,8 +359,9 @@ Item {
                         bossbloodProgress1.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        // content.boom.bossboom.visible = true
+                        // content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -368,8 +374,9 @@ Item {
                         bossbloodProgress2.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        // content.boom.bossboom.visible = true
+                        // content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -391,8 +398,7 @@ Item {
                         bossbloodProgress1.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -405,8 +411,7 @@ Item {
                         bossbloodProgress2.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -428,8 +433,7 @@ Item {
                         bossbloodProgress1.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
@@ -442,8 +446,7 @@ Item {
                         bossbloodProgress2.visible = false
                         bgm.boomMusic.play()
                         console.log("爆炸")
-                        content.boom.bossboom.visible = true
-                        content.boom.bossboom.running = true
+                        content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;

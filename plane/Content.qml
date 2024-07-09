@@ -54,7 +54,8 @@ Item{
     property alias bloodProgress_2: bloodProgress_2
     property alias bossbloodProgress1: bossbloodProgress1
     property alias bossbloodProgress2: bossbloodProgress2
-
+    property alias blood: blood
+    property alias blood2: blood2
 
     property alias lifeModel: lifeModel
     property alias lifeModel_1: lifeModel_1
@@ -1099,13 +1100,13 @@ Item{
                     gameover_timer.stop();
                 }
                 //胜利
-                if(bossbloodProgress1.value === 0){
-                    // boom.startboom()
-                    stopGame()
-                    easy.checked?dialogs.victory.open():dialogs.victory2.open();
-                    dialogs.blurRect.visible = true;
-                    bgm.game_victoryMusic.play()
-                    gameover_timer.stop();
+                if(bossbloodProgress1.value === 0 ){
+                    boom.bossBoomTime.start()
+                    // stopGame()
+                    // easy.checked?dialogs.victory.open():dialogs.victory2.open();
+                    // dialogs.blurRect.visible = true;
+                    // bgm.game_victoryMusic.play()
+                    // gameover_timer.stop();
                 }
             }else{
                 //双人游戏界面
@@ -1119,11 +1120,7 @@ Item{
                 }
                 //胜利
                 if(bossbloodProgress2.value === 0){
-                    stopGame()
-                    easy.checked?dialogs.victory.open():dialogs.victory2.open();
-                    dialogs.blurRect.visible = true;
-                    bgm.game_victoryMusic.play()
-                    gameover_timer.stop();
+                    boom.bossBoomTime.start()
                 }
             }
         }
@@ -1426,13 +1423,6 @@ Item{
                     width: 535
                     color: "transparent"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    Text {
-                        id: blood2
-                        text: qsTr("Boss血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
-                        textFormat: Text.StyledText
-                    }
                     ProgressBar{
                         id: bossbloodProgress2
                         visible:  false  //等Boss出来时血量可见
@@ -1459,6 +1449,13 @@ Item{
                             if(bossbloodProgress2 === 0){
                                 bgm.boomMusic.play()
                             }
+                        }
+                        Text {
+                            id: blood2
+                            text: qsTr("Boss血量条")
+                            anchors.centerIn: parent
+                            font.pointSize:  15
+                            textFormat: Text.StyledText
                         }
                     }
                 }

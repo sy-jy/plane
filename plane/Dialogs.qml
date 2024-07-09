@@ -20,6 +20,8 @@ Item {
 
     property alias closeTime:_closeTimer
 
+    property alias warmTime: warmtime
+
     Dialog{
         id:setting
         width: window_Width/2
@@ -553,6 +555,46 @@ Item {
             _boss_appear.close()
             enemys.bossTime.start()
             _closeTimer.stop()
+        }
+    }
+
+    //boss出场前提示弹窗：强敌来袭
+    Dialog{
+        id: warm
+        width: 250
+        height: 50
+        focus: false
+        background:Rectangle{
+            opacity: 0
+        }
+        anchors.centerIn: parent
+        contentItem: Column{
+            width: parent.width
+            height: parent.height
+            Image {
+                source: "images/warm.png"
+                width: 240
+                height: 40
+                anchors.centerIn: parent
+            }
+        }
+    }
+
+    //条件判定：积分值达到规定时boss出场
+    Timer{
+        id:warmtime
+        interval: 16
+        running: true
+        repeat: true
+        onTriggered:{
+            //单人模式积分目标
+            if(content.bloodProgress.value  < content.myplane.blood.value/4){
+                warm.open()
+            }
+            //双人模式积分目标
+            if(content.bloodProgress_1.value  < content.myplane.blood.value/4 || content.bloodProgress_2.value  < content.myplane.blood.value/4){
+                warm.open()
+            }
         }
     }
 }
