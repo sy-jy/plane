@@ -19,6 +19,7 @@ Item {
     property alias bossTime: bossTime
     property int bossDirection: 1 // 初始方向 1 表示向右，-1 表示向左
     property bool bossAppeared: false
+    property int currentBossIndex: 0
 
     // 敌机图片的ListModel
     ListModel {
@@ -39,6 +40,7 @@ Item {
             property string sourcePath
             property string name // 添加敌机名字属性
             property int shootCooldown
+            property Item targetPlane
 
             Image {
                 id: _enemys
@@ -48,45 +50,43 @@ Item {
             }
         }
     }
+    // 敌机图片的ListModel
+    ListModel {
+        id: bossImageModel
+        ListElement { source: "images/boss2.png";name:"boss1"}
+        ListElement { source: "images/boss3.png";name:"boss2"}
+        ListElement { source: "images/boss1.png";name:"boss3"}
+    }
 
     // Boss组件
     Component {
         id: bossComponent
         Rectangle {
-            id: boss1
+            id: boss
             width: 400
             height: 200
             color: "transparent"
-            property alias boss1: boss1
-            // focusPolicy: Qt.NoFocus
+            property string sourcePath
+            property string name // 添加敌机名字属性
             Image {
-                id: _boss1
-                source: "images/boss2.png"
+                id: _boss
+                source: sourcePath
                 anchors.fill: parent
             }
 
             //boss固定上方位置水平移动
             function updateBossPosition() {
-                // boss1.y += bossSpeed
-                if(boss1.y >= 0){
+                if(boss.y >= 0){
                     content.bossbloodProgress1.visible=true
                     content.bossbloodProgress2.visible=true
-                    boss1.x += bossSpeed*bossDirection
-                    if (boss1.x + bossSpeed <= 0 || boss1.x + bossSpeed >= gameArea.width - boss1.width) {
+                    boss.x += bossSpeed*bossDirection
+                    if (boss.x + bossSpeed <= 0 || boss.x + bossSpeed >= gameArea.width - boss.width) {
                         bossDirection *= -1 // 反转移动方向
                     }
                 }else{
-                    boss1.y += bossSpeed
+                    boss.y += bossSpeed
                 }
             }
-            //boss垂直运动直到消失于界面
-            // function updateBossPosition() {
-            //     boss1.y += bossSpeed
-            //     if (boss1.y > gameArea.height) {
-            //         boss1.destroy()
-            //         gameArea.boss = null
-            //     }
-            // }
         }
     }
 
@@ -99,6 +99,8 @@ Item {
         newEnemy.sourcePath = enemyImageModel.get(randomIndex).source
         newEnemy.name = enemyImageModel.get(randomIndex).name // 设置敌机名字
         newEnemy.shootCooldown = enemyImageModel.get(randomIndex).shootCooldown
+        newEnemy.targetPlane = content.isDouble ? Math.random() > 0.5 ? content.myplane.myplane_1 : content.myplane.myplane_2
+                                                : content.myplane.myplane_1// 随机选择追踪的战机
         enemys.push(newEnemy)
     }
 
@@ -125,14 +127,14 @@ Item {
                     break
                 case "track":
                     // 跟踪敌机
-                    // 计算敌机与我方战机的相对位置
-                    var dx = content.myplane.myplane_1.x - enemy.x;
-                    var dy = content.myplane.myplane_1.y - enemy.y;
+                    // 计算敌机与选定战机的相对位置
+                    var dx = enemy.targetPlane.x - enemy.x
+                    var dy = enemy.targetPlane.y - enemy.y
                     // 计算移动方向
-                    var angle = Math.atan2(dy, dx);
+                    var angle = Math.atan2(dy, dx)
                     // 根据恒定合速度更新敌机位置
-                    enemy.x += enemySpeed * Math.cos(angle);
-                    enemy.y += enemySpeed * Math.sin(angle);
+                    enemy.x += enemySpeed * Math.cos(angle)
+                    enemy.y += enemySpeed * Math.sin(angle)
                     break
                 case "meatshield":
                     enemy.y += enemySpeed
@@ -151,6 +153,8 @@ Item {
             var newBoss = bossComponent.createObject(gameArea)
             newBoss.x = (gameArea.width - newBoss.width) / 2
             newBoss.y = -200
+            newBoss.sourcePath = bossImageModel.get(currentBossIndex).source
+            newBoss.name = bossImageModel.get(currentBossIndex).name
             boss = newBoss
             newBoss.y = -300
             boss = newBoss
@@ -161,6 +165,9 @@ Item {
         if(boss){//防止摧毁空的boss
             boss.destroy()
         }
+    }
+    function bossNext(){
+        currentBossIndex = (currentBossIndex+1)%bossImageModel.count
     }
 
     // 更新boss出现后的游戏界面

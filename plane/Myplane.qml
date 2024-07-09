@@ -16,6 +16,7 @@ Item {
     property int plane_2_Y: window_Height-myplane_Height
     property int blood:  easy.checked?1000:100//每条命的血量(简单1000，困难100)
     property int lives: 4   //拥有总生命数
+    property int lives_2:4
     property bool isSurvive_1: true//玩家1是否存活
     property bool isSurvive_2: true//玩家2是否存活
     //护盾
@@ -48,6 +49,16 @@ Item {
     property int bombCenterY:bomb.y + bomb.height / 2
     property int bombRadius: bomb.width/2
     property alias bomb: bomb
+
+    //target
+    property int targetFadeDuration: 3000
+    property alias targetFadeAnimation1: targetFadeAnimation1
+    property alias targetFadeAnimation2: targetFadeAnimation2
+    property bool target1: false
+    property bool target2: false
+    property alias target_1: target_1
+    property alias target_2: target_2
+    property int lossBloodFrame: 120
     function singleplayer(){
         myplane_1.visible = true
     }
@@ -103,6 +114,13 @@ Item {
         bombMove.resume()
     }
 
+    function resetAmmo(){
+        content.bullet.ammo1 = false
+        content.bullet.ammo2 = false
+        ammo_Timer1.stop()
+        ammo_Timer2.stop()
+    }
+
     //飞机操控
     Image {
         id: myplane_1
@@ -112,6 +130,37 @@ Item {
         x:content.isDouble? plane_1_X : planeX  //初始化位置解决开始时飞机闪动
         y:content.isDouble? plane_1_Y : planeY
         visible: false
+        property bool methysis: false
+        property int lossBlood: lossBloodFrame
+        Image {
+            id: target_1
+            source: "images/target.png"
+            x:parent.width/2-target_1.height/2
+            y:parent.height/2-target_1.height/2
+            visible:false
+            SequentialAnimation on opacity {
+                id: targetFadeAnimation1
+                loops: 3 // 循环次数
+                running: false // 默认不运行
+                onFinished: {
+                    target_1.visible = false
+                    content.bullet.boss2_bullet_special.x = myplane_1.x + myplane_1.width/2-content.bullet.boss2_bullet_special.width/2
+                    content.bullet.specialBulletTimer.stop()
+                }
+                PropertyAnimation {
+                    from: 1
+                    to: 0.1
+                    duration: targetFadeDuration / targetFadeAnimation1.loops / 3 * 2 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+                PropertyAnimation {
+                    from: 0.1
+                    to: 1
+                    duration: targetFadeDuration / targetFadeAnimation1.loops / 3 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
         // 护盾图像
         Image {
             id: shield_1
@@ -179,6 +228,8 @@ Item {
             ammo_Timer1.start()  //子弹增加道具效果计时
             content.bullet.ammo1 = true
         }
+
+
         Timer{
             id:ammo_Timer1
             interval: 8000      //持续8秒
@@ -235,6 +286,37 @@ Item {
         x:plane_2_X //初始化位置解决开始时飞机闪动
         y:plane_2_Y
         visible: false
+        property bool methysis: false
+        property int lossBlood: lossBloodFrame
+        Image {
+            id: target_2
+            source: "images/target.png"
+            x:parent.width/2-target_2.height/2
+            y:parent.height/2-target_2.height/2
+            visible:false
+            SequentialAnimation on opacity {
+                id: targetFadeAnimation2
+                loops: 3 // 循环次数
+                running: false // 默认不运行
+                onFinished: {
+                    target_2.visible = false
+                    content.bullet.boss2_bullet_special.x = myplane_2.x + myplane_2.width/2-content.bullet.boss2_bullet_special.width/2
+                    content.bullet.specialBulletTimer.stop()
+                }
+                PropertyAnimation {
+                    from: 1
+                    to: 0.1
+                    duration: targetFadeDuration / targetFadeAnimation1.loops / 3 * 2 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+                PropertyAnimation {
+                    from: 0.1
+                    to: 1
+                    duration: targetFadeDuration / targetFadeAnimation1.loops / 3 // 单程动画时间
+                    easing.type: Easing.InOutQuad
+                }
+            }
+        }
         // 护盾图像
         Image {
             id: shield_2

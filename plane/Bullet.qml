@@ -3,17 +3,17 @@ import QtQuick
 Item {
     id:gameBullets
     property int my_bulletSpeed: 25         //我方子弹的移动速度
-    property int enemy_bulletSpeed:5       //敌方子弹的移动速度
+    property int enemy_bulletSpeed:10       //敌方子弹的移动速度
 
     property int bullet_Width:window_Height/5/5           //子弹的图片大小
     property int bullet_Height: 15
 
     property int bulletX:(window_Width-bullet_Width)/2          //子弹的位置坐标
     property int bulletY:(window_Height*4/5)
-
     property int maxBullets:window_Height/bullet_Height
-    //property var bullets:[]                 //存储子弹的数组
+    property int boss2ShootCooldown: 0
     property var enemyBullets: []
+    property var boss2Bullets: []
     property bool isShooted_1: false                  //玩家一子弹发射情况
     property bool isShooted_2: false                //玩家二子弹发射情况
     property bool isShooted_mid: false              //玩家1拾取道具后新增子弹样式发射情况
@@ -30,6 +30,8 @@ Item {
 
     property alias enemy_bullet: _enemy_bullet          //普通敌机子弹
     property alias boss_bullet: _boss_bullet            //boss子弹
+    property alias boss2_bullet_special: _boss2_bullet_special
+    property Item target
 
     anchors.fill: parent
 
@@ -199,21 +201,122 @@ Item {
         }
     }
 
+    property int bulletDirection: 1 // 控制子弹移动方向的属性
     //boss发射子弹
-    function shoot_boss(){
-        isShooted_boss = true
-        _boss_bullet.visible = true
-        _boss_bullet.y +=enemy_bulletSpeed;
+    function shoot_boss(boss){
+        boss2ShootCooldown--
+        switch (boss.name){
+        case "boss1":
+            isShooted_boss = true
+            _boss_bullet.visible = true
+            _boss_bullet.y += enemy_bulletSpeed
 
-        if(_boss_bullet.y > window_Height){
-            isShooted_boss = false
+            if(_boss_bullet.y > window_Height){
+                isShooted_boss = false
+            }
+            break
+        case "boss2":
+            if(boss2ShootCooldown<=0){
+                for (var i = 0; i < 20; i++) {
+                    var bullet = boss2BulletComponent.createObject(boss)
+                    bullet.x = boss.x   // 设置初始x位置
+                    bullet.y = boss.y + boss.height  // 设置初始y位置
+                    boss2Bullets.push(bullet)
+                    boss2ShootCooldown = 20
+                }
+            }
+            // 更新子弹位置
+            for (i = 0; i < boss2Bullets.length; i++) {
+                boss2Bullets[i].visible = true;
+                if (boss2Bullets[i] && boss2Bullets[i].updateBulletPosition) {
+                    boss2Bullets[i].updateBulletPosition();
+                }
+
+            }
+            if(content.bossbloodProgress1.value/content.bossbloodProgress1.to<=0.5
+                ||content.bossbloodProgress2.value/content.bossbloodProgress2.to<=0.5){
+                // 血量低于一半，发射特殊子弹
+                if (!content.myplane.target1&&!content.myplane.target2) {
+                    target = content.isDouble ? Math.random() > 0.5 ? content.myplane.myplane_1 : content.myplane.myplane_2
+                                : content.myplane.myplane_1// 随机选择追踪的战机
+                    specialBulletTimer.start() // 启动计时器
+                }
+            }
+            break
+        case "boss3":
+            isShooted_boss = true
+            _boss_bullet.visible = true
+            if(!content.isDouble){
+                content.bossbloodProgress1.value += 1
+            }else{
+                content.bossbloodProgress2.value += 1
+            }
+            if(content.bossbloodProgress1.value/content.bossbloodProgress1.to<=0.5
+                ||content.bossbloodProgress2.value/content.bossbloodProgress2.to<=0.5){
+                _boss_bullet.y += enemy_bulletSpeed*2
+            }else{
+                _boss_bullet.y += enemy_bulletSpeed
+            }
+            if(_boss_bullet.y > window_Height){
+                isShooted_boss = false
+            }
+            break
         }
+    }
+    function pauseSpecialBullet(){
+        if(myplane.target_1.visible === true){
+            myplane.targetFadeAnimation1.pause()
+        }else{
+            specialBulletTimer.stop()
+        }
+        if(myplane.target_2.visible === true){
+            myplane.targetFadeAnimation2.pause()
+        }else{
+            specialBulletTimer.stop()
+        }
+    }
+
+    Timer{
+        id:specialBulletTimer
+        interval: 2000
+        repeat: false
+        running: false
+        onTriggered: {
+            if(target === content.myplane.myplane_1){
+                content.myplane.target_1.visible = true
+                content.myplane.target1 = true
+                content.myplane.targetFadeAnimation1.start()
+            }
+            if(target === content.myplane.myplane_2){
+                content.myplane.target_2.visible = true
+                content.myplane.target2 = true
+                content.myplane.targetFadeAnimation2.start()
+            }
+        }
+    }
+    function shootSpecialBullet(){
+        boss2_bullet_special.visible = true
+        boss2_bullet_special.y += enemy_bulletSpeed
+        if(boss2_bullet_special.y > window_Height){
+            resetSpecialBullet()
+        }
+    }
+    function resetSpecialBullet(){
+        boss2_bullet_special.visible = false
+        content.myplane.target1 = false
+        content.myplane.target2 = false
+        boss2_bullet_special.y = -boss2_bullet_special.height
+    }
+
+    function bossDie(){
+        content.enemys.destroyBoss()
+        enemys.bossAppeared = false
     }
 
     //碰撞检测
     //我方发射子弹与敌机的碰撞检测
     function checkCollision(){
-        for(var i =0; i<content.enemys.enemys.length;i++){
+        for(var i = content.enemys.enemys.length-1; i>=0;i--){
             //我方玩家1击中普通敌机
             if(my_bullet_1.x+my_bullet_1.width >content.enemys.enemys[i].x
                     && my_bullet_1.x<content.enemys.enemys[i].x + 65
@@ -221,11 +324,13 @@ Item {
                     && my_bullet_1.y<content.enemys.enemys[i].y+65){
                 isShooted_1 = false
                 my_bullet_1.visible = false
-                content.enemys.enemys[i].visible = false
+
                 if(!isDouble){
                     score1++
+                    money_number1 +=5
                 }else{
                     score2++
+                    money_number2 +=5
                 }
                 bgm.boomMusic.play()
                 console.log("子弹爆炸")
@@ -234,7 +339,11 @@ Item {
                 content.boom.enemyExplosion()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
-                enemys[i].bullet.destroy()
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
+                _enemy_bullet.visible = false
                 break;
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.enemys[i].x
@@ -243,20 +352,25 @@ Item {
                     && my_bullet1_2.y<content.enemys.enemys[i].y+65){
 
                 my_bullet1_2.visible = false
-                content.enemys.enemys[i].visible = false
+
                 if(!isDouble){
                     score1++
+                    money_number1 +=5
                 }else{
                     score2++
+                    money_number2 +=5
                 }
                 bgm.boomMusic.play()
                 console.log("子弹爆炸")
-                // content.boom.enemyboom.visible = true
-                // content.boom.enemyboom.running = true
                 content.boom.enemyExplosion()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
-                enemys[i].bullet.destroy()
+
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
+                _enemy_bullet.visible = false
                 break;
             }
             //我方玩家2击中普通敌机
@@ -266,11 +380,16 @@ Item {
                     && my_bullet_2.y<content.enemys.enemys[i].y+65){
 
                 my_bullet_2.visible = false
-                content.enemys.enemys[i].visible = false
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
                 if(!isDouble){
                     score1++
+                    money_number1 +=5
                 }else{
                     score2++
+                    money_number2 +=5
                 }
                 bgm.boomMusic.play()
                 console.log("子弹爆炸")
@@ -288,11 +407,13 @@ Item {
                     && my_bullet2_2.y<content.enemys.enemys[i].y+65){
 
                 my_bullet2_2.visible = false
-                content.enemys.enemys[i].visible = false
+
                 if(!isDouble){
                     score1++
+                    money_number1 +=5
                 }else{
                     score2++
+                    money_number2 +=5
                 }
                 bgm.boomMusic.play()
                 console.log("子弹爆炸")
@@ -301,9 +422,14 @@ Item {
                 content.boom.enemyExplosion()
                 content.boom.enemyboom.x = content.enemys.enemys[i].x
                 content.boom.enemyboom.y = content.enemys.enemys[i].y
+                // 销毁敌机
+                content.enemys.enemys[i].destroy()
+                // 从数组中移除敌机
+                content.enemys.enemys.splice(i, 1);
                 break;
                 // break;
             }
+
             //击中boss碰撞检测
             if(!enemys.bossAppeared){continue}
             if(my_bullet_1.x+my_bullet_1.width >content.enemys.boss.x
@@ -316,12 +442,10 @@ Item {
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
+                        bossDie()
                         content.enemys.boss.visible = false
                         bossbloodProgress1.visible = false
-                        bgm.boomMusic.play()
-                        console.log("爆炸")
-                        // content.boom.bossboom.visible = true
-                        // content.boom.bossboom.running = true
+                        bgm.bossboomMusic.play()
                         content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
@@ -331,9 +455,12 @@ Item {
                 }else{
                     bossbloodProgress2.value -=5
                     if(bossbloodProgress2.value === 0){
+
+                        bossDie()
                         content.enemys.boss.visible = false
                         bossbloodProgress2.visible = false
-                        bgm.boomMusic.play()
+                        bgm.bossboomMusic.play()
+
                         console.log("爆炸")
                         // content.boom.bossboom.visible = true
                         // content.boom.bossboom.running = true
@@ -342,7 +469,6 @@ Item {
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
-                    break;
                 }
             }
             if(my_bullet1_2.x+my_bullet1_2.width >content.enemys.boss.x
@@ -355,12 +481,11 @@ Item {
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
+                        stopGame()
+                        bossDie()
                         content.enemys.boss.visible = false
                         bossbloodProgress1.visible = false
-                        bgm.boomMusic.play()
-                        console.log("爆炸")
-                        // content.boom.bossboom.visible = true
-                        // content.boom.bossboom.running = true
+                        bgm.bossboomMusic.play()
                         content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
@@ -369,11 +494,11 @@ Item {
                     break;
                 }else{
                     bossbloodProgress2.value -=5
-                    if(bossblood.value === 0){
+                    if(bossbloodProgress2.value === 0){
+                        bossDie()
                         content.enemys.boss.visible = false
                         bossbloodProgress2.visible = false
-                        bgm.boomMusic.play()
-                        console.log("爆炸")
+                        bgm.bossboomMusic.play()
                         // content.boom.bossboom.visible = true
                         // content.boom.bossboom.running = true
                         content.boom.bossExplosion()
@@ -381,7 +506,6 @@ Item {
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
-                    break;
                 }
             }
             if(my_bullet_2.x+my_bullet_2.width >content.enemys.boss.x
@@ -394,10 +518,10 @@ Item {
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
-                        content.enemys.boss.visible = false
+                        bossDie()
                         bossbloodProgress1.visible = false
-                        bgm.boomMusic.play()
-                        console.log("爆炸")
+                        content.enemys.boss.visible = false
+                        bgm.bossboomMusic.play()
                         content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
@@ -407,16 +531,16 @@ Item {
                 }else{
                     bossbloodProgress2.value -=5
                     if(bossbloodProgress2.value === 0){
+                        bossDie()
                         content.enemys.boss.visible = false
                         bossbloodProgress2.visible = false
-                        bgm.boomMusic.play()
+                        bgm.bossboomMusic.play()
                         console.log("爆炸")
                         content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
-                    break;
                 }
             }
             if(my_bullet2_2.x+my_bullet2_2.width >content.enemys.boss.x
@@ -429,9 +553,9 @@ Item {
                 if(!isDouble){
                     bossbloodProgress1.value -=5                 //单人模式：击中boss后boss血量减少
                     if(bossbloodProgress1.value === 0){
-                        content.enemys.boss.visible = false
+                        bossDie()
                         bossbloodProgress1.visible = false
-                        bgm.boomMusic.play()
+                        bgm.bossboomMusic.play()
                         console.log("爆炸")
                         content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
@@ -442,16 +566,18 @@ Item {
                 }else{
                     bossbloodProgress2.value -=5
                     if(bossbloodProgress2.value === 0){
-                        content.enemys.boss.visible = false
+
+                        bossDie()
                         bossbloodProgress2.visible = false
-                        bgm.boomMusic.play()
+                        content.enemys.boss.visible = false
+                        bgm.bossboomMusic.play()
+
                         console.log("爆炸")
                         content.boom.bossExplosion()
                         content.boom.bossboom.x = content.enemys.boss.x
                         content.boom.bossboom.y = content.enemys.boss.y
                         break;
                     }
-                    break;
                 }
             }
         }
@@ -526,6 +652,57 @@ Item {
                 _boss_bullet.visible = false
                 if(!myplane.isShield_2){
                     isBossHit_2 = true          //双人模式：boss子弹击中我方玩家2之后，玩家2血量减少
+                }
+            }
+            for (j = boss2Bullets.length - 1; j >= 0; j--) {
+                var bossbullet = boss2Bullets[j]
+                // 检查子弹是否与玩家飞机1发生碰撞
+                if (bossbullet.x < content.myplane.myplane_1.x + content.myplane.myplane_1.width &&
+                    bossbullet.x + bossbullet.width > content.myplane.myplane_1.x &&
+                    bossbullet.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height &&
+                    bossbullet.y + bossbullet.height > content.myplane.myplane_1.y) {
+                    // 碰撞发生，处理碰撞
+                    if(!myplane.isShield_1){
+                        isHit_1 = true
+                    }
+                    bossbullet.destroy()
+                    boss2Bullets.splice(boss2Bullets.indexOf(bossbullet), 1)
+                }
+                // 检查子弹是否与玩家飞机2发生碰撞（如果存在）
+                if (content.myplane.myplane_2 && // 确保玩家飞机2存在
+                    bossbullet.x < content.myplane.myplane_2.x + content.myplane.myplane_2.width &&
+                    bossbullet.x + bossbullet.width > content.myplane.myplane_2.x &&
+                    bossbullet.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height &&
+                    bossbullet.y + bossbullet.height > content.myplane.myplane_2.y) {
+                    // 碰撞发生，处理碰撞
+                    if(!myplane.isShield_2){
+                        isHit_2 = true
+                    }
+                    bossbullet.destroy()
+                    boss2Bullets.splice(boss2Bullets.indexOf(bossbullet), 1)
+                }
+            }
+            //boss发射特殊子弹碰撞检测
+            if(boss2_bullet_special.x + boss2_bullet_special.width > content.myplane.myplane_1.x
+                    && boss2_bullet_special.x < content.myplane.myplane_1.x + content.myplane.myplane_1.width
+                    && boss2_bullet_special.y + boss2_bullet_special.height > content.myplane.myplane_1.y
+                    && boss2_bullet_special.y < content.myplane.myplane_1.y + content.myplane.myplane_1.height){
+                resetSpecialBullet()
+                if(!myplane.isShield_1){
+                    isBossHit_1 = true
+                    content.myplane.myplane_1.methysis = true
+                    content.myplane.myplane_1.lossBlood = content.myplane.lossBloodFrame
+                }
+            }
+            if(boss2_bullet_special.x + boss2_bullet_special.width > content.myplane.myplane_2.x
+                    && boss2_bullet_special.x < content.myplane.myplane_2.x + content.myplane.myplane_2.width
+                    && boss2_bullet_special.y + boss2_bullet_special.height > content.myplane.myplane_2.y
+                    && boss2_bullet_special.y < content.myplane.myplane_2.y + content.myplane.myplane_2.height){
+                resetSpecialBullet()
+                if(!myplane.isShield_2){
+                    isBossHit_2 = true
+                    content.myplane.myplane_2.methysis = true
+                    content.myplane.myplane_2.lossBlood = content.myplane.lossBloodFrame
                 }
             }
         }
@@ -629,7 +806,7 @@ Item {
                             }
 
                             content.remainlife_1--;
-                            content.lifeModel.get(content.remainlife_1).visible= false
+                            content.lifeModel_1.get(content.remainlife_1).visible= false
                             content.bloodProgress_1.value = content.myplane.blood
                             content.myplane.startBomb()
                         }
@@ -652,7 +829,7 @@ Item {
                                 bgm.life_loseMusic.play()//失去生命的音效
                             }
                             content.remainlife_2--;
-                            content.lifeModel.get(remainlife_2).visible= false
+                            content.lifeModel_2.get(remainlife_2).visible= false
                             content.bloodProgress_2.value = myplane.blood
                             content.myplane.startBomb()
                         }
@@ -678,8 +855,15 @@ Item {
                 bullet.destroy(); // 假设每个子弹都有一个destroy方法
             }
         }
+        for (i = boss2Bullets.length - 1; i >= 0; i--) {
+            bullet = boss2Bullets[i];
+            if (bullet.destroy) {
+                bullet.destroy(); // 假设每个子弹都有一个destroy方法
+            }
+        }
         // 清空数组
         enemyBullets.length = 0;
+        boss2Bullets.length = 0
     }
 
     function cleanBullet(){
@@ -766,5 +950,42 @@ Item {
         y:0
         width: bullet_Width*2
         height: bullet_Height*5
+    }
+    // Boss2Bullet组件
+    Component {
+        id: boss2BulletComponent
+        Image {
+            id: _boss2_bullet
+            source: "images/bossAmmoNormal.png"
+            visible: false
+            property bool isMovingRight: true // 决定子弹是向右移动还是向左移动
+            // 更新子弹位置，实现之字形移动
+            function updateBulletPosition() {
+                if (isMovingRight) {
+                    _boss2_bullet.x += enemy_bulletSpeed*2;
+                    if (_boss2_bullet.x >= gameBullets.width - _boss2_bullet.width) {
+                        isMovingRight = false;
+                    }
+                } else {
+                    _boss2_bullet.x -= enemy_bulletSpeed*2;
+                    if (_boss2_bullet.x <= 0) {
+                        isMovingRight = true;
+                    }
+                }
+                _boss2_bullet.y += enemy_bulletSpeed/3; // 子弹沿Y轴向下移动
+
+                // 如果子弹超出屏幕，将其隐藏
+                if (_boss2_bullet.y > window_Height) {
+                    _boss2_bullet.destroy()
+                    boss2Bullets.splice(boss2Bullets.indexOf(_boss2_bullet), 1)
+                }
+            }
+        }
+    }
+    Image {
+        id: _boss2_bullet_special
+        source: "images/bossAmmo.png"
+        y:-boss2_bullet_special.height
+        visible: false
     }
 }

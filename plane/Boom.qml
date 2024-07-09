@@ -87,7 +87,7 @@ Item {
         id: _bossboom
         interval: 600
         running: false
-        repeat: true
+        repeat: false
         onTriggered: {
             bossboom.running = false
             bossboom.visible = false

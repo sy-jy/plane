@@ -20,7 +20,7 @@ Item {
 
     property alias closeTime:_closeTimer
 
-    property alias warmTime: warmtime
+    property alias warm: warm
 
     Dialog{
         id:setting
@@ -257,13 +257,29 @@ Item {
 
         //暂停boss出现
         //dialogs.bossAppearTimer.stop()
+        dialogs.bossAppearTimer.stop()
+        dialogs.bossAppearTimer.start()
 
         bullet.isShooted_boss = false
         bullet.isShooted_enemy = false
         bullet.cleanBullet()
+        bullet.resetSpecialBullet()
         enemys.bossAppeared = false
         enemys.destroyEnemy()
         enemys.destroyBoss()
+        //重置锁定标记
+        if(myplane.target_1.visible === true){
+            myplane.targetFadeAnimation1.stop()
+            myplane.target_1.visible = false
+            myplane.target1 = false
+        }
+        if(myplane.target_2.visible === true){
+            myplane.targetFadeAnimation2.stop()
+            myplane.target_2.visible = false
+            myplane.target2 = false
+        }
+        //重置子弹
+        content.myplane.resetAmmo()
     }
 
     function returnhome(){
@@ -296,17 +312,18 @@ Item {
         }
 
         enemys.gameTime.start()
-        //enemys.bossTime.start()
-        //dialogs.bossAppearTimer.start()
         content.timer.start()
         content.score1 =0               //重新开始游戏后积分值清零
         content.score2 =0
         content.bullet.ammo1 = false                    //重新开始游戏后清除获取子弹增加道具的效果
         content.bullet.ammo2 = false
+        content.money_number1 = 0                   //重新开始游戏后金币值清零
+        content.money_number2 = 0
     }
 
     function nextLevel(){
         currentLevel++
+        content.enemys.bossNext()
         reset()
         content.mapmodel.mapNext()
         startGame()
@@ -346,8 +363,14 @@ Item {
                    myplane.shield_2_FadeAnimation.resume()
                    myplane.resumeBomb()
                    enemys.gameTime.start()
-                   enemys.bossTime.start()
+                   // enemys.bossTime.start()
                    content.timer.start()
+                   if(myplane.target_1.visible === true){
+                       myplane.targetFadeAnimation1.resume()
+                   }
+                   if(myplane.target_2.visible === true){
+                       myplane.targetFadeAnimation2.resume()
+                   }
                    pause.close()
                }
             }
@@ -535,12 +558,12 @@ Item {
         repeat: true
         onTriggered:{
             //单人模式积分目标
-            if(score1 === 50){
+            if(score1 === 10){
                 _boss_appear.open()
                 _closeTimer.start()
             }
             //双人模式积分目标
-            if(score2 === 100){
+            if(score2 === 20){
                 _boss_appear.open()
                 _closeTimer.start()
             }
@@ -558,7 +581,7 @@ Item {
         }
     }
 
-    //boss出场前提示弹窗：强敌来袭
+    // 我方血量低于满血1/4时提示
     Dialog{
         id: warm
         width: 250
@@ -580,22 +603,5 @@ Item {
         }
     }
 
-    //条件判定：积分值达到规定时boss出场
-    Timer{
-        id:warmtime
-        interval: 16
-        running: true
-        repeat: true
-        onTriggered:{
-            //单人模式积分目标
-            if(content.bloodProgress.value  < content.myplane.blood.value/4){
-                warm.open()
-            }
-            //双人模式积分目标
-            if(content.bloodProgress_1.value  < content.myplane.blood.value/4 || content.bloodProgress_2.value  < content.myplane.blood.value/4){
-                warm.open()
-            }
-        }
-    }
 }
 

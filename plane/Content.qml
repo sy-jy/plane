@@ -48,14 +48,14 @@ Item{
     property string mapView: "./images/map1.png"
 
     property int remainlife_1:myplane.lives-1
-    property int remainlife_2:myplane.lives-1
+    property int remainlife_2:myplane.lives_2-1
     property alias bloodProgress: bloodProgress
     property alias bloodProgress_1: bloodProgress_1
     property alias bloodProgress_2: bloodProgress_2
     property alias bossbloodProgress1: bossbloodProgress1
     property alias bossbloodProgress2: bossbloodProgress2
-    property alias blood: blood
-    property alias blood2: blood2
+    // property alias blood: blood
+    // property alias blood2: blood2
 
     property alias lifeModel: lifeModel
     property alias lifeModel_1: lifeModel_1
@@ -69,6 +69,10 @@ Item{
     //局内积分
     property int score1: 0                  //单人模式积分
     property int score2: 0                  //双人模式积分
+
+    //局内金币
+    property int money_number1: money_number1                   //单人模式金币
+    property int money_number2:money_number2                    //双人模式金币
 
     anchors.fill: parent
     //暂停游戏
@@ -103,6 +107,7 @@ Item{
             bullet.isShooted_2 = false
         }
         shootTimerSwich()
+        content.bullet.pauseSpecialBullet()
         console.log("暂停建已激活，跳出弹窗")
     }
 
@@ -119,6 +124,8 @@ Item{
         planeSet.visible = false
         content.score1 = 0
         content.score2 = 0
+        money_number1 = 0
+        money_number2 =0
     }
 
     function startbackgroundmusic(){
@@ -557,7 +564,7 @@ Item{
                 }
                 Button{
                     id:storeButton
-                    text: qsTr("商店")
+                    text: qsTr("道具")
                     background:Rectangle{
                         implicitHeight:60
                         implicitWidth: 60
@@ -865,7 +872,10 @@ Item{
                                 bullet.shoot_meatshield(enemys.enemys[i]) // 发射子弹
                                 enemys.enemys[i].shootCooldown = 60 // 设置当前敌机的射击冷却时间
                             }
-                        } else {
+                        } /*else if(enemys.enemys[i].name === "track"){
+                            bullet.shoot_enemy3()
+                        }*/ else{
+                            // bullet.shootTimer_enemy.start()
                             bullet.shoot_enemy()
                         }
                     }
@@ -877,11 +887,18 @@ Item{
                 if(enemys.bossAppeared){
                     if(enemys.boss.y ===0){
                         // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
+                        bullet.shoot_boss(enemys.boss)
                     }
                     if(bullet.isShooted_boss === false){
                         bullet.updateEnemyBossbulletPosition()
                     }
+                }
+                if(myplane.target1&&myplane.targetFadeAnimation1.running === false){
+                    bullet.shootSpecialBullet()
+                }
+                if(myplane.myplane_1.methysis&&myplane.myplane_1.lossBlood){
+                    bloodProgress.value-=0.5
+                    myplane.myplane_1.lossBlood--
                 }
                 items.item.move()//道具移动
                 items.item.got()//道具获得
@@ -935,11 +952,6 @@ Item{
                 }
             }else{
                 //双人
-                //敌机血量条测试（时间的判断）
-                if(enemys.boss){
-                    bossbloodProgress2.value-=0.4
-                }
-
                 myplane.updateMyplanePositions(movingLeft_P1,movingRight_P1,movingUp_P1,movingDown_P1,
                                                 movingLeft_P2,movingRight_P2,movingUp_P2,movingDown_P2)
                 if(bullet.isShooted_1){
@@ -955,21 +967,20 @@ Item{
                 }else{
                     bullet.updateMybulletPosition2()
                 }
-                // if(bullet.isShooted_mid){
-                //     bullet.shoot_mid()
-                // }else{
-                //     bullet.updateMybulletPosition1()
-                // }
-                // if(bullet.isShooted_mid2){
-                //     bullet.shoot_mid2()
-                // }else{
-                //     bullet.updateMybulletPosition2()
-                // }
                 //遍历敌机数组，判定敌机出场开始射击子弹
-                for(var j = 0;j<enemys.enemys.length;j++){
-                    if(enemys.enemys[j].y > 0 /*&& enemys.enemy_1.y < window_Height * 2 / 3*/){
-                        bullet.isShooted_enemy = true
-                        bullet.shoot_enemy()
+                for(i = 0; i < enemys.enemys.length; i++) {
+                    enemys.enemys[i].shootCooldown--
+                    if(enemys.enemys[i].y > 0) {
+                        if(enemys.enemys[i].name === "meatshield") {
+                            // 检查当前敌机的shootCooldown属性
+                            if(enemys.enemys[i].shootCooldown <= 0) {
+                                bullet.shoot_meatshield(enemys.enemys[i]) // 发射子弹
+                                enemys.enemys[i].shootCooldown = 60 // 设置当前敌机的射击冷却时间
+                            }
+                        } else {
+                            //bullet.shootTimer_enemy.start()
+                            bullet.shoot_enemy()
+                        }
                     }
                 }
                 if(bullet.isShooted_enemy === false){
@@ -979,13 +990,25 @@ Item{
                 if(enemys.bossAppeared){
                     if(enemys.boss.y ===0){
                         // bullet.iShooted_boss = true
-                        bullet.shoot_boss()
+                        bullet.shoot_boss(enemys.boss)
                     }
                     if(bullet.isShooted_boss === false){
                         bullet.updateEnemyBossbulletPosition()
                     }
                 }
-
+                if((myplane.target1||myplane.target2)&&
+                    (myplane.targetFadeAnimation1.running === false
+                     &&myplane.targetFadeAnimation2.running === false)){
+                    bullet.shootSpecialBullet()
+                }
+                if(myplane.myplane_1.methysis&&myplane.myplane_1.lossBlood){
+                    bloodProgress_1.value-=0.5
+                    myplane.myplane_1.lossBlood--
+                }
+                if(myplane.myplane_2.methysis&&myplane.myplane_2.lossBlood){
+                    bloodProgress_2.value-=0.5
+                    myplane.myplane_2.lossBlood--
+                }
                 items.item.move()//道具移动
                 items.item.got()//道具获得
                 // 在计时器的每次触发时减少冷却时间
@@ -1000,7 +1023,7 @@ Item{
                         }
 
                         remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
+                        lifeModel_1.get(remainlife_1).visible= false
                         bloodProgress_1.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1022,7 +1045,7 @@ Item{
                             bgm.life_loseMusic.play()//失去生命的音效
                         }
                         remainlife_1--;
-                        lifeModel.get(remainlife_1).visible= false
+                        lifeModel_1.get(remainlife_1).visible= false
                         bloodProgress_1.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1045,7 +1068,7 @@ Item{
                             bgm.life_loseMusic.play()//失去生命的音效
                         }
                         remainlife_2--;
-                        lifeModel.get(remainlife_2).visible= false
+                        lifeModel_2.get(remainlife_2).visible= false
                         bloodProgress_2.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1066,7 +1089,7 @@ Item{
                             bgm.life_loseMusic.play()//失去生命的音效
                         }
                         remainlife_2--;
-                        lifeModel.get(remainlife_2).visible= false
+                        lifeModel_2.get(remainlife_2).visible= false
                         bloodProgress_2.value = myplane.blood
                         myplane.startBomb()
                     }
@@ -1166,11 +1189,18 @@ Item{
                     }
                     Repeater {
                         model: lifeModel
-                        Rectangle {
+                        // Rectangle {
+                        //     id: lifeItem
+                        //     height: 20
+                        //     width: 20
+                        //     color: "red"
+                        //     visible: model.visible
+                        // }
+                        Image{
                             id: lifeItem
                             height: 20
                             width: 20
-                            color: "red"
+                            source: "images/life.png"
                             visible: model.visible
                         }
                     }
@@ -1189,7 +1219,7 @@ Item{
                         width: 70
                         color: "#00F215"
                         Text{
-                            text: qsTr("积分值") + score1
+                            text: qsTr("积分：") + score1
                             anchors.centerIn: parent  //居中
                         }
                     }
@@ -1197,15 +1227,22 @@ Item{
                 // 金币栏 金币图+游戏获得的金币数值
                 Row{
                     //金币图
-                    Rectangle {
-                    id: money
-                    height: 20
-                    width: 20
-                    color: "#FA7E23"
+                    // Rectangle {
+                    // id: money
+                    // height: 20
+                    // width: 20
+                    // color: "#FA7E23"
+                    // }
+                    Image{
+                        id: money
+                        height: 20
+                        width: 20
+                        source: "images/money.png"
                     }
+
                     Text {
                         id: moneytext
-                        text:"金币值"
+                        text:"金币：" + money_number1
                         font.pointSize:  11
                     }
                 }
@@ -1245,13 +1282,13 @@ Item{
                         //     boom.bossboom.visible = true
                         // }
                     }
-                    Text {
-                        id: blood
-                        text: qsTr("Boss血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
-                        textFormat: Text.StyledText
-                    }
+                    // Text {
+                    //     id: blood
+                    //     text: qsTr("Boss血量条")
+                    //     anchors.centerIn: parent
+                    //     font.pointSize:  15
+                    //     textFormat: Text.StyledText
+                    // }
                 }
             }
             //暂停图标（会放标签图），点击暂停会弹出对话框
@@ -1307,7 +1344,7 @@ Item{
                 }
                 Text {
                     id: _player
-                    text: qsTr("血量条")
+                    text: "HP："+ Math.round(bloodProgress.value / bloodProgress.to*100)+"%"
                     anchors.centerIn: parent
                     font.pointSize:  15
                 }
@@ -1337,13 +1374,13 @@ Item{
         }
     }
 
-    //游戏商店装备购买界面
+    //游戏装备展示界面
     ColumnLayout{
         id:store
         visible: false
         anchors.fill: parent
         Text {
-            text: qsTr("商店")
+            text: qsTr("局内道具")
             font.pointSize: 20
             Layout.alignment: Qt.AlignHCenter
         }
@@ -1357,16 +1394,45 @@ Item{
         GridView{
             id:equipment
             visible: true
-            width: 400
+            width: 600
             height: 700
             Layout.alignment: Qt.AlignHCenter
-            cellWidth: 200
+            model: ListModel{
+                ListElement{ source:"images/powerUpShield.png";description:"增加护盾，免疫所有伤害"}
+                ListElement{ source:"images/powerUpAmmo.png";description:"增加子弹，子弹样式改变"}
+                ListElement{ source:"images/powerUpSpeed.png";description:"增加移速，短时间内提高移动速度"}
+                ListElement{ source:"images/increaseHp.png";description:"增加生命，迅速恢复部分生命"}
+            }
+            cellWidth: 400
             cellHeight: 100
-            model:10
-            delegate: Rectangle{
-                width: 90
-                height: 70
-                color: "pink"
+            // delegate: Rectangle{
+            //     width: 90
+            //     height: 70
+            //     color: "pink"
+            // }
+            delegate: Item{
+                width:equipment.cellWidth
+                height:equipment.cellHeight
+                Row{
+                    Image{
+                        source: model.source
+                        width: 80
+                        height:80
+                        // anchors.fill: parent
+                        anchors.verticalCenter: parent.verticalCenter
+                        fillMode: Image.PreserveAspectFit
+                    }
+                    Text{
+                        text:model.description
+                        font.pixelSize: 18
+                        width: equipment.cellWidth - 100
+                        height:equipment.cellHeight +40
+                        verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignLeft
+                    }
+                }
+
+
             }
         }
     }
@@ -1392,7 +1458,7 @@ Item{
                             width: 70
                             color: "#00F215"
                             Text{
-                                text: qsTr("积分值")+ score2
+                                text: qsTr("积分：")+ score2
                                 anchors.centerIn: parent
                             }
                         }
@@ -1401,15 +1467,22 @@ Item{
                         // 金币栏 金币图+游戏获得的金币数值
                         Row{
                             //金币图
-                            Rectangle {
-                            id: money2
-                            height: 20
-                            width: 20
-                            color: "#FA7E23"
+                            // Rectangle {
+                            // id: money2
+                            // height: 20
+                            // width: 20
+                            // color: "#FA7E23"
+                            // }
+                            Image{
+                                id: money2
+                                height: 20
+                                width: 20
+                                source: "images/money.png"
                             }
+
                             Text {
                                 id: moneytext2
-                                text:"金币值"
+                                text:"金币：" + money_number2
                                 font.pointSize:  11
                             }
                         }
@@ -1450,13 +1523,13 @@ Item{
                                 bgm.boomMusic.play()
                             }
                         }
-                        Text {
-                            id: blood2
-                            text: qsTr("Boss血量条")
-                            anchors.centerIn: parent
-                            font.pointSize:  15
-                            textFormat: Text.StyledText
-                        }
+                        // Text {
+                        //     id: blood2
+                        //     text: qsTr("Boss血量条")
+                        //     anchors.centerIn: parent
+                        //     font.pointSize:  15
+                        //     textFormat: Text.StyledText
+                        // }
                     }
                 }
 
@@ -1501,11 +1574,11 @@ Item{
                         }
                         Repeater {
                             model: lifeModel_1
-                            Rectangle {
+                            Image{
                                 id: lifeItem_1
                                 height: 20
                                 width: 20
-                                color: "red"
+                                source: "images/life.png"
                                 visible: model.visible
                             }
                         }
@@ -1544,7 +1617,7 @@ Item{
                             }
                         Text {
                             id: _player1text
-                            text: qsTr("P1血量条")
+                            text: "HP："+ Math.round(bloodProgress_1.value / bloodProgress_1.to*100)+"%"
                             anchors.centerIn: parent
                             font.pointSize:  15
                         }
@@ -1568,11 +1641,11 @@ Item{
                         }
                         Repeater {
                             model: lifeModel_2
-                            Rectangle {
+                            Image{
                                 id: lifeItem_2
                                 height: 20
                                 width: 20
-                                color: "red"
+                                source: "images/life.png"
                                 visible: model.visible
                             }
                         }
@@ -1611,7 +1684,7 @@ Item{
                             }
                         Text {
                             id: _player2text
-                            text: qsTr("P2血量条")
+                            text: "HP："+ Math.round(bloodProgress_2.value / bloodProgress_2.to*100)+"%"
                             anchors.centerIn: parent
                             font.pointSize:  15
                         }

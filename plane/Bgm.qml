@@ -40,6 +40,10 @@ Item {
     property string boomMusicPath: "./wav/boom.wav"
     property alias boomVolume: boomVolume
 
+    property alias bossboomMusic: bossboommusic
+    property string bossboomMusicPath: "./wav/bossboom.mp3"
+    property alias bossboomVolume: bossboomVolume
+
     property alias backgroundMusic: backgroundmusic
     property string backgroundMusicPath: "./wav/backgroundmusic.mp3"
     property alias backgroundmusicVolume: backgroundmusicVolume
@@ -147,6 +151,16 @@ Item {
         audioOutput: AudioOutput {
             id:boomVolume
             volume: 0.3
+        }
+    }
+
+    MediaPlayer {
+        id:bossboommusic
+        source: bossboomMusicPath
+        // 设置音频输出
+        audioOutput: AudioOutput {
+            id: bossboomVolume
+            volume: 1
         }
     }
 
