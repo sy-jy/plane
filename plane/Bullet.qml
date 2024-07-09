@@ -241,6 +241,25 @@ Item {
                     specialBulletTimer.start() // 启动计时器
                 }
             }
+            break
+        case "boss3":
+            isShooted_boss = true
+            _boss_bullet.visible = true
+            if(!content.isDouble){
+                content.bossbloodProgress1.value += 1
+            }else{
+                content.bossbloodProgress2.value += 1
+            }
+            if(content.bossbloodProgress1.value/content.bossbloodProgress1.to<=0.5
+                ||content.bossbloodProgress2.value/content.bossbloodProgress2.to<=0.5){
+                _boss_bullet.y += enemy_bulletSpeed*2
+            }else{
+                _boss_bullet.y += enemy_bulletSpeed
+            }
+            if(_boss_bullet.y > window_Height){
+                isShooted_boss = false
+            }
+            break
         }
     }
     function pauseSpecialBullet(){

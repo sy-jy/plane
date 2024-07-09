@@ -1277,13 +1277,13 @@ Item{
                         //     boom.bossboom.visible = true
                         // }
                     }
-                    Text {
-                        id: blood
-                        text: qsTr("Boss血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
-                        textFormat: Text.StyledText
-                    }
+                    // Text {
+                    //     id: blood
+                    //     text: qsTr("Boss血量条")
+                    //     anchors.centerIn: parent
+                    //     font.pointSize:  15
+                    //     textFormat: Text.StyledText
+                    // }
                 }
             }
             //暂停图标（会放标签图），点击暂停会弹出对话框
@@ -1339,7 +1339,7 @@ Item{
                 }
                 Text {
                     id: _player
-                    text: qsTr("血量条")
+                    text: "HP："+ Math.round(bloodProgress.value / bloodProgress.to*100)+"%"
                     anchors.centerIn: parent
                     font.pointSize:  15
                 }
@@ -1491,13 +1491,13 @@ Item{
                     width: 535
                     color: "transparent"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    Text {
-                        id: blood2
-                        text: qsTr("Boss血量条")
-                        anchors.centerIn: parent
-                        font.pointSize:  15
-                        textFormat: Text.StyledText
-                    }
+                    // Text {
+                    //     id: blood2
+                    //     text: qsTr("Boss血量条")
+                    //     anchors.centerIn: parent
+                    //     font.pointSize:  15
+                    //     textFormat: Text.StyledText
+                    // }
                     ProgressBar{
                         id: bossbloodProgress2
                         visible:  false  //等Boss出来时血量可见
@@ -1569,13 +1569,6 @@ Item{
                         }
                         Repeater {
                             model: lifeModel_1
-                            // Rectangle {
-                            //     id: lifeItem_1
-                            //     height: 20
-                            //     width: 20
-                            //     color: "red"
-                            //     visible: model.visible
-                            // }
                             Image{
                                 id: lifeItem_1
                                 height: 20
@@ -1619,7 +1612,7 @@ Item{
                             }
                         Text {
                             id: _player1text
-                            text: qsTr("P1血量条")
+                            text: "HP："+ Math.round(bloodProgress_1.value / bloodProgress_1.to*100)+"%"
                             anchors.centerIn: parent
                             font.pointSize:  15
                         }
@@ -1643,13 +1636,6 @@ Item{
                         }
                         Repeater {
                             model: lifeModel_2
-                            // Rectangle {
-                            //     id: lifeItem_2
-                            //     height: 20
-                            //     width: 20
-                            //     color: "red"
-                            //     visible: model.visible
-                            // }
                             Image{
                                 id: lifeItem_2
                                 height: 20
@@ -1693,7 +1679,7 @@ Item{
                             }
                         Text {
                             id: _player2text
-                            text: qsTr("P2血量条")
+                            text: "HP："+ Math.round(bloodProgress_2.value / bloodProgress_2.to*100)+"%"
                             anchors.centerIn: parent
                             font.pointSize:  15
                         }

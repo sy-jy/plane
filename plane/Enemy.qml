@@ -53,8 +53,9 @@ Item {
     // 敌机图片的ListModel
     ListModel {
         id: bossImageModel
-        ListElement { source: "images/boss2.png";name:"boss2"}
+        ListElement { source: "images/boss2.png";name:"boss1"}
         ListElement { source: "images/boss3.png";name:"boss2"}
+        ListElement { source: "images/boss1.png";name:"boss3"}
     }
 
     // Boss组件
